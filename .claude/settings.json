@@ -11,6 +11,15 @@
     "ruflo-daa@ruflo": true,
     "ruflo-swarm@ruflo": true,
     "ruflo-rag-memory@ruflo": true,
-    "ruflo-security-audit@ruflo": true
+    "ruflo-security-audit@ruflo": true,
+    "vercel@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
   }
 }
