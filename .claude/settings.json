@@ -1,0 +1,16 @@
+{
+  "enabledPlugins": {
+    "ruflo-adr@ruflo": true,
+    "ruflo-agent@ruflo": true,
+    "ruflo-agentdb@ruflo": true,
+    "ruflo-aidefence@ruflo": true,
+    "ruflo-autopilot@ruflo": true,
+    "ruflo-browser@ruflo": true,
+    "ruflo-core@ruflo": true,
+    "ruflo-cost-tracker@ruflo": true,
+    "ruflo-daa@ruflo": true,
+    "ruflo-swarm@ruflo": true,
+    "ruflo-rag-memory@ruflo": true,
+    "ruflo-security-audit@ruflo": true
+  }
+}
