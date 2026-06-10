@@ -49,6 +49,19 @@ describe("POST /api/analyze", () => {
     expect(res.status).toBe(413);
   });
 
+  it("rate-limits a user after 20 analyses in a minute", async () => {
+    auth.mockResolvedValue({ userId: "user_ratelimit_test" });
+    const payload = { code: "const x = 1;", language: "typescript" };
+
+    for (let i = 0; i < 20; i++) {
+      const res = await POST(makeRequest(payload));
+      expect(res.status).toBe(200);
+    }
+    const blocked = await POST(makeRequest(payload));
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("Retry-After")).toMatch(/^\d+$/);
+  });
+
   it("analyzes valid code end-to-end through the provider registry", async () => {
     const code = `function findMax(values) {
   let max = -Infinity;

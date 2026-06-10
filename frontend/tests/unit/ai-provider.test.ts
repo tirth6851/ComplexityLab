@@ -25,12 +25,10 @@ describe("getAnalysisProvider", () => {
     expect(() => getAnalysisProvider("gemini")).toThrow(/not implemented/);
   });
 
-  it("exposes groq as scaffolded: resolvable but not yet analyzable", async () => {
+  it("resolves the groq provider", () => {
     const groq = getAnalysisProvider("groq");
     expect(groq.id).toBe("groq");
-    await expect(
-      groq.analyze({ code: "x", language: "typescript" }),
-    ).rejects.toThrow(/not enabled/);
+    expect(groq.name).toBe("Groq");
   });
 
   it("mock provider produces a CodeAnalysis", async () => {

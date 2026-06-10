@@ -14,12 +14,15 @@
 | Framework | Next.js 16 (App Router, Turbopack) + React 19 | RSC-first; client islands only where interactive |
 | Language | TypeScript (strict) | `@/*` alias → `frontend/` root |
 | Styling | Tailwind CSS v3.4 + CSS-variable tokens | Dark Lab design system; tokens in `app/tokens.css` + `app/globals.css` |
-| Auth | Clerk v7 (Google-only, signals API) | Route protection in `proxy.ts` |
+| Auth | Clerk v7 (Google-only, signals API) | Route protection in `proxy.ts`; no passwords → Clerk/Google handle credential attack protection |
 | Database | Supabase Postgres | Server-only service-role access; RLS deny-by-default |
 | Editor | `@monaco-editor/react` | Client-only (dynamic import), custom Dark-Lab themes |
-| AI | `lib/ai` provider abstraction | **Mock heuristic engine is live**; Groq/OpenAI/Anthropic/Gemini scaffolded |
-| Tests | Vitest + Testing Library (jsdom) | 16 files / 111 tests |
-| Deploy | Vercel | Root Directory = `frontend` |
+| AI | `lib/ai` provider abstraction | **Groq provider live** (`AI_PROVIDER=groq`) with automatic fallback to the deterministic heuristic engine; OpenAI/Anthropic/Gemini scaffolded |
+| Abuse control | `lib/rate-limit.ts` + `lib/action-limit.ts` | Sliding-window per-user limits on the API route and every server action |
+| Observability | `lib/log.ts` | Structured JSON logs (no code content) → Vercel runtime logs |
+| Legal | `/privacy`, `/terms`, `ConsentGate` | Site-wide forced consent (cookie `cl-consent`); decline leaves the site |
+| Tests | Vitest + Testing Library (jsdom) | 19 files / 129 tests |
+| Deploy | Vercel | Root Directory = `frontend`; GitHub `main` auto-deploys |
 
 ---
 
@@ -132,11 +135,48 @@ amortized costs ignored. The full result (incl. metrics) is persisted as
 - `types.ts` — `AnalyzeCodeInput` / `CodeAnalysis` contract shared by UI, API, DB.
 - `provider.ts` — `AnalysisProvider` interface + `ProviderId` (`mock | groq | openai | anthropic | gemini`).
 - `index.ts` — registry; selection via `AI_PROVIDER` env (default `mock`).
-- `providers/mock.ts` — wraps the heuristic engine (live today).
-- `providers/groq.ts` — scaffold with the documented integration sketch.
+- `providers/mock.ts` — wraps the heuristic engine.
+- `providers/groq.ts` — **live**: OpenAI-compatible chat completions
+  (`GROQ_MODEL`, default `llama-3.3-70b-versatile`), temperature 0,
+  `response_format: json_object`, 20s timeout. The completion is validated
+  (notation shape, confidence clamped, notes capped) before use. On ANY
+  failure — missing key, HTTP error, timeout, unparseable JSON — it falls
+  back to the heuristic engine and appends a note saying so; the analyzer
+  never breaks because the LLM did. Fallbacks are logged (`groq.fallback`).
 
 **Adding a vendor = one provider file + one registry entry.** Nothing in the
 UI, route handler, or persistence changes.
+
+### Abuse control & observability
+
+- `lib/rate-limit.ts` — sliding-window limiter (in-memory per warm instance;
+  the call signature is store-agnostic so Upstash/KV can slot in for strict
+  global limits). `lib/action-limit.ts` wraps it with Clerk auth for Server
+  Actions.
+- Budgets: analyze 20/min, saves 20/min, deletes 60/min, profile updates
+  10/min, delete-all-data 3/hour — all per user. `/api/analyze` returns 429
+  with `Retry-After`.
+- `lib/log.ts` emits one JSON line per event (`analyze.complete`,
+  `analyze.error`, `analyze.rate_limited`, `rate_limited`, `groq.fallback`)
+  with metadata only — **submitted code is never logged** (privacy-policy
+  commitment).
+- Login attempts/cooldown: not applicable — auth is passwordless (Google via
+  Clerk); Clerk's attack protection covers the auth surface, our limits cover
+  the app surface.
+
+### Legal / consent
+
+- `/privacy` and `/terms` (public, static) describe the actual data practices
+  (Clerk/Google identity, code processing, functional-only cookies, Groq
+  inference, retention/deletion) and standard liability terms.
+- `components/legal/consent-gate.tsx` renders a blocking dialog on every page
+  except the legal pages until the visitor accepts; acceptance is a 1-year
+  first-party cookie (`cl-consent=v1` — bump the version to re-prompt after
+  material policy changes). Declining redirects off the site
+  (google.com). Auth pages additionally carry an explicit "by continuing you
+  agree" line; the landing footer links both documents.
+- These artifacts are a solid baseline, **not legal advice** — have counsel
+  review before relying on them commercially.
 
 ---
 

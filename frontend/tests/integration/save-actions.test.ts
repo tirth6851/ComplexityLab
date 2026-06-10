@@ -4,6 +4,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+// The action rate-limit guard resolves the user via Clerk.
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: vi.fn(async () => ({ userId: "user_test_actions" })),
+}));
+
 vi.mock("@/lib/db/analyses", () => ({
   createAnalysis: vi.fn(),
 }));

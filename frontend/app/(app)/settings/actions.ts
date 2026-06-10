@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { deleteProfileData, updateProfile } from "@/lib/db/profiles";
 import { isLanguageId } from "@/lib/analysis/languages";
+import { checkActionLimit } from "@/lib/action-limit";
 
 export interface SettingsActionResult {
   ok: boolean;
@@ -13,6 +14,12 @@ export async function updateProfileAction(input: {
   displayName: string;
   preferredLanguage: string;
 }): Promise<SettingsActionResult> {
+  const limited = await checkActionLimit("update-profile", {
+    limit: 10,
+    windowMs: 60_000,
+  });
+  if (limited) return { ok: false, error: limited };
+
   const displayName =
     typeof input.displayName === "string"
       ? input.displayName.trim().slice(0, 80) || null
@@ -33,6 +40,12 @@ export async function updateProfileAction(input: {
 
 /** Danger zone: wipe the user's lab data (profile cascades to all rows). */
 export async function deleteAllDataAction(): Promise<SettingsActionResult> {
+  const limited = await checkActionLimit("delete-all-data", {
+    limit: 3,
+    windowMs: 60 * 60_000,
+  });
+  if (limited) return { ok: false, error: limited };
+
   const res = await deleteProfileData();
   if (!res.ok) return { ok: false, error: res.error };
 

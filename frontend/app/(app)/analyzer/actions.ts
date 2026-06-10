@@ -5,7 +5,11 @@ import { createAnalysis } from "@/lib/db/analyses";
 import { createSnippet } from "@/lib/db/snippets";
 import { findFunctionNames } from "@/lib/analysis/engine";
 import { isLanguageId } from "@/lib/analysis/languages";
+import { checkActionLimit } from "@/lib/action-limit";
 import type { CodeAnalysis } from "@/lib/ai/types";
+
+/** Per-user save budget: 20 saves per minute. */
+const SAVE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export interface SaveActionResult {
   ok: boolean;
@@ -38,6 +42,9 @@ export async function saveAnalysisAction(input: {
   language: string;
   analysis: CodeAnalysis;
 }): Promise<SaveActionResult> {
+  const limited = await checkActionLimit("save-analysis", SAVE_LIMIT);
+  if (limited) return { ok: false, error: limited };
+
   const invalid = validate(input.code, input.language);
   if (invalid) return { ok: false, error: invalid };
   if (!input.analysis?.time?.notation || !input.analysis?.space?.notation) {
@@ -62,6 +69,9 @@ export async function saveSnippetAction(input: {
   language: string;
   tags?: string[];
 }): Promise<SaveActionResult> {
+  const limited = await checkActionLimit("save-snippet", SAVE_LIMIT);
+  if (limited) return { ok: false, error: limited };
+
   const invalid = validate(input.code, input.language);
   if (invalid) return { ok: false, error: invalid };
 

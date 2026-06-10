@@ -42,7 +42,28 @@
   every sample, route auth, protected-route matcher, save actions, mappers,
   stats, components).
 - **Quality gates:** 0 TS errors · 0 ESLint errors · production build green ·
-  111/111 tests · runtime smoke test (public 200s, protected 307s, API 401).
+  runtime smoke test (public 200s, protected 307s, API 401).
+
+### Hardening + AI + legal (second session pass)
+- **Groq provider is live** (`lib/ai/providers/groq.ts`): chat-completions with
+  strict-JSON output, validation/clamping, 20s timeout, and automatic fallback
+  to the heuristic engine on any failure. Enabled via `AI_PROVIDER=groq`.
+- **Rate limiting:** sliding-window in-memory limiter (`lib/rate-limit.ts`);
+  `/api/analyze` 20/min/user (429 + Retry-After), saves 20/min, deletes
+  60/min, profile updates 10/min, delete-all-data 3/hour. (Per-instance on
+  serverless; swap to Upstash/KV for strict global limits.)
+- **Observability:** structured JSON logging (`lib/log.ts`) for analysis
+  requests (language, size, duration, result class, provider, rate-limit and
+  fallback events) — visible in Vercel runtime logs. Code content is never
+  logged.
+- **Legal pack:** `/privacy` + `/terms` pages, footer + auth-page links, and a
+  site-wide **consent gate** (accept → 1-year cookie; decline → redirected off
+  the site). Data deletion already supported in-app (danger zone).
+- **Login attempts/cooldown:** not applicable as passwords don't exist —
+  auth is Google-only via Clerk, which enforces its own bot/attack protection;
+  our own endpoints are covered by the rate limits above.
+- Tests grew to **19 files / 129 tests** (rate limiter, Groq parse/fallback,
+  consent gate, 429 path).
 
 ---
 
@@ -65,10 +86,10 @@
   `result` JSONB re-rendered through the results panel.
 - **Snippet → analyzer round-trip** — "Open in analyzer" on snippet rows;
   tags editing UI (Tag primitive already supports remove/select).
-- **Groq provider integration** — implement `providers/groq.ts` (strict-JSON
-  prompt → `CodeAnalysis`, fallback to mock on failure), streaming later.
 - **Analyzer polish** — shareable results, keyboard shortcut (⌘⏎ to analyze),
   per-user preferred language default from profile.
+- **Marketing landing page upgrade + Dark Lab visual polish pass.**
+- **Global rate limiting** — move the limiter window to Upstash/Vercel KV.
 
 ## 🗺️ Mid-term
 

@@ -1,28 +1,219 @@
 import type { AnalysisProvider } from "../provider";
+import type {
+  AnalysisMetric,
+  AnalyzeCodeInput,
+  CodeAnalysis,
+} from "../types";
+import { tierFromNotation } from "@/lib/complexity";
+import { formatOps, growthValue } from "@/lib/analysis/growth";
+import { logEvent } from "@/lib/log";
+import { mockProvider } from "./mock";
 
 /**
- * Groq provider — SCAFFOLD ONLY (Phase 4 architecture; integration is a later
- * phase). The env contract is already in place:
+ * Groq provider — LLM-backed complexity analysis via the OpenAI-compatible
+ * chat-completions API. Server-only by construction (the key never leaves
+ * the server; this module is only reached through the /api/analyze handler).
  *
- *   GROQ_API_KEY   server-only secret
- *   GROQ_MODEL     model id (default "llama-3.3-70b-versatile")
- *
- * Implementation sketch (when enabled):
- *  1. POST https://api.groq.com/openai/v1/chat/completions with a system
- *     prompt that demands strict-JSON output matching `CodeAnalysis`.
- *  2. Validate/repair the JSON, clamp metric fractions, and set
- *     `provider: "groq"`.
- *  3. Fall back to the mock heuristic engine on rate-limit or parse failure.
- *
- * OpenAI / Anthropic / Gemini providers follow the same pattern: one file
- * here implementing `AnalysisProvider`, one registry entry in `lib/ai`.
+ * Resilience: on ANY failure (missing key, network, rate limit, bad JSON)
+ * it falls back to the deterministic heuristic engine and says so in the
+ * result notes — the analyzer never breaks because the LLM did.
  */
+
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+const TIMEOUT_MS = 20_000;
+
+const VALID_NOTATION = /^O\(.{1,24}\)$/;
+
+const SYSTEM_PROMPT = `You are a precise static complexity analyzer. Given source code, determine its asymptotic time and space complexity.
+
+Respond with ONLY a JSON object — no markdown, no code fences, no commentary:
+{
+  "time": { "notation": "O(...)", "reason": "one short sentence" },
+  "space": { "notation": "O(...)", "reason": "one short sentence" },
+  "verdict": "one sentence summarizing scalability, starting with the time and space classes",
+  "notes": ["2-5 short observations about the code's structure"],
+  "confidence": 0.0
+}
+
+Rules:
+- Prefer the standard classes: O(1), O(log n), O(n), O(n log n), O(n²), O(n³), O(2ⁿ), O(n!). Use unicode superscripts (², ⁿ) as shown.
+- "space" means auxiliary space, excluding the input itself.
+- "confidence" is your certainty from 0 to 1.
+- Analyze the dominant cost path; mention amortized behavior in notes if relevant.`;
+
+interface GroqJson {
+  time?: { notation?: unknown; reason?: unknown };
+  space?: { notation?: unknown; reason?: unknown };
+  verdict?: unknown;
+  notes?: unknown;
+  confidence?: unknown;
+}
+
+function asNotation(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return VALID_NOTATION.test(trimmed) ? trimmed : null;
+}
+
+function asSentence(value: unknown, max = 300): string | null {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim().slice(0, max)
+    : null;
+}
+
+function metricsFor(
+  time: string,
+  space: string,
+  confidence: number,
+): AnalysisMetric[] {
+  const N = 1000;
+  const ops = growthValue(time, N);
+  const units = growthValue(space, N);
+  return [
+    {
+      id: "ops",
+      label: `EST. OPS @ N=${N}`,
+      value: formatOps(ops),
+      fraction: Math.min(1, Math.log10(Math.max(ops, 1)) / 9),
+      tier: tierFromNotation(time),
+      hint: `${time} growth at n = ${N}`,
+    },
+    {
+      id: "space",
+      label: `EST. MEMORY @ N=${N}`,
+      value: `${formatOps(units)} units`,
+      fraction: Math.min(1, Math.log10(Math.max(units, 1)) / 6),
+      tier: tierFromNotation(space),
+      hint: `${space} auxiliary space`,
+    },
+    {
+      id: "confidence",
+      label: "MODEL CONFIDENCE",
+      value: `${Math.round(confidence * 100)}%`,
+      fraction: confidence,
+      tier: "accent",
+      hint: `Groq · ${process.env.GROQ_MODEL ?? DEFAULT_MODEL}`,
+    },
+  ];
+}
+
+/** Strip accidental code fences and parse the model's JSON. */
+export function parseGroqAnalysis(raw: string): CodeAnalysis | null {
+  const cleaned = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
+
+  let json: GroqJson;
+  try {
+    json = JSON.parse(cleaned) as GroqJson;
+  } catch {
+    return null;
+  }
+
+  const time = asNotation(json.time?.notation);
+  const space = asNotation(json.space?.notation);
+  if (!time || !space) return null;
+
+  const confidence = Math.min(
+    0.99,
+    Math.max(0.3, typeof json.confidence === "number" ? json.confidence : 0.7),
+  );
+  const notes = (Array.isArray(json.notes) ? json.notes : [])
+    .map((n) => asSentence(n))
+    .filter((n): n is string => n !== null)
+    .slice(0, 6);
+
+  return {
+    time: {
+      notation: time,
+      tier: tierFromNotation(time),
+      reason: asSentence(json.time?.reason) ?? "Model assessment.",
+    },
+    space: {
+      notation: space,
+      tier: tierFromNotation(space),
+      reason: asSentence(json.space?.reason) ?? "Model assessment.",
+    },
+    verdict:
+      asSentence(json.verdict, 400) ?? `${time} time, ${space} space.`,
+    notes,
+    metrics: metricsFor(time, space, confidence),
+    confidence,
+    provider: "groq",
+  };
+}
+
+async function fallback(
+  input: AnalyzeCodeInput,
+  reason: string,
+): Promise<CodeAnalysis> {
+  logEvent("groq.fallback", { reason });
+  const result = await mockProvider.analyze(input);
+  return {
+    ...result,
+    notes: [
+      ...result.notes,
+      "AI provider unavailable — this is the built-in heuristic engine's result.",
+    ],
+  };
+}
+
 export const groqProvider: AnalysisProvider = {
   id: "groq",
   name: "Groq",
-  async analyze() {
-    throw new Error(
-      "Groq provider is scaffolded but not enabled yet. Set AI_PROVIDER=mock (default) until the integration phase.",
-    );
+  async analyze(input) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey || apiKey.startsWith("<")) {
+      return fallback(input, "missing_api_key");
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const res = await fetch(GROQ_URL, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: process.env.GROQ_MODEL ?? DEFAULT_MODEL,
+          temperature: 0,
+          max_tokens: 800,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `Language: ${input.language}\n\nCode:\n${input.code}`,
+            },
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        return fallback(input, `http_${res.status}`);
+      }
+
+      const data = (await res.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) return fallback(input, "empty_completion");
+
+      const parsed = parseGroqAnalysis(content);
+      if (!parsed) return fallback(input, "unparseable_completion");
+      return parsed;
+    } catch (e) {
+      return fallback(
+        input,
+        e instanceof Error && e.name === "AbortError" ? "timeout" : "network",
+      );
+    } finally {
+      clearTimeout(timer);
+    }
   },
 };

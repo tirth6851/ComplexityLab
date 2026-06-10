@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ConsentGate } from "@/components/legal/consent-gate";
 import { SITE } from "@/constants/site";
 import "./globals.css";
 
@@ -56,6 +57,7 @@ export default function RootLayout({
           className={`${GeistSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
           {children}
+          <ConsentGate />
         </body>
       </html>
     </ClerkProvider>

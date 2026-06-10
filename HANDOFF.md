@@ -29,8 +29,12 @@ Signal Green accent.
 - **/analyses, /snippets** — lists with two-step delete, empty/error/loading states.
 - **/settings/profile** (display name, preferred language → Supabase) and
   **/settings/account** (Clerk identity, theme, sign-out, delete-all-data danger zone).
-- **No AI yet by design** — `lib/ai` is a provider abstraction with the heuristic engine
-  as the live "mock" provider; Groq/OpenAI/Anthropic/Gemini slot in without rewrites.
+- **AI analysis via Groq** (`AI_PROVIDER=groq`) with automatic fallback to the
+  deterministic heuristic engine on any failure; OpenAI/Anthropic/Gemini slot
+  into `lib/ai` without rewrites.
+- **Rate limiting** on the API and every server action, **structured logging**
+  (no code content), and a **legal pack**: `/privacy`, `/terms`, and a
+  site-wide consent gate (decline → redirected off the site).
 
 **The two things blocking real usage** (user actions, not code):
 1. **Apply the DB migration** (`supabase/migrations/20260609000000_init.sql`) to the
@@ -50,8 +54,10 @@ Signal Green accent.
 | **AI architecture** | ✅ | `lib/ai` registry; `AI_PROVIDER=mock` default |
 | **Database layer** | ✅ code / ⚠️ ops | Schema + RLS + server-only data layer; **migration not yet applied** |
 | **App flows** | ✅ | Analyses, snippets, settings, save/delete, empty/error/loading |
-| **Tests** | ✅ | Vitest + RTL, 16 files / 111 tests |
-| Groq integration | 🔮 | Scaffolded (`lib/ai/providers/groq.ts`), intentionally not enabled |
+| **Tests** | ✅ | Vitest + RTL, 19 files / 129 tests |
+| **Groq integration** | ✅ | Live behind `AI_PROVIDER=groq`, auto-fallback to heuristic engine |
+| **Rate limiting + logging** | ✅ | Per-user sliding-window limits on API + all actions; structured JSON logs |
+| **Legal pack** | ✅ | `/privacy`, `/terms`, forced consent gate (decline → off-site) |
 | Lessons / quizzes / progress persistence | 🔮 | Not started (see ROADMAP) |
 | Deployment | ⚙️ | Vercel-ready; Root Directory = `frontend`; env vars needed |
 

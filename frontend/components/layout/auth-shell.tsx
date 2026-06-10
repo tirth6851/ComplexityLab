@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Logo } from "./logo";
 
 /** Centered, branded container shared by the sign-in and sign-up pages. */
@@ -29,6 +30,17 @@ export function AuthShell({
             <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
           </div>
           {children}
+          <p className="mt-5 text-center text-xs leading-relaxed text-muted-foreground">
+            By continuing you agree to the{" "}
+            <Link href="/terms" className="text-primary hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="text-primary hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </div>
         <p className="mt-6 text-center text-sm text-muted-foreground">{footer}</p>
       </div>
