@@ -70,13 +70,20 @@
 ## 🔜 Immediate (operational, before features)
 
 1. **Apply the database migration** — `supabase/migrations/20260609000000_init.sql`
-   via the Supabase SQL editor or `supabase db push`. The app intentionally
-   degrades to error/empty states until this runs.
+   via the Supabase SQL editor (project `hhnmxyyrihrpyerdmgdw`) or
+   `supabase db push`. The app intentionally degrades to error/empty states
+   until this runs. **This is the only step blocking the full save flow.**
 2. **Rotate the historically leaked keys** (Clerk, Supabase incl. service
-   role, Groq) — they exist in git history (`0416f99`).
-3. **Enable Google SSO** in the Clerk dashboard (runtime prerequisite).
-4. **Vercel env vars** — set all of `frontend/.env.example` (Production +
-   Preview), Root Directory = `frontend`.
+   role, Groq). The leaked `.env.local` has been **purged from git history**
+   (force-pushed 2026-06-09), but GitHub can cache orphaned commits and the
+   values appeared in chat transcripts — rotation remains the real fix.
+   After rotating: update Vercel env vars + local `.env.local`.
+3. ~~Enable Google SSO~~ — **verified enabled**: the live sign-in button
+   redirects to accounts.google.com (checked 2026-06-09 via browser).
+4. ~~Vercel env vars / deploy~~ — **done**: production live at
+   complexity-lab-eight.vercel.app, auto-deploys from GitHub `main`.
+   Note: the Clerk instance is a **dev instance** (pk_test keys,
+   accounts.dev); create a production Clerk instance before real launch.
 
 ---
 
