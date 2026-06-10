@@ -17,12 +17,21 @@ const REGISTRY: Partial<Record<ProviderId, AnalysisProvider>> = {
 };
 
 /**
+ * When AI_PROVIDER isn't set explicitly, prefer Groq if a real key is
+ * configured (it falls back to the heuristic engine on any failure anyway),
+ * else the deterministic mock engine.
+ */
+function defaultProviderId(): ProviderId {
+  const key = process.env.GROQ_API_KEY;
+  return key && !key.startsWith("<") ? "groq" : "mock";
+}
+
+/**
  * Resolve the active analysis provider. Selection is env-driven
- * (`AI_PROVIDER`), defaulting to the deterministic mock engine, so flipping
- * to a real LLM later is a config change — not a rewrite.
+ * (`AI_PROVIDER`), so flipping vendors is a config change — not a rewrite.
  */
 export function getAnalysisProvider(id?: string): AnalysisProvider {
-  const requested = id ?? process.env.AI_PROVIDER ?? "mock";
+  const requested = id ?? process.env.AI_PROVIDER ?? defaultProviderId();
   if (!isProviderId(requested)) {
     throw new Error(
       `Unknown AI provider "${requested}". Valid ids: mock, groq, openai, anthropic, gemini.`,

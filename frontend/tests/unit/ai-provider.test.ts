@@ -6,11 +6,23 @@ afterEach(() => {
 });
 
 describe("getAnalysisProvider", () => {
-  it("defaults to the mock heuristic engine", () => {
+  it("defaults to the mock heuristic engine when no Groq key is set", () => {
+    vi.stubEnv("GROQ_API_KEY", "");
     expect(getAnalysisProvider().id).toBe("mock");
   });
 
-  it("honors AI_PROVIDER from the environment", () => {
+  it("defaults to groq when a real key is configured", () => {
+    vi.stubEnv("GROQ_API_KEY", "gsk_real_key");
+    expect(getAnalysisProvider().id).toBe("groq");
+  });
+
+  it("treats placeholder keys as unconfigured", () => {
+    vi.stubEnv("GROQ_API_KEY", "<your-groq-api-key>");
+    expect(getAnalysisProvider().id).toBe("mock");
+  });
+
+  it("honors an explicit AI_PROVIDER over the default", () => {
+    vi.stubEnv("GROQ_API_KEY", "gsk_real_key");
     vi.stubEnv("AI_PROVIDER", "mock");
     expect(getAnalysisProvider().id).toBe("mock");
   });
