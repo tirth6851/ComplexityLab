@@ -18,7 +18,11 @@ const isProtectedRoute = createRouteMatcher([...PROTECTED_ROUTES]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    await auth.protect();
+    // Send signed-out visitors to the branded in-app sign-in page rather
+    // than Clerk's hosted accounts.dev page.
+    await auth.protect({
+      unauthenticatedUrl: new URL("/sign-in", req.url).toString(),
+    });
   }
 });
 
