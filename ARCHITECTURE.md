@@ -21,7 +21,7 @@
 | Abuse control | `lib/rate-limit.ts` + `lib/action-limit.ts` | Sliding-window per-user limits on the API route and every server action |
 | Observability | `lib/log.ts` | Structured JSON logs (no code content) → Vercel runtime logs |
 | Legal | `/privacy`, `/terms`, `ConsentGate` | Site-wide forced consent (cookie `cl-consent`); decline leaves the site |
-| Tests | Vitest + Testing Library (jsdom) | 19 files / 129 tests |
+| Tests | Vitest + Testing Library (jsdom) | 19 files / 131 tests |
 | Deploy | Vercel | Root Directory = `frontend`; GitHub `main` auto-deploys |
 
 ---
@@ -88,8 +88,14 @@ ComplexityLab/
 | `POST /api/analyze` | route handler | 401 JSON guard | Runs the analysis provider |
 
 Protection is enforced in `proxy.ts` (`PROTECTED_ROUTES`, exported for tests).
-The API route intentionally guards itself (`auth()` → 401 JSON) instead of
-relying on the redirecting matcher.
+`auth.protect({ unauthenticatedUrl: "/sign-in" })` keeps signed-out browsers on
+the branded in-app sign-in page (without it, Clerk bounces to its hosted
+accounts.dev page). Non-document requests get a 404 from Clerk by design. The
+API route intentionally guards itself (`auth()` → 401 JSON) instead of relying
+on the redirecting matcher.
+
+Public legal routes: `/privacy` and `/terms` (static), plus the site-wide
+consent gate mounted in the root layout.
 
 ---
 
@@ -209,13 +215,18 @@ Indexes on `(profile_id, created_at desc)` for both child tables.
   instead of throwing; pages render `ErrorState`/banner + empty states when
   the database is unreachable or unprovisioned.
 
-### ⚠️ Migration must be applied manually
+### ⚠️ Migration must be applied manually (still pending as of 2026-06-09)
 
-The Supabase project in the app's env (`hhnmxyyrihrpyerdmgdw`) was not
-reachable from this environment. Apply the migration with either:
+The app's Supabase project (`hhnmxyyrihrpyerdmgdw`) is **active and the service
+key works** (verified via PostgREST: auth OK, `profiles` table missing), but no
+tool in this environment can run DDL against it: the claude.ai Supabase MCP is
+connected to a different account (only contains inactive project
+`lqlqurgthkdknxwwgygx`), there is no Supabase CLI/access token on disk, and
+PostgREST can't execute DDL. Apply with either:
 
 - Supabase Dashboard → SQL editor → paste `supabase/migrations/20260609000000_init.sql`, or
-- `supabase link --project-ref <ref> && supabase db push` (Supabase CLI).
+- `supabase link --project-ref hhnmxyyrihrpyerdmgdw && supabase db push` (CLI), or
+- reconnect the Supabase MCP to the owning account and let a session apply it.
 
 Until then the app runs with empty/error states (by design).
 
@@ -258,15 +269,40 @@ tests/
 
 ---
 
+## Deployment (live)
+
+- **Production:** https://complexity-lab-eight.vercel.app — Vercel project
+  `complexity-lab` (`prj_LmgNnSjUg2VP5A3c7vr1yDvDLqvm`), team
+  `tirths-projects-de842079` (`team_AWtSLsBY0CWnV6UIjpRzmECQ`).
+- **Pipeline:** GitHub `main` (`tirth6851/ComplexityLab`, public) auto-deploys
+  to production. **Pushing main = deploying.** Root Directory = `frontend`,
+  framework nextjs, Node 22.
+- **Env vars:** all of `.env.example` uploaded to production+preview+development
+  in a prior session. `AI_PROVIDER` is intentionally NOT set there — the
+  registry defaults to groq because `GROQ_API_KEY` is present.
+- **Tooling state (2026-06-09):** the Vercel CLI token on this machine is dead
+  (403) — env-var changes need a fresh `vercel login`. The claude.ai Vercel MCP
+  integration works for deployments/builds/logs but has no env-var tools.
+- **Verified live (2026-06-09, Playwright):** consent gate accept/decline flows,
+  legal pages pre-consent, protected-route redirect to `/sign-in`, Google SSO
+  redirect reaching accounts.google.com, API 401 for unauthenticated calls.
+- **Clerk:** dev instance (`pk_test`, accounts.dev hosted domain). A production
+  Clerk instance is required before public launch.
+
 ## Security model
 
 - `SUPABASE_SERVICE_ROLE_KEY`, `CLERK_SECRET_KEY`, `GROQ_API_KEY` are
   server-only; `lib/db/admin.ts` imports `server-only` so a client-bundle leak
   fails the build.
 - RLS deny-by-default; service-role queries always scoped by Clerk `userId`.
-- API route validates size (100 KB cap), shape, and language allow-list.
-- ⚠️ **Outstanding:** keys committed in early history (commit `0416f99`) still
-  need rotation in the Clerk/Supabase/Groq dashboards.
+- API route validates size (100 KB cap), shape, and language allow-list, and is
+  rate-limited per user; all server actions are rate-limited too.
+- **History purge (2026-06-09):** the once-leaked `.env.local` was removed from
+  every commit (filter-branch + force-push); verified absent from all reachable
+  history.
+- ⚠️ **Outstanding:** rotate the once-leaked keys anyway (GitHub may cache
+  orphaned commits; values appeared in chat transcripts). After rotation update
+  `.env.local` + Vercel env vars.
 
 ---
 

@@ -8,6 +8,10 @@ ComplexityLab is an interactive web app for learning algorithms and computationa
 complexity (Big-O). It features an algorithm catalog, animated visualizers, an
 AI tutor, and per-user progress tracking.
 
+**Production:** https://complexity-lab-eight.vercel.app — GitHub `main`
+auto-deploys, so **pushing main = deploying production**. The Vercel project's
+Root Directory is `frontend`.
+
 ## Stack
 
 - **Framework:** Next.js (App Router) + TypeScript + Tailwind CSS — app lives in `frontend/`

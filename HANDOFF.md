@@ -2,10 +2,13 @@
 
 > **Audience:** A senior engineer — human or a fresh Claude Code session — opening this
 > repository with **zero prior conversation history**.
-> **Status as of this handoff:** **Functional MVP complete** (analyzer, Supabase data layer,
-> real app flows, AI provider architecture, test suite). All gates green:
-> 0 TS errors · 0 ESLint errors · production build passes · **111/111 tests pass**.
-> Work is staged/unstaged in the working tree, **not committed** (per project rule).
+> **Status as of this handoff (2026-06-09):** **Deployed to production and verified.**
+> Functional MVP + hardening complete: analyzer with live Groq AI (heuristic fallback),
+> Supabase data layer, real app flows, rate limiting, structured logging, legal/consent
+> pack. All gates green: 0 TS errors · 0 ESLint errors · production build passes ·
+> **131/131 tests pass**. All work is **committed and pushed** to GitHub `main`
+> (history was **rewritten** on 2026-06-09 to purge a leaked `.env.local` — old SHAs are dead).
+> **Live:** https://complexity-lab-eight.vercel.app (auto-deploys from GitHub `main`).
 > **Companion docs:** `ARCHITECTURE.md` (technical deep-dive) · `ROADMAP.md` (status ledger +
 > plan) · `DESIGN_HANDOFF.md` (design system) · `CLAUDE.md` (session instructions).
 > **If you have 2 minutes, read [Quick Start](#quick-start-for-new-sessions) at the bottom.**
@@ -36,10 +39,18 @@ Signal Green accent.
   (no code content), and a **legal pack**: `/privacy`, `/terms`, and a
   site-wide consent gate (decline → redirected off the site).
 
-**The two things blocking real usage** (user actions, not code):
-1. **Apply the DB migration** (`supabase/migrations/20260609000000_init.sql`) to the
-   Supabase project — the app shows error/empty states until then (by design).
-2. **Enable Google SSO in the Clerk dashboard** (and rotate the historically leaked keys).
+**Production verification (2026-06-09, real browser via Playwright against the live URL):**
+consent gate appears → Accept sets `cl-consent=v1` and dismisses → Decline lands on
+google.com → `/privacy`/`/terms` readable pre-consent → unauthed `/analyzer` 307s to the
+branded `/sign-in` → **"Continue with Google" reaches the real accounts.google.com sign-in
+screen (Google SSO is enabled in Clerk — confirmed working)** → unauthed API returns 401.
+
+**The one thing blocking the full save flow** (user action, not code):
+1. **Apply the DB migration** (`supabase/migrations/20260609000000_init.sql`) in the
+   Supabase SQL editor for project `hhnmxyyrihrpyerdmgdw` — the app shows error/empty
+   states until then (by design). The MCP-connected Supabase account does NOT contain
+   this project, and DDL cannot run through the service key, so no session can automate it.
+2. (Strongly recommended) **Rotate the historically leaked keys** — see Security Notes.
 
 ---
 
@@ -59,7 +70,7 @@ Signal Green accent.
 | **Rate limiting + logging** | ✅ | Per-user sliding-window limits on API + all actions; structured JSON logs |
 | **Legal pack** | ✅ | `/privacy`, `/terms`, forced consent gate (decline → off-site) |
 | Lessons / quizzes / progress persistence | 🔮 | Not started (see ROADMAP) |
-| Deployment | ⚙️ | Vercel-ready; Root Directory = `frontend`; env vars needed |
+| **Deployment** | ✅ | **Live**: complexity-lab-eight.vercel.app · project `complexity-lab` (team `tirths-projects-de842079`) · Root Directory `frontend` · GitHub `main` auto-deploys · all env vars uploaded (prod+preview+dev) |
 
 ---
 
@@ -89,12 +100,22 @@ Signal Green accent.
   `lib/db/admin.ts` imports `server-only` so a client leak fails the build.
 - `.env.local` is git-ignored — never commit it.
 
+### History purge (done 2026-06-09)
+- The leaked `.env.local` was **removed from every commit** via `git filter-branch`
+  (+ reflog expire + gc) and **force-pushed** to GitHub. Old SHAs (`0416f99`,
+  `0c7a42a`, `d6daf5e`, `4d2e397`) were rewritten; current history starts at
+  `9eb130a` → … → `56eaef5` (old "claude setup", now secret-free). Verified: no
+  `.env.local` in any reachable commit.
+
 ### ⚠️ Outstanding (action required)
-- **Rotate all keys.** Live Clerk/Supabase(incl. service-role)/Groq keys were committed
-  in early history (commit `0416f99`) and remain there. Rotation in the vendor
-  dashboards is the only real remediation; then update `frontend/.env.local` + Vercel.
-- RLS is enabled deny-by-default, so even leaked anon keys read nothing — but the old
+- **Rotate all keys anyway.** GitHub can cache orphaned commits after a force-push,
+  and the values appeared in prior chat transcripts. Rotation in the vendor dashboards
+  (Clerk, Supabase, Groq) is the only true remediation; afterwards update
+  `frontend/.env.local` **and the Vercel env vars**.
+- RLS is enabled deny-by-default, so leaked anon keys read nothing — but the old
   **service-role** key bypasses RLS: rotate it first.
+- The Clerk instance is a **dev instance** (`pk_test`, accounts.dev). Create a
+  production Clerk instance (custom domain) before a real public launch.
 
 ---
 
@@ -132,11 +153,39 @@ Signal Green accent.
    zone); save actions from the analyzer; `(app)/error.tsx`; loading skeletons;
    deleted `lib/mock-data.ts` — **no mock data remains anywhere**.
 6. **Tests:** Vitest + Testing Library; `server-only` stubbed via alias; Clerk/`next/*`
-   mocked where needed; 111 tests incl. engine-vs-samples, API auth, route matcher.
+   mocked where needed; engine-vs-samples, API auth, route matcher all covered.
 7. **Bug hunt:** fixed an invalid engine regex, stale `.next` types, a React 19
    `react-hooks/refs` violation (ref → state), and a vitest/vite type clash (dropped
    `@vitejs/plugin-react`; esbuild handles TSX). Runtime smoke test: `/`+`/sign-in`
    → 200, `/analyzer`+`/dashboard` → 307 redirect, unauthenticated API → 401.
+
+### Hardening + deployment session (2026-06-09, same day, second pass)
+1. **Groq provider implemented and live** (`lib/ai/providers/groq.ts`): strict-JSON
+   chat completion, validation/clamping, 20s timeout, auto-fallback to the heuristic
+   engine on any failure (logged as `groq.fallback`). Registry defaults to groq when a
+   real `GROQ_API_KEY` exists and `AI_PROVIDER` is unset (the dead Vercel API token —
+   see below — blocked adding env vars remotely, so the smart default ships AI without
+   dashboard work).
+2. **Rate limiting** (`lib/rate-limit.ts` + `lib/action-limit.ts`): analyze 20/min,
+   saves 20/min, deletes 60/min, profile 10/min, wipe-all 3/h — per user, 429 +
+   `Retry-After` on the API. In-memory per warm instance (Upstash/KV later).
+   Login-attempt cooldowns are N/A: passwordless Google-only auth; Clerk handles
+   credential attack protection.
+3. **Structured logging** (`lib/log.ts`): JSON events for analyze requests/errors/
+   rate-limits/fallbacks → Vercel runtime logs. **Code content is never logged.**
+4. **Legal pack:** `/privacy` + `/terms` (match actual data practices), site-wide
+   `ConsentGate` (accept → 1-year `cl-consent=v1` cookie; decline → google.com;
+   legal pages exempt), auth-page agreement line, landing footer links.
+   *Baseline, not legal advice — have counsel review.*
+5. **Git history purge** of the leaked `.env.local` + force-push (details above).
+6. **Deployed + verified in production** (see verification block at top). Also fixed
+   `auth.protect()` to redirect to the branded `/sign-in` via `unauthenticatedUrl`
+   (was bouncing to Clerk's hosted accounts.dev page).
+7. Findings for future sessions: the Vercel CLI token on disk
+   (`~/AppData/Roaming/xdg.data/com.vercel.cli/auth.json`) returns **403 (dead)** —
+   env-var changes need a fresh `vercel login`; the claude.ai Vercel MCP works for
+   deployments/logs (no env-var tools). The claude.ai Supabase MCP is connected to an
+   account that does NOT own the app's project — migrations are manual.
 
 ---
 
@@ -170,21 +219,33 @@ In production set these as **Vercel environment variables**; Root Directory = `f
 5. **Keep Vercel/Clerk/Supabase compatibility;** no new deps without strong justification.
 6. **Verify before declaring done:**
    `npm run typecheck && npm run lint && npm run build && npm run test`.
-7. **Never commit secrets. Don't commit at all unless asked** — leave changes staged.
+7. **Never commit secrets.** Don't commit/push unless asked — note that pushing to
+   GitHub `main` **auto-deploys production** on Vercel, so a push is a deploy.
 
 ---
 
 ## Quick Start For New Sessions
 
 - **Stack:** Next.js 16 (App Router) · React 19 · TS strict · Tailwind v3 · Clerk
-  (Google-only) · Supabase · Vitest. App lives in **`frontend/`**.
-- **State:** Functional MVP. Analyzer (heuristic engine, no AI yet), real DB-backed
-  flows, settings, tests. All gates green; nothing committed.
+  (Google-only, dev instance) · Supabase · Groq (live, with heuristic fallback) ·
+  Vitest. App lives in **`frontend/`**.
+- **State:** Deployed + verified at **https://complexity-lab-eight.vercel.app**.
+  Analyzer with Groq AI, DB-backed flows, settings, rate limiting, logging, legal/
+  consent pack, 131 tests. Everything committed and pushed; GitHub `main`
+  auto-deploys production (**a push is a deploy**).
 - **Run it:** `cd frontend && npm install && npm run dev` → http://localhost:3000.
   Verify: `npm run typecheck && npm run lint && npm run build && npm run test`.
-- **Runtime prerequisites:** apply `supabase/migrations/…_init.sql` to the Supabase
-  project; enable Google in the Clerk dashboard; rotate the historically leaked keys.
+- **The one blocker:** the DB migration (`supabase/migrations/…_init.sql`) is **not
+  applied** — saves/dashboard show error/empty states until the user runs it in the
+  Supabase SQL editor (project `hhnmxyyrihrpyerdmgdw`; not reachable from any tool
+  in this environment). Google SSO is already enabled and verified.
+- **Security debt:** rotate the once-leaked Clerk/Supabase/Groq keys (history was
+  purged + force-pushed, but rotation is the true fix), then update Vercel env vars.
+- **Tooling gotchas:** Vercel CLI token on disk is dead (403) — `vercel login` needed
+  for env-var changes; claude.ai Vercel MCP handles deployments/logs; claude.ai
+  Supabase MCP is connected to the wrong account for this project.
 - **Read next:** `ARCHITECTURE.md` for how everything fits; `ROADMAP.md` for what to
-  build next (recommended: operational unblock, then the Groq provider).
+  build next (recommended: `/analyses/[id]` detail view, landing/visual polish,
+  global rate limiting, production Clerk instance).
 
 *End of handoff.*

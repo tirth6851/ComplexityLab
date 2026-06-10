@@ -62,8 +62,14 @@
 - **Login attempts/cooldown:** not applicable as passwords don't exist —
   auth is Google-only via Clerk, which enforces its own bot/attack protection;
   our own endpoints are covered by the rate limits above.
-- Tests grew to **19 files / 129 tests** (rate limiter, Groq parse/fallback,
-  consent gate, 429 path).
+- Tests grew to **19 files / 131 tests** (rate limiter, Groq parse/fallback,
+  consent gate, 429 path, provider-default resolution).
+- **Secrets purge:** leaked `.env.local` removed from all git history
+  (filter-branch + force-push); rotation still recommended.
+- **Deployed + verified live** (complexity-lab-eight.vercel.app): consent
+  accept/decline, legal pages, `/sign-in` redirect for protected routes
+  (fixed via `unauthenticatedUrl`), Google SSO redirect to
+  accounts.google.com confirmed in a real browser.
 
 ---
 
