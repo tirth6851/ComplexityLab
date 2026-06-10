@@ -22,6 +22,23 @@ export const metadata: Metadata = {
   description: SITE.description,
 };
 
+/**
+ * Runs before first paint to set the theme class, avoiding a flash of the wrong
+ * theme. Dark-first: defaults to dark unless the user has explicitly chosen
+ * light (persisted in localStorage under "theme").
+ */
+const themeScript = `
+(function () {
+  try {
+    var stored = localStorage.getItem("theme");
+    var dark = stored ? stored === "dark" : true;
+    document.documentElement.classList.toggle("dark", dark);
+  } catch (e) {
+    document.documentElement.classList.add("dark");
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -31,7 +48,10 @@ export default function RootLayout({
       signUpUrl="/sign-up"
       afterSignOutUrl="/"
     >
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" className="dark" suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        </head>
         <body
           className={`${GeistSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >

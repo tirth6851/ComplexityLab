@@ -1,14 +1,18 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export function Card({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Active/selected: accent border + soft Signal Green bloom. */
+  glow?: boolean;
+}
+
+export function Card({ className, glow = false, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-sm",
+        // DS: elevation via surface layering, not drop shadows.
+        "rounded-ds-lg border bg-card text-card-foreground",
+        glow ? "border-line-accent shadow-glow-green-soft" : "border-line-subtle",
         className,
       )}
       {...props}
@@ -21,10 +25,7 @@ export function CardHeader({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn("flex flex-col gap-1.5 p-6", className)}
-      {...props}
-    />
+    <div className={cn("flex flex-col gap-1.5 p-6", className)} {...props} />
   );
 }
 

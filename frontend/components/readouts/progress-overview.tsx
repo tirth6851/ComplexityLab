@@ -5,49 +5,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { dashboardStats, progressMetrics } from "@/lib/mock-data";
+import { TrendingUp } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import type { DashboardStat, ProgressMetric } from "@/types";
 
-export function ProgressOverview() {
+export function ProgressOverview({
+  stats,
+  metrics,
+}: {
+  stats: DashboardStat[];
+  metrics: ProgressMetric[];
+}) {
+  const hasData = stats.length > 0 || metrics.length > 0;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Progress overview</CardTitle>
-        <CardDescription>Your complexity skills by topic</CardDescription>
+        <CardDescription>Your lab activity at a glance</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-3 gap-3">
-          {dashboardStats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-lg border border-border bg-muted/40 p-3"
-            >
-              <p className="font-mono text-xl font-semibold tracking-tight">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-xs font-medium">{stat.label}</p>
-              <p className="text-[11px] text-muted-foreground">{stat.hint}</p>
-            </div>
-          ))}
-        </div>
+        {!hasData && (
+          <EmptyState
+            icon={TrendingUp}
+            title="No progress yet"
+            description="Run and save analyses to start tracking your activity."
+          />
+        )}
+        {stats.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-ds-md border border-line-subtle bg-surface-panel p-3"
+              >
+                <p className="font-mono text-xl font-semibold tracking-tight text-ink-primary">
+                  {stat.value}
+                </p>
+                <p className="mt-1 font-mono text-2xs uppercase tracking-label text-ink-muted">
+                  {stat.label}
+                </p>
+                <p className="mt-0.5 text-[11px] text-ink-faint">{stat.hint}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <div className="space-y-4">
-          {progressMetrics.map((metric) => (
-            <div key={metric.label}>
-              <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="font-medium">{metric.label}</span>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {metric.value}%
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${metric.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        {metrics.length > 0 && (
+          <div className="space-y-4">
+            <p className="cx-label">Language mix</p>
+            {metrics.map((metric) => (
+              <ProgressBar
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+              />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,86 +1,287 @@
+@import "./tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
- * DESIGN TOKENS — SOURCE OF TRUTH
- * --------------------------------
- * These HSL triplets are the canonical theme values. `tailwind.config.ts` maps
- * each token into Tailwind utilities (bg-background, text-foreground, etc.).
+ * DESIGN TOKENS — SOURCE OF TRUTH ("ComplexityLab / Dark Lab")
+ * -----------------------------------------------------------
+ * `tokens.css` holds the brand-constant layer (Signal Green, the complexity
+ * gradient, type/space/radius scales, motion, glows, textures).
  *
- * NOTE: values below are a PLACEHOLDER palette (neutral technical theme) pending
- * the real ComplexityLab design system. Replace the triplets here to re-skin the
- * entire app; no component changes required.
+ * This file holds the THEME-DEPENDENT layer: the shadcn HSL triplets that
+ * `tailwind.config.ts` maps to utilities (bg-background, text-foreground, …)
+ * AND the design-system surface/text/border raw-hex tokens (--surface-card,
+ * --text-primary, --border-subtle …) that the ported DS components consume.
+ *
+ * The app is DARK-FIRST: `.dark` is the default surface (applied pre-hydration
+ * by the inline theme script in app/layout.tsx). A coherent light variant is
+ * provided for the user toggle. Signal Green (`--primary`) is constant across
+ * themes; only its lightness shifts so it stays legible on each background.
+ *
+ * Dark values are taken verbatim from the design-system token package.
+ * To re-skin the app, edit the triplets here — no component changes.
  */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* ---- Light theme ---- */
+    --background: 220 30% 98%;
+    --foreground: 222 35% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222 35% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 222 35% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Signal Green — deepened for contrast on light surfaces */
+    --primary: 152 70% 38%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 220 24% 94%;
+    --secondary-foreground: 222 30% 18%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 24% 95%;
+    --muted-foreground: 220 14% 42%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    /* shadcn muted-surface accent (NOT Signal Green — that is --primary) */
+    --accent: 220 24% 93%;
+    --accent-foreground: 222 30% 18%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 220 18% 88%;
+    --input: 220 18% 88%;
+    --ring: 152 70% 38%;
+
+    /* Complexity gradient — deepened stops for contrast on light */
+    --complexity-1: 152 70% 38%;
+    --complexity-2: 193 70% 40%;
+    --complexity-3: 39 85% 45%;
+    --complexity-4: 30 85% 47%;
+    --complexity-5: 0 74% 50%;
 
     --radius: 0.5rem;
+
+    /* ---- DS surface/text/border tokens (light) ---- */
+    --surface-inset:  #eef1f6;
+    --bg-base:        #f6f8fc;
+    --surface-card:   #ffffff;
+    --surface-panel:  #f1f4f9;
+    --surface-raised: #e9eef5;
+
+    --text-primary:   #0e1726;
+    --text-secondary: #44546b;
+    --text-muted:     #6b7a8f;
+    --text-faint:     #97a3b4;
+    --text-on-accent: #041811;
+
+    --border-subtle:  #e6eaf0;
+    --border-default: #d4dbe5;
+    --border-strong:  #bcc6d4;
+    --border-accent:  rgba(33, 224, 140, 0.45);
+
+    --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-ring);
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* ---- Dark Lab (default) — values from the DS token package ---- */
+    --background: 220 23% 7%;
+    --foreground: 215 70% 96%;
 
-    --card: 222 47% 13%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 30% 10%;
+    --card-foreground: 215 70% 96%;
 
-    --popover: 222 47% 13%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 28% 13%;
+    --popover-foreground: 215 70% 96%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
+    /* Signal Green — luminous on near-black */
+    --primary: 152 76% 50%;
+    --primary-foreground: 160 90% 5%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 28% 13%;
+    --secondary-foreground: 215 70% 96%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 222 30% 10%;
+    --muted-foreground: 215 20% 54%;
 
-    --accent: 217 33% 18%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 200 18% 16%;
+    --accent-foreground: 215 70% 96%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 66%;
+    --destructive-foreground: 215 70% 96%;
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 217 91% 60%;
+    --border: 220 28% 17%;
+    --input: 220 28% 17%;
+    --ring: 152 76% 50%;
+
+    /* Complexity gradient — DS stops (O(1) green → O(2ⁿ) red) */
+    --complexity-1: 152 76% 50%;
+    --complexity-2: 193 75% 52%;
+    --complexity-3: 39 100% 65%;
+    --complexity-4: 37 100% 59%;
+    --complexity-5: 0 100% 66%;
+
+    /* ---- DS surface/text/border tokens (dark) ---- */
+    --surface-inset:  #07090f;
+    --bg-base:        #0b1020;
+    --surface-card:   #0f1629;
+    --surface-panel:  #141e32;
+    --surface-raised: #1a263e;
+
+    --text-primary:   #edf2fc;
+    --text-secondary: #8a9dbf;
+    --text-muted:     #556478;
+    --text-faint:     #3a4a5c;
+    --text-on-accent: #041811;
+
+    --border-subtle:  #131e30;
+    --border-default: #1c2c44;
+    --border-strong:  #263b5a;
+    --border-accent:  rgba(33, 224, 140, 0.35);
+
+    --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-ring);
   }
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Mono instrument labels: TIME: / SPACE: / ANALYSES */
+  .cx-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Honor reduced-motion globally for the landing/UI animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* DS dot-grid texture (hero sections, VerdictReadout panels). */
+  .bg-grid-dots {
+    background-image: var(--grid-dots);
+    background-size: var(--grid-dots-size);
+  }
+  /* DS line-grid texture (large canvas backdrops). */
+  .bg-grid-lines {
+    background-image: var(--grid-lines);
+    background-size: var(--grid-lines-size);
+  }
+
+  /* Legacy dotted "lab grid" backdrop, driven by the border token. */
+  .bg-lab-grid {
+    background-image: radial-gradient(
+      hsl(var(--border)) 1px,
+      transparent 1px
+    );
+    background-size: 22px 22px;
+  }
+
+  /* Signal-green text glow for hero accents (subtle, dark-mode friendly). */
+  .text-glow-primary {
+    text-shadow: 0 0 24px hsl(var(--primary) / 0.45);
+  }
+
+  /* Signal-green box glow (active elements, optimal verdicts, focus). */
+  .glow-green {
+    box-shadow: var(--glow-green);
+  }
+  .glow-green-soft {
+    box-shadow: var(--glow-green-soft);
+  }
+
+  /* 3D tilt scene helpers for the landing visual. */
+  .scene-3d {
+    perspective: 1200px;
+    perspective-origin: 50% 30%;
+  }
+  .tilt-3d {
+    transform: rotateX(18deg) rotateZ(-9deg);
+    transform-style: preserve-3d;
+  }
+
+  @keyframes float-card {
+    0%,
+    100% {
+      transform: translateZ(0) translateY(0);
+    }
+    50% {
+      transform: translateZ(40px) translateY(-10px);
+    }
+  }
+  .animate-float {
+    animation: float-card 7s ease-in-out infinite;
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-rise {
+    animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Full-container scanline sweep (animates `top` so it spans any parent). */
+  @keyframes cx-sweep {
+    from {
+      top: -14%;
+      opacity: 0.9;
+    }
+    to {
+      top: 110%;
+      opacity: 0.3;
+    }
+  }
+  .animate-sweep {
+    position: absolute;
+    animation: cx-sweep 1.4s var(--ease-in-out) infinite;
+  }
+
+  /* Scanline sweep over the code editor during analysis (DS motion spec). */
+  @keyframes cx-scanmove {
+    from {
+      transform: translateY(0);
+      opacity: 0.9;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+  .animate-scan {
+    animation: cx-scanmove 1.8s var(--ease-out) forwards;
   }
 }

@@ -5,7 +5,16 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * Everything is public by default; routes matched below require an authenticated
  * Clerk session. `auth.protect()` redirects signed-out users to the sign-in URL.
  */
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/lab(.*)"]);
+/** Route patterns that require an authenticated session (exported for tests). */
+export const PROTECTED_ROUTES = [
+  "/dashboard(.*)",
+  "/analyzer(.*)",
+  "/analyses(.*)",
+  "/snippets(.*)",
+  "/settings(.*)",
+] as const;
+
+const isProtectedRoute = createRouteMatcher([...PROTECTED_ROUTES]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {

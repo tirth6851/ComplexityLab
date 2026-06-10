@@ -30,6 +30,15 @@ Run from `frontend/`:
 - `npm run dev` — start the dev server (http://localhost:3000)
 - `npm run build` — production build
 - `npm run lint` — lint
+- `npm run typecheck` — TypeScript check (`tsc --noEmit`)
+- `npm run test` — run the Vitest suite (`npm run test:watch` for watch mode)
+
+## Key documents
+
+- `HANDOFF.md` — project state, history, and rules for new sessions
+- `ARCHITECTURE.md` — current technical architecture (routes, AI layer, DB, tests)
+- `ROADMAP.md` — completed phases and future priorities
+- `DESIGN_HANDOFF.md` — design-system inventory (tokens, primitives, motion)
 
 ## MCP Server
 

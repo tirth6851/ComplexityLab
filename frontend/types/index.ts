@@ -1,23 +1,29 @@
 /**
- * Shared application types. Phase 2 introduces the dashboard domain models
- * (currently backed by mock data in `lib/mock-data.ts`).
+ * Shared application domain types. Analyses and snippets are persisted in
+ * Supabase (see `lib/db`); rows are mapped into these shapes for the UI.
  */
 
+/** Canonical Big-O classes the visual system has dedicated stops for. */
 export type Complexity =
   | "O(1)"
   | "O(log n)"
   | "O(n)"
   | "O(n log n)"
   | "O(n²)"
-  | "O(2ⁿ)";
+  | "O(n³)"
+  | "O(2ⁿ)"
+  | "O(n!)";
 
 export interface Analysis {
   id: string;
   title: string;
   language: string;
-  timeComplexity: Complexity;
-  spaceComplexity: Complexity;
-  /** Human-friendly relative label, e.g. "2h ago" (mock). */
+  /** Big-O notation, e.g. "O(n log n)". Free-form to tolerate future engines. */
+  timeComplexity: string;
+  spaceComplexity: string;
+  /** One-sentence summary from the engine. */
+  verdict: string;
+  /** ISO timestamp. Render with `timeAgo()` from lib/format. */
   createdAt: string;
 }
 
@@ -26,7 +32,17 @@ export interface Snippet {
   title: string;
   language: string;
   tags: string[];
+  /** ISO timestamp. */
   savedAt: string;
+}
+
+export interface Profile {
+  id: string;
+  clerkUserId: string;
+  displayName: string | null;
+  preferredLanguage: string;
+  /** ISO timestamp. */
+  createdAt: string;
 }
 
 export interface ProgressMetric {

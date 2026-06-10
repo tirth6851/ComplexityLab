@@ -1,0 +1,236 @@
+/* ============================================================
+   ComplexityLab — Design-System Tokens (brand-constant layer)
+   ------------------------------------------------------------
+   Ported from the ComplexityLab Design System package.
+
+   These tokens are THEME-INDEPENDENT (brand colors, the
+   complexity gradient, the type/space/radius scales, motion,
+   glows, textures). Theme-dependent tokens — surfaces, text,
+   borders, and the Tailwind HSL triplets — live in globals.css
+   under :root (light) and .dark (dark).
+
+   NOTE: we deliberately do NOT redefine the shadcn triplet
+   names here (--accent, --background, --border, --radius …).
+   In this app Signal Green is `--primary`; --accent is the
+   shadcn muted-surface token. Redefining --accent as a raw
+   color would break Tailwind's `hsl(var(--accent))` mapping.
+   ============================================================ */
+
+:root {
+  /* ---- Ink scale (editor gutter / deepest recesses) ---- */
+  --ink-1000: #020408;
+  --ink-950:  #030610;
+  --ink-900:  #060a18;
+  --ink-850:  #0a1020;
+  --ink-800:  #0e1628;
+  --ink-750:  #121e34;
+  --ink-700:  #18263e;
+  --ink-600:  #1e3050;
+  --ink-500:  #273d64;
+  --ink-400:  #344e72;
+
+  /* ---- Signal Green scale ---- */
+  --green-200: #a8f8d8;
+  --green-300: #7df3c2;
+  --green-400: #45eca6;
+  --green-500: #21e08c;
+  --green-600: #15b873;
+  --green-700: #0e8453;
+  --green-900: #0a3a28;
+
+  /* Brand accent aliases (Signal Green). NB: NOT `--accent`. */
+  --accent-green: #21e08c;
+  --accent-hover: #32f09a;
+  --accent-muted: rgba(33, 224, 140, 0.08);
+  --accent-ring:  rgba(33, 224, 140, 0.40);
+
+  /* ---- Status colors (brand-constant) ---- */
+  --ok:        #21e08c;
+  --ok-bg:     rgba(33, 224, 140, 0.08);
+  --warn:      #ffb02e;
+  --warn-bg:   rgba(255, 176, 46, 0.08);
+  --danger:    #ff5151;
+  --danger-bg: rgba(255, 81, 81, 0.08);
+  --info:      #2bb8e0;
+  --info-bg:   rgba(43, 184, 224, 0.08);
+
+  /* ---- Supporting hue scales ---- */
+  --red-300: #ff9a9a;
+  --red-400: #ff5151;
+  --red-500: #e83838;
+  --amber-200: #ffd9a0;
+  --amber-300: #ffc24d;
+  --amber-400: #ffb02e;
+  --cyan-300: #7dd5f0;
+  --cyan-400: #2bb8e0;
+  --violet-400: #a88bff;
+  --violet-900: #1a1042;
+
+  /* ---- Complexity tier colors (mirrors BigOBadge TIER map) ---- */
+  --cx-optimal:  #21e08c;
+  --cx-good:     #2bb8e0;
+  --cx-fair:     #ffc04d;
+  --cx-poor:     #ffb02e;
+  --cx-critical: #ff5151;
+
+  /* ---- Complexity gradient: O(1) optimal → O(n!) catastrophic ---- */
+  --c-o1:    #21e08c;
+  --c-log:   #2bb8e0;
+  --c-n:     #5aabff;
+  --c-nlogn: #ffc04d;
+  --c-n2:    #ffb02e;
+  --c-exp:   #ff5151;
+  --c-fact:  #cc2020;
+
+  --c-o1-bg:    rgba(33,  224, 140, 0.10);
+  --c-log-bg:   rgba(43,  184, 224, 0.10);
+  --c-n-bg:     rgba(90,  171, 255, 0.10);
+  --c-nlogn-bg: rgba(255, 192,  77, 0.10);
+  --c-n2-bg:    rgba(255, 176,  46, 0.10);
+  --c-exp-bg:   rgba(255,  81,  81, 0.10);
+  --c-fact-bg:  rgba(204,  32,  32, 0.10);
+
+  --complexity-gradient: linear-gradient(
+    90deg,
+    var(--c-o1)     0%,
+    var(--c-log)   20%,
+    var(--c-n)     38%,
+    var(--c-nlogn) 55%,
+    var(--c-n2)    70%,
+    var(--c-exp)   85%,
+    var(--c-fact) 100%
+  );
+
+  /* ---- Syntax highlighting (code panes) ---- */
+  --syntax-keyword:  #a88bff;
+  --syntax-function: #2bb8e0;
+  --syntax-string:   #45eca6;
+  --syntax-number:   #7df3c2;
+  --syntax-comment:  #3a4a5c;
+
+  /* =========================================================
+     Typography scale
+     ========================================================= */
+  --text-2xs:  0.625rem;
+  --text-xs:   0.6875rem;
+  --text-sm:   0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md:   1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+  --text-5xl:  3rem;
+  --text-6xl:  3.75rem;
+
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --leading-none:    1;
+  --leading-tight:   1.2;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tightest: -0.04em;
+  --tracking-tight:    -0.02em;
+  --tracking-normal:    0em;
+  --tracking-wide:      0.04em;
+  --tracking-wider:     0.08em;
+  --tracking-label:     0.10em;
+  --tracking-widest:    0.16em;
+
+  /* Font stacks — bound to the next/font CSS variables from app/layout.tsx.
+     --font-mono (JetBrains Mono) is declared by next/font on <body>. */
+  --font-sans:    var(--font-geist-sans), "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-geist-sans), "DM Sans", system-ui, -apple-system, sans-serif;
+
+  /* =========================================================
+     Spacing / sizing / radius / z-index
+     ========================================================= */
+  --space-0:   0px;
+  --space-px:  1px;
+  --space-0-5: 2px;
+  --space-1:   4px;
+  --space-1-5: 6px;
+  --space-2:   8px;
+  --space-2-5: 10px;
+  --space-3:   12px;
+  --space-3-5: 14px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   28px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-14:  56px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32: 128px;
+
+  --control-h-xs: 26px;
+  --control-h-sm: 30px;
+  --control-h-md: 36px;
+  --control-h-lg: 44px;
+  --control-h-xl: 52px;
+
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-pill: 999px;
+
+  --z-base:     0;
+  --z-raised:   1;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-modal:    400;
+  --z-toast:    500;
+  --z-tooltip:  600;
+
+  /* =========================================================
+     Effects: shadows, glow, textures, motion, blur
+     ========================================================= */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 32px 80px rgba(0, 0, 0, 0.6);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03),
+                  inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+
+  --glow-green: 0 0 0 1px rgba(33, 224, 140, 0.4),
+                0 0 24px -2px rgba(33, 224, 140, 0.45);
+  --glow-green-soft: 0 0 32px -6px rgba(33, 224, 140, 0.5);
+  --glow-amber: 0 0 0 1px rgba(255, 176, 46, 0.4),
+                0 0 22px -3px rgba(255, 176, 46, 0.4);
+  --glow-red:   0 0 0 1px rgba(255, 81, 81, 0.4),
+                0 0 22px -3px rgba(255, 81, 81, 0.4);
+  --glow-cyan:  0 0 0 1px rgba(43, 184, 224, 0.4),
+                0 0 22px -3px rgba(43, 184, 224, 0.4);
+
+  --grid-dots: radial-gradient(rgba(234, 242, 240, 0.10) 1px, transparent 1px);
+  --grid-dots-size: 16px 16px;
+  --grid-lines: linear-gradient(rgba(234, 242, 240, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(234, 242, 240, 0.04) 1px, transparent 1px);
+  --grid-lines-size: 44px 44px;
+  --sheen-top: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 64px);
+
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-snap:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:   120ms;
+  --dur-base:   200ms;
+  --dur-slow:   360ms;
+  --dur-slower: 600ms;
+
+  --blur-panel: blur(14px) saturate(120%);
+  --blur-modal: blur(6px);
+}

@@ -1,23 +1,29 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-type Variant = "default" | "secondary" | "outline" | "ghost";
+type Variant = "default" | "secondary" | "outline" | "ghost" | "destructive";
 type Size = "default" | "sm" | "lg" | "icon";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-ds-md border border-transparent font-medium transition-all duration-150 ease-ds active:translate-y-px active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-45";
 
 const variants: Record<Variant, string> = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  outline: "border border-border bg-transparent hover:bg-muted",
-  ghost: "hover:bg-muted",
+  // Signal Green primary — luminous, with a brightness lift + glow on hover.
+  default:
+    "bg-primary text-primary-foreground hover:brightness-110 hover:shadow-glow-green",
+  secondary:
+    "border-line bg-secondary text-secondary-foreground hover:bg-surface-raised",
+  outline:
+    "border-line bg-transparent text-ink-primary hover:bg-surface-raised",
+  ghost: "text-ink-primary hover:bg-surface-raised",
+  destructive:
+    "bg-destructive text-destructive-foreground hover:brightness-110",
 };
 
 const sizes: Record<Size, string> = {
-  default: "h-9 px-4 py-2 text-sm",
-  sm: "h-8 px-3 text-xs",
-  lg: "h-11 px-6 text-sm",
+  default: "h-9 px-4 text-sm",
+  sm: "h-[30px] px-2.5 text-xs",
+  lg: "h-11 px-5 text-sm",
   icon: "h-9 w-9",
 };
 

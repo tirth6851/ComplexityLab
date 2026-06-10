@@ -1,4 +1,5 @@
-import { Bookmark, Library, ScanLine, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Bookmark, History, ScanLine, Settings } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,10 +9,30 @@ import {
 } from "@/components/ui/card";
 
 const actions = [
-  { label: "New analysis", desc: "Analyze code complexity", icon: ScanLine },
-  { label: "Save snippet", desc: "Store a reusable solution", icon: Bookmark },
-  { label: "Review progress", desc: "See your skill growth", icon: TrendingUp },
-  { label: "Browse library", desc: "Explore algorithms", icon: Library },
+  {
+    label: "New analysis",
+    desc: "Analyze code complexity",
+    icon: ScanLine,
+    href: "/analyzer",
+  },
+  {
+    label: "Your analyses",
+    desc: "Review past breakdowns",
+    icon: History,
+    href: "/analyses",
+  },
+  {
+    label: "Your snippets",
+    desc: "Browse saved solutions",
+    icon: Bookmark,
+    href: "/snippets",
+  },
+  {
+    label: "Settings",
+    desc: "Profile and account",
+    icon: Settings,
+    href: "/settings/profile",
+  },
 ] as const;
 
 export function QuickActions() {
@@ -25,9 +46,9 @@ export function QuickActions() {
         {actions.map((action) => {
           const Icon = action.icon;
           return (
-            <button
+            <Link
               key={action.label}
-              type="button"
+              href={action.href}
               className="flex flex-col items-start gap-2 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -37,7 +58,7 @@ export function QuickActions() {
               <span className="text-xs text-muted-foreground">
                 {action.desc}
               </span>
-            </button>
+            </Link>
           );
         })}
       </CardContent>

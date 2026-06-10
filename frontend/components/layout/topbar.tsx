@@ -1,18 +1,18 @@
 import { UserButton } from "@clerk/nextjs";
-import { Search } from "lucide-react";
+import { MobileNav } from "./mobile-nav";
+import { PageTitle } from "./page-title";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Topbar() {
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="font-medium text-foreground">Dashboard</span>
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-line-subtle bg-card/85 px-4 [backdrop-filter:var(--blur-panel)] sm:px-6">
+      <div className="flex items-center gap-3 text-sm">
+        <MobileNav />
+        <PageTitle />
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground sm:flex">
-          <Search className="h-4 w-4" />
-          <span>Search…</span>
-        </div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
         <UserButton />
       </div>
     </header>

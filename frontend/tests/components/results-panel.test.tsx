@@ -1,0 +1,64 @@
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { ResultsPanel } from "@/components/analyzer/results-panel";
+import { analyzeCode } from "@/lib/analysis/engine";
+import { SAMPLES } from "@/lib/analysis/samples";
+
+const analysis = analyzeCode({
+  code: SAMPLES.typescript[0].code, // binary search → O(log n)
+  language: "typescript",
+});
+
+describe("ResultsPanel", () => {
+  it("renders the idle call-to-action", () => {
+    render(<ResultsPanel status="idle" analysis={null} />);
+    expect(screen.getByText("Ready to analyze")).toBeInTheDocument();
+  });
+
+  it("renders the scanning state", () => {
+    render(<ResultsPanel status="analyzing" analysis={null} />);
+    expect(screen.getByText("Scanning structure…")).toBeInTheDocument();
+  });
+
+  it("renders the error state with the message", () => {
+    render(
+      <ResultsPanel status="error" analysis={null} error="Engine exploded" />,
+    );
+    expect(screen.getByText("Analysis failed")).toBeInTheDocument();
+    expect(screen.getByText("Engine exploded")).toBeInTheDocument();
+  });
+
+  it("renders verdict readouts, gauges, timeline, and notes for a result", () => {
+    render(<ResultsPanel status="done" analysis={analysis} />);
+
+    // TIME / SPACE instrument rows
+    expect(screen.getByText("TIME")).toBeInTheDocument();
+    expect(screen.getByText("SPACE")).toBeInTheDocument();
+    expect(screen.getAllByText("O(log n)").length).toBeGreaterThan(0);
+
+    // metric gauges
+    expect(screen.getByText("EST. OPS @ N=1000")).toBeInTheDocument();
+    expect(screen.getByText("ENGINE CONFIDENCE")).toBeInTheDocument();
+
+    // growth timeline (svg with accessible label)
+    expect(
+      screen.getByRole("img", { name: /growth curves/i }),
+    ).toBeInTheDocument();
+
+    // reasoning notes
+    expect(screen.getByText("What the engine saw")).toBeInTheDocument();
+  });
+
+  it("renders injected result actions", () => {
+    render(
+      <ResultsPanel
+        status="done"
+        analysis={analysis}
+        actions={<button>Save analysis</button>}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Save analysis" }),
+    ).toBeInTheDocument();
+  });
+});
