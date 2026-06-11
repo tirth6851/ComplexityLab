@@ -21,7 +21,7 @@
 | Abuse control | `lib/rate-limit.ts` + `lib/action-limit.ts` | Sliding-window per-user limits on the API route and every server action |
 | Observability | `lib/log.ts` | Structured JSON logs (no code content) → Vercel runtime logs |
 | Legal | `/privacy`, `/terms`, `ConsentGate` | Site-wide forced consent (cookie `cl-consent`); decline leaves the site |
-| Tests | Vitest + Testing Library (jsdom) | 19 files / 131 tests |
+| Tests | Vitest + Testing Library (jsdom) | 19 files / 133 tests |
 | Deploy | Vercel | Root Directory = `frontend`; GitHub `main` auto-deploys |
 
 ---
@@ -48,6 +48,7 @@ ComplexityLab/
    │     ├─ dashboard/page.tsx (+loading)  # real data: readouts + derived stats
    │     ├─ analyzer/page.tsx (+actions)   # Monaco workbench; save server actions
    │     ├─ analyses/page.tsx (+actions, loading)
+   │     │  └─ [id]/page.tsx (+actions, loading)   # detail view: code + stored result
    │     ├─ snippets/page.tsx (+actions, loading)
    │     └─ settings/                      # layout w/ tabs, profile + account pages, actions
    ├─ components/
@@ -80,7 +81,8 @@ ComplexityLab/
 | `/sso-callback` | client | public | OAuth handshake |
 | `/dashboard` | dynamic | **protected** | Readouts on real data + derived stats |
 | `/analyzer` | static shell, client island | **protected** | Monaco workbench + results panel |
-| `/analyses` | dynamic | **protected** | Saved analyses list + delete |
+| `/analyses` | dynamic | **protected** | Saved analyses list + delete (rows link to details) |
+| `/analyses/[id]` | dynamic | **protected** | Stored code + persisted `result` JSONB re-rendered through the results panel |
 | `/snippets` | dynamic | **protected** | Saved snippets list + delete |
 | `/settings` → `/settings/profile` | redirect | **protected** | — |
 | `/settings/profile` | dynamic | **protected** | Display name + preferred language (Supabase) |
@@ -239,6 +241,7 @@ Until then the app runs with empty/error states (by design).
 | `saveAnalysisAction` | `app/(app)/analyzer/actions.ts` | Validates, derives title from first function name, persists analysis + full result JSONB |
 | `saveSnippetAction` | same | Persists the buffer as a snippet |
 | `deleteAnalysisAction` | `app/(app)/analyses/actions.ts` | User-scoped delete |
+| `deleteAnalysisAndRedirectAction` | `app/(app)/analyses/[id]/actions.ts` | User-scoped delete, then `redirect("/analyses")` (detail page) |
 | `deleteSnippetAction` | `app/(app)/snippets/actions.ts` | User-scoped delete |
 | `updateProfileAction` | `app/(app)/settings/actions.ts` | Display name + preferred language |
 | `deleteAllDataAction` | same | Deletes profile row (cascade wipes all data) |

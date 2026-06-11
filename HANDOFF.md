@@ -2,12 +2,15 @@
 
 > **Audience:** A senior engineer — human or a fresh Claude Code session — opening this
 > repository with **zero prior conversation history**.
-> **Status as of this handoff (2026-06-09):** **Deployed to production and verified.**
-> Functional MVP + hardening complete: analyzer with live Groq AI (heuristic fallback),
-> Supabase data layer, real app flows, rate limiting, structured logging, legal/consent
-> pack. All gates green: 0 TS errors · 0 ESLint errors · production build passes ·
-> **131/131 tests pass**. All work is **committed and pushed** to GitHub `main`
-> (history was **rewritten** on 2026-06-09 to purge a leaked `.env.local` — old SHAs are dead).
+> **Status as of this handoff (2026-06-10):** **Deployed to production and verified**
+> (deployed code = 2026-06-09 state). Functional MVP + hardening complete: analyzer with
+> live Groq AI (heuristic fallback), Supabase data layer, real app flows, rate limiting,
+> structured logging, legal/consent pack, and a `/analyses/[id]` detail view (2026-06-10).
+> All gates green: 0 TS errors · 0 ESLint errors · production build passes ·
+> **133/133 tests pass**. All work is committed and pushed to GitHub `main`
+> (auto-deploys production). History was **rewritten** on 2026-06-09 to purge a
+> leaked `.env.local` — old SHAs are dead.
+> **Read `MISSION_CONTROL.md` first for current sprint state.**
 > **Live:** https://complexity-lab-eight.vercel.app (auto-deploys from GitHub `main`).
 > **Companion docs:** `ARCHITECTURE.md` (technical deep-dive) · `ROADMAP.md` (status ledger +
 > plan) · `DESIGN_HANDOFF.md` (design system) · `CLAUDE.md` (session instructions).
@@ -30,6 +33,8 @@ Signal Green accent.
 - **/dashboard** — real data: recent analyses, saved snippets, derived stats
   (counts, weekly activity, day streak, language mix).
 - **/analyses, /snippets** — lists with two-step delete, empty/error/loading states.
+- **/analyses/[id]** — detail view: stored code + the persisted result JSONB
+  re-rendered through the results panel; delete-with-redirect. *(2026-06-10.)*
 - **/settings/profile** (display name, preferred language → Supabase) and
   **/settings/account** (Clerk identity, theme, sign-out, delete-all-data danger zone).
 - **AI analysis via Groq** (`AI_PROVIDER=groq`) with automatic fallback to the
@@ -65,7 +70,8 @@ screen (Google SSO is enabled in Clerk — confirmed working)** → unauthed API
 | **AI architecture** | ✅ | `lib/ai` registry; `AI_PROVIDER=mock` default |
 | **Database layer** | ✅ code / ⚠️ ops | Schema + RLS + server-only data layer; **migration not yet applied** |
 | **App flows** | ✅ | Analyses, snippets, settings, save/delete, empty/error/loading |
-| **Tests** | ✅ | Vitest + RTL, 19 files / 129 tests |
+| **Tests** | ✅ | Vitest + RTL, 19 files / 133 tests |
+| **Analyses detail view** | ✅ | `/analyses/[id]` (2026-06-10) |
 | **Groq integration** | ✅ | Live behind `AI_PROVIDER=groq`, auto-fallback to heuristic engine |
 | **Rate limiting + logging** | ✅ | Per-user sliding-window limits on API + all actions; structured JSON logs |
 | **Legal pack** | ✅ | `/privacy`, `/terms`, forced consent gate (decline → off-site) |
@@ -187,6 +193,17 @@ screen (Google SSO is enabled in Clerk — confirmed working)** → unauthed API
    deployments/logs (no env-var tools). The claude.ai Supabase MCP is connected to an
    account that does NOT own the app's project — migrations are manual.
 
+### Detail view + product docs session (2026-06-10)
+1. **`/analyses/[id]` detail page:** `getAnalysis()` (user-scoped; PGRST116 →
+   friendly "not found"), `AnalysisDetail` type + `mapAnalysisDetail`, page
+   rendering stored code + the persisted `result` JSONB through `ResultsPanel`,
+   `deleteAnalysisAndRedirectAction`, loading skeleton; list rows link to
+   details. Tests 131 → **133**. All gates green. Committed + deployed 2026-06-10.
+2. **Product doc system:** `PRD.md`, `TRD.md`, `APP_FLOW.md` + project memory
+   (`OPERATING_MANUAL.md`, `MISSION_CONTROL.md`, `SECOND_BRAIN.md`,
+   `RULES_OF_ENGAGEMENT.md`); drift fixes across this file, `ARCHITECTURE.md`,
+   `ROADMAP.md`, `DESIGN_HANDOFF.md`, `CLAUDE.md`.
+
 ---
 
 ## Environment Variables
@@ -230,9 +247,10 @@ In production set these as **Vercel environment variables**; Root Directory = `f
   (Google-only, dev instance) · Supabase · Groq (live, with heuristic fallback) ·
   Vitest. App lives in **`frontend/`**.
 - **State:** Deployed + verified at **https://complexity-lab-eight.vercel.app**.
-  Analyzer with Groq AI, DB-backed flows, settings, rate limiting, logging, legal/
-  consent pack, 131 tests. Everything committed and pushed; GitHub `main`
-  auto-deploys production (**a push is a deploy**).
+  Analyzer with Groq AI, DB-backed flows, settings, rate limiting, logging,
+  legal/consent pack, `/analyses/[id]` detail view, 133 tests. Everything
+  committed and pushed; GitHub `main` auto-deploys production
+  (**a push is a deploy** — never push without explicit instruction).
 - **Run it:** `cd frontend && npm install && npm run dev` → http://localhost:3000.
   Verify: `npm run typecheck && npm run lint && npm run build && npm run test`.
 - **The one blocker:** the DB migration (`supabase/migrations/…_init.sql`) is **not
@@ -244,8 +262,8 @@ In production set these as **Vercel environment variables**; Root Directory = `f
 - **Tooling gotchas:** Vercel CLI token on disk is dead (403) — `vercel login` needed
   for env-var changes; claude.ai Vercel MCP handles deployments/logs; claude.ai
   Supabase MCP is connected to the wrong account for this project.
-- **Read next:** `ARCHITECTURE.md` for how everything fits; `ROADMAP.md` for what to
-  build next (recommended: `/analyses/[id]` detail view, landing/visual polish,
-  global rate limiting, production Clerk instance).
+- **Read next:** `MISSION_CONTROL.md` for current sprint state (UX polish, P1–P5);
+  `ARCHITECTURE.md` + `TRD.md` for how everything fits; `PRD.md` for product scope;
+  `APP_FLOW.md` for flows; `SECOND_BRAIN.md` for decisions/lessons/debt.
 
 *End of handoff.*

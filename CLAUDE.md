@@ -5,8 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 ComplexityLab is an interactive web app for learning algorithms and computational
-complexity (Big-O). It features an algorithm catalog, animated visualizers, an
-AI tutor, and per-user progress tracking.
+complexity (Big-O). **Shipped today:** an AI-powered complexity analyzer (Groq with
+deterministic heuristic fallback), saved analyses with a detail view, snippets, a
+stats dashboard, and settings. **Vision (not yet built):** algorithm catalog,
+animated visualizers, AI tutor, lessons/quizzes — see `PRD.md`.
 
 **Production:** https://complexity-lab-eight.vercel.app — GitHub `main`
 auto-deploys, so **pushing main = deploying production**. The Vercel project's
@@ -39,10 +41,18 @@ Run from `frontend/`:
 
 ## Key documents
 
+**Read `MISSION_CONTROL.md` first** — current sprint, active tasks, blockers.
+
+- `PRD.md` — product requirements (vision, users, stories, metrics, scope)
+- `TRD.md` — technical requirements (API contracts, schema, AI layer, security)
+- `APP_FLOW.md` — end-to-end user flows, error states, mobile notes
 - `HANDOFF.md` — project state, history, and rules for new sessions
 - `ARCHITECTURE.md` — current technical architecture (routes, AI layer, DB, tests)
 - `ROADMAP.md` — completed phases and future priorities
 - `DESIGN_HANDOFF.md` — design-system inventory (tokens, primitives, motion)
+- Project memory: `OPERATING_MANUAL.md` (principles) · `MISSION_CONTROL.md`
+  (sprint status) · `SECOND_BRAIN.md` (decisions, lessons, known issues, patterns) ·
+  `RULES_OF_ENGAGEMENT.md` (hard session rules)
 
 ## MCP Server
 

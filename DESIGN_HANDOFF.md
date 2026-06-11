@@ -13,15 +13,18 @@
 ## 0. TL;DR for Designers
 
 - **Stack:** Next.js 16 (App Router, RSC-first) · React 19 · TypeScript (strict) · Tailwind CSS
-  **v3.4** · Clerk (auth) · Supabase (configured, unused) · Geist Sans + JetBrains Mono.
+  **v3.4** · Clerk (auth) · Supabase (live data layer) · Geist Sans + JetBrains Mono.
 - **Identity:** "Dark Lab" — dark-first, neon-on-black, **Signal Green** accent, a **complexity
   gradient** (green→red) encoding cheap→costly Big-O. Instrument-panel density; mono for data.
 - **Theme:** App is **dark by default**; a working light theme exists behind a toggle. Both themes
   are fully tokenized.
 - **Re-skin contract:** **All color/radius values live in `frontend/app/globals.css`.** Change the
   HSL triplets there to restyle the whole app — components never hardcode colors.
-- **What's real vs. mock:** Auth + theming + the signed-in user's name are real. **All dashboard
-  data is mock** (`lib/mock-data.ts`). There is **no analyzer engine** — the analyzer is not built.
+- **What's real vs. mock:** *(updated 2026-06-10 — the original snapshot below predates the
+  functional MVP)* Everything is real now: the analyzer (Monaco + Groq AI with heuristic
+  fallback), DB-backed dashboard/analyses/snippets/settings, and the `/analyses/[id]` detail
+  view. `lib/mock-data.ts` was deleted. Token/primitive inventory in this file remains the
+  design source of truth — see `ARCHITECTURE.md` for current behavior.
 - **Build status:** `npm run build` and `npm run lint` both pass. No new runtime deps were added.
 
 ---

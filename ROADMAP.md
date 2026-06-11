@@ -71,6 +71,16 @@
   (fixed via `unauthenticatedUrl`), Google SSO redirect to
   accounts.google.com confirmed in a real browser.
 
+### Detail view + product docs (2026-06-10)
+- **`/analyses/[id]` detail view shipped:** stored code + the persisted
+  `result` JSONB re-rendered through `ResultsPanel`; `getAnalysis()`
+  (user-scoped, friendly not-found), `AnalysisDetail` type, delete-with-
+  redirect, loading skeleton; analyses list rows now link to details.
+  Tests **131 → 133**.
+- **Product doc system created:** `PRD.md`, `TRD.md`, `APP_FLOW.md` + project
+  memory (`OPERATING_MANUAL.md`, `MISSION_CONTROL.md`, `SECOND_BRAIN.md`,
+  `RULES_OF_ENGAGEMENT.md`). Doc drift in the older files corrected.
+
 ---
 
 ## 🔜 Immediate (operational, before features)
@@ -95,8 +105,7 @@
 
 ## 🧭 Near-term (next build phases)
 
-- **Analysis detail view** — `/analyses/[id]`: stored code + full persisted
-  `result` JSONB re-rendered through the results panel.
+- ~~Analysis detail view~~ — **shipped 2026-06-10** (`/analyses/[id]`).
 - **Snippet → analyzer round-trip** — "Open in analyzer" on snippet rows;
   tags editing UI (Tag primitive already supports remove/select).
 - **Analyzer polish** — shareable results, keyboard shortcut (⌘⏎ to analyze),
@@ -136,15 +145,15 @@
   no-hardcoded-colors rule) — keep in sync when tokens change.
 - Mobile drawer doesn't trap focus (Escape/backdrop close only).
 - No CI pipeline yet — gates run locally (`typecheck · lint · build · test`).
-- No `/analyses/[id]` detail view yet; saved `result` JSONB is stored but
-  unread.
 - 4 moderate `npm audit` advisories in dev tooling (vitest/jsdom chain).
 
 ---
 
 ## Next recommended phase
 
-**Operational unblock + Groq:** apply the migration, rotate keys, deploy to
-Vercel with env vars, then implement the Groq provider behind `AI_PROVIDER`
-with mock fallback. That turns the MVP into a genuinely AI-powered product
-with zero architectural change.
+**UX & product polish sprint** (tracked in `MISSION_CONTROL.md`):
+P1 analyzer onboarding → P2 landing-page honesty/quality → P3 mobile
+responsiveness → P4 micro-interactions & action feedback → P5 analysis/snippet
+experience. No architectural change; design system reused throughout. The
+operational items above (migration, key rotation, production Clerk) remain
+user actions that can proceed in parallel.
