@@ -43,11 +43,15 @@ Signed-out POST /api/analyze ──► 401 JSON (self-guarded, no redirect)
 ## 3. Analyzer flow
 
 ```
-/analyzer (protected; static shell + client island AnalyzerWorkbench)
+/analyzer (protected, dynamic; client island AnalyzerWorkbench)
+  ├─ IntroStrip: dismissible 3-step first-run guide (localStorage cl-analyzer-intro)
+  ├─ Opens on the profile's preferred language's first sample
+  │   (pending "open in analyzer" handoff overrides — see §5/§6)
   ├─ Language select (7) ─ re-highlights buffer, never clobbers code
   ├─ Sample select (18 templates) ─ replaces buffer
   ├─ Monaco editor (dynamic import, skeleton fallback, theme-aware)
-  └─ [Analyze] (disabled when buffer empty or already analyzing)
+  └─ [Analyze] — button, idle-panel CTA, or Ctrl/⌘+Enter (works inside
+     Monaco too); disabled when buffer empty or already analyzing
         │   min 650ms "scanline" sweep so results never jarringly flash
         ▼
       POST /api/analyze { code, language }
@@ -88,11 +92,13 @@ ResultsPanel ─ SaveActions (remounted per result so state resets)
             badges (time, space·sm+) · ConfirmDeleteButton (arm → "Sure?")
 /analyses/[id] (protected, dynamic)
   ├─ not found / other user's id ──► ErrorState ("Analysis not found")
-  ├─ header: title · language · timeAgo · badges · [New analysis] · delete
-  ├─ Source code card (line count, <pre>)
+  ├─ header: title · language · timeAgo (ISO tooltip) · badges ·
+  │          [Open in analyzer] (carries the stored code) · delete
+  ├─ Source code card (line count, CopyButton, <pre>)
   └─ stored result JSONB ──► ResultsPanel status="done"
-        └─ result null (legacy row) ──► fallback card → /analyzer
+        └─ result null (legacy row) ──► "Re-analyze in editor" (carries code)
   Delete ──► deleteAnalysisAndRedirectAction → redirect("/analyses")
+  Open in analyzer ──► sessionStorage handoff → /analyzer picks it up on mount
 ```
 
 ## 6. Snippets flow
@@ -100,11 +106,10 @@ ResultsPanel ─ SaveActions (remounted per result so state resets)
 ```
 /snippets (protected, dynamic)
   ├─ db error ──► ErrorState · empty ──► EmptyState → analyzer CTA
-  └─ rows: icon · title · language · timeAgo · Tags (sm+) · ConfirmDeleteButton
+  └─ SnippetItem rows: icon · title · language · timeAgo · Tags (sm+) · delete
+        └─ row click expands an inline code view:
+             CopyButton · [Open in analyzer] (handoff) · scrollable <pre>
 ```
-
-⚠️ Known gap: snippet **code** is write-only today — no detail view and no
-"open in analyzer" round-trip. (Polish priority P5.)
 
 ## 7. Dashboard flow
 
@@ -140,26 +145,27 @@ All stats are derived in pure functions (`lib/stats.ts`) — nothing persisted y
 | Analysis API 4xx/5xx | results panel | error state with server message |
 | Rate limited (API) | results panel | 429 message incl. retry seconds |
 | Rate limited (action) | inline | `{ok:false,error}` → red text (SaveActions) |
+| Failed delete (rate limit/db) | toast | error toast via `useToastSafe` (ConfirmDeleteButton) |
 | Render error in (app) segment | `(app)/error.tsx` | boundary keeps chrome alive |
 | Unknown analysis id | detail page | "Analysis not found" ErrorState |
 | Groq down/slow/garbage | invisible | heuristic fallback + note in results |
 
-⚠️ Known gap: `ConfirmDeleteButton` discards the action's result — a failed
-delete (rate limit, db error) gives **no user feedback**. (P4.)
-
 ## 10. Mobile considerations
 
 - **Shell:** sidebar hidden < lg; `MobileNav` hamburger → slide-over drawer
-  (Escape/backdrop close, body-scroll lock, route-change close).
-  ⚠️ No focus trap — Tab can escape into background content (known debt).
-- **Analyzer:** editor/results stack below xl; Monaco fixed `height={460}`
-  regardless of viewport ⚠ (P3); controls row wraps; char-count footer chips.
+  (Escape/backdrop close, body-scroll lock, route-change close, **focus trap**
+  with focus restore to the trigger).
+- **Analyzer:** editor/results stack below xl; Monaco height is
+  `clamp(300px, 55dvh, 460px)` so Analyze + results stay reachable on phones;
+  controls row wraps; shortcut hint hidden < sm.
 - **Lists:** space-complexity badge and snippet tags hidden < sm; verdict line
   hidden < sm; rows stay single-line with truncation.
 - **Consent gate:** bottom-sheet placement on mobile (`items-end sm:items-center`).
+- **Toasts:** full-width bottom stack on mobile, bottom-right on sm+.
 - **Landing:** single column < lg; 3D readout below hero copy.
-- ⚠️ `ConfirmDeleteButton` is 32px tall — under the ~44px recommended tap target (P3).
-- ⚠️ No `prefers-reduced-motion` handling for sweep/float/rise animations (P3/P4).
+- Delete buttons are 36px (`h-9 min-w-9`) — the app's standard control height.
+- `prefers-reduced-motion: reduce` collapses all animations/transitions;
+  status is always conveyed by text, never motion alone.
 
 ---
 

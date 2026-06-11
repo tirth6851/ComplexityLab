@@ -118,6 +118,7 @@ describe("saveSnippetAction", () => {
         id: "s1",
         title: "binarySearch()",
         language: "javascript",
+        code: "function binarySearch() {}",
         tags: [],
         savedAt: new Date().toISOString(),
       },

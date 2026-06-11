@@ -22,6 +22,8 @@
 | D10 | 2026-06 | Consent via versioned 1-year cookie (`cl-consent=v1`) | Bump version to force re-consent after material policy changes |
 | D11 | 2026-06-10 | Detail-page delete uses a separate `deleteAnalysisAndRedirectAction` | `redirect()` throws NEXT_REDIRECT — can't bolt it onto the list action that returns `{ok}` |
 | D12 | 2026-06-10 | Four-file project memory (manual/control/brain/rules) at repo root | Different update cadences; root-level matches existing doc convention; indexed from CLAUDE.md |
+| D13 | 2026-06-10 | "Open in analyzer" round-trips use a one-shot **sessionStorage handoff** (`lib/analyzer-handoff.ts`), not URL params | Code can be 100KB — too big for URLs; one-shot take() prevents stale replays |
+| D14 | 2026-06-10 | Hand-rolled toast system (`components/ui/toaster.tsx`), provider in the `(app)` layout | No dependency; `useToastSafe()` no-op fallback keeps shared primitives testable outside the shell |
 
 ## Lessons learned
 
@@ -46,23 +48,26 @@
   the app's project → migrations are manual, by the user.
 - **Org limits (2026-06-10):** parallel subagent fan-outs can hit session
   usage limits — keep inline-audit fallback in mind for doc work.
+- **React 19 lint (2026-06-10):** `react-hooks/set-state-in-effect` forbids
+  synchronous setState in effects. For client-only reads of browser storage,
+  prefer `useSyncExternalStore` (consent gate, intro strip); for genuine
+  one-shot consume-on-mount (analyzer handoff) use a scoped, commented
+  eslint-disable. Also: don't reference `ref.current` in effect cleanups —
+  capture it in a local at effect setup.
 
-## Known issues (UX audit, 2026-06-10)
+## Known issues
+
+*(The 12 issues from the 2026-06-10 UX audit — silent delete failures,
+write-only snippets, unused `preferred_language`, landing overpromises,
+dead-end dashboard CTA, code-losing re-analyze, fixed editor height, missing
+focus trap, no keyboard shortcut, no reduced-motion handling, small tap
+targets, no copy-to-clipboard — were **all resolved in the same-day UX polish
+sprint**, P1–P5.)*
 
 | Issue | Evidence | Severity |
 |---|---|---|
-| Delete failures are silent | `confirm-delete-button.tsx:43` discards `action()` result | High |
-| Snippet code is write-only (no view, no round-trip) | `snippets/page.tsx` renders title/tags only | High |
-| `preferred_language` is stored but never consumed | workbench hardcodes `DEFAULT_LANGUAGE="typescript"` | Med |
-| Landing overpromises (lessons, AI optimization don't exist) | `app/page.tsx` FEATURES array | Med |
-| "Explore the dashboard" CTA 307s visitors to sign-in | `app/page.tsx` hero | Med |
-| Detail page "Re-analyze in editor" loses the stored code | `analyses/[id]/page.tsx` links to bare `/analyzer` | Med |
-| Monaco fixed 460px height on phones | `analyzer-workbench.tsx` | Med |
-| Mobile drawer lacks a focus trap | `mobile-nav.tsx` | Med |
-| No keyboard shortcut to analyze | workbench has no keydown path | Med |
-| No `prefers-reduced-motion` handling | sweep/float/rise animations | Low |
-| Delete button 32px tap target | `confirm-delete-button.tsx` h-8 | Low |
-| No copy-to-clipboard anywhere | detail page / results | Low |
+| Stored-code view has no syntax highlighting (plain `<pre>`) | `analyses/[id]/page.tsx`, `snippet-item.tsx` — deliberate: read-only Monaco islands are too heavy for view-only | Low |
+| Snippet tags can't be edited after save | Tag primitive supports it; no UI wired | Low |
 
 ## Technical debt (carried, accepted)
 
@@ -87,4 +92,11 @@
 - **Snapshot-at-analyze** — workbench captures `{code, language}` per result so
   later edits can't corrupt a save; `SaveActions` remounts per result via `key`.
 - **`useSyncExternalStore` over a cookie** — consent gate re-renders on accept
-  without context plumbing.
+  without context plumbing (same pattern: intro strip over localStorage).
+- **`useToast()` / `useToastSafe()`** — action feedback; the Safe variant
+  no-ops without a provider so shared primitives stay portable/testable.
+- **`CopyButton`** — clipboard write + ✓ flash, mono-label styling.
+- **Analyzer handoff** — `setAnalyzerHandoff()` → navigate → workbench
+  `takeAnalyzerHandoff()` on mount; validated, one-shot.
+- **`SnippetItem`** — expandable row revealing code + copy + open-in-analyzer;
+  bound server actions passed from the server page into the client row.

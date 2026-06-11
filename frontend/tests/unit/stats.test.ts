@@ -27,6 +27,7 @@ function snippet(overrides: Partial<Snippet>): Snippet {
     id: Math.random().toString(36).slice(2),
     title: "snippet",
     language: "typescript",
+    code: "const x = 1;",
     tags: [],
     savedAt: new Date(NOW).toISOString(),
     ...overrides,

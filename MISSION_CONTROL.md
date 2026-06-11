@@ -20,16 +20,18 @@ feedback — without architectural change. Reuse the design system; no new deps.
 - Product doc system: `PRD.md`, `TRD.md`, `APP_FLOW.md` + project memory
   (`OPERATING_MANUAL.md`, this file, `SECOND_BRAIN.md`, `RULES_OF_ENGAGEMENT.md`).
 
-## Active tasks (priority order — plan approved 2026-06-10, all P1–P5)
+## Active tasks (UX polish sprint — completed 2026-06-10)
 
-| # | Task | Status | Notes |
+| # | Task | Status | Outcome |
 |---|---|---|---|
-| P1 | Analyzer onboarding | 🔨 in progress | first-run guide strip · ⌘/Ctrl+Enter · preferred-language default · idle-panel CTA |
-| P2 | Landing page | 📋 planned | honest feature copy (lessons/optimization don't exist) · signed-out-aware CTAs · "how it works" |
-| P3 | Mobile responsiveness | 📋 planned | responsive editor height · drawer focus trap · tap targets · reduced-motion |
-| P4 | Micro-interactions | 📋 planned | tiny toast system (no deps) · surface delete failures · copy-to-clipboard |
-| P5 | Analysis experience | 📋 planned | open-in-analyzer round-trip (analyses + snippets) · snippet code visibility · copy code |
+| P1 | Analyzer onboarding | ✅ done | dismissible guide strip (`IntroStrip`) · Ctrl/⌘+Enter (window + in-Monaco) · profile preferred-language now consumed · idle-panel "Run first analysis" CTA |
+| P2 | Landing page | ✅ done | honest feature trio (no phantom lessons/optimization) · dead-end dashboard CTA → "#how-it-works" anchor · new How-it-works section |
+| P3 | Mobile responsiveness | ✅ done | editor height `clamp(300px, 55dvh, 460px)` · drawer focus trap + focus restore · 36px delete tap target · `prefers-reduced-motion` |
+| P4 | Micro-interactions | ✅ done | toast system (`useToast`/`useToastSafe`, no deps) · delete failures now toast (were silent) · `CopyButton` on detail page |
+| P5 | Analysis experience | ✅ done | sessionStorage open-in-analyzer round-trip (detail page + snippets) · snippet rows expand to show code · absolute-time tooltips |
 | P6 | Lessons & quizzes | 🔮 deferred | needs content model + tables → separate proposal + approval |
+
+Sprint committed and pushed 2026-06-10 with explicit approval (auto-deploys).
 
 ## Blockers
 
@@ -50,10 +52,10 @@ pushed to `main` with explicit approval — production auto-deploys.)*
 Launch readiness: migration → key rotation → production Clerk → CI → analytics
 instrumentation (PRD §5 metrics are defined but unwired) → global rate limits (KV).
 
-## Quality gates — last verified 2026-06-10
+## Quality gates — last verified 2026-06-10 (post-sprint)
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
-| `npm run lint` | ✅ 0 errors |
-| `npm run build` | ✅ green (16 routes) |
-| `npm run test` | ✅ 19 files / 133 tests |
+| `npm run lint` | ✅ 0 errors / 0 warnings |
+| `npm run build` | ✅ green (16 routes; `/analyzer` now dynamic) |
+| `npm run test` | ✅ 24 files / 146 tests |

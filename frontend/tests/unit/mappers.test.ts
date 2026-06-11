@@ -101,6 +101,7 @@ describe("db row mappers", () => {
     };
     const mapped = mapSnippet(row);
     expect(mapped.tags).toEqual([]);
+    expect(mapped.code).toBe("function fib() {}");
     expect(mapped.savedAt).toBe("2026-06-07T09:00:00Z");
   });
 });

@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { ToastProvider } from "@/components/ui/toaster";
 
 /**
  * Authenticated app shell. Route protection is enforced upstream in proxy.ts;
- * this layout only composes the persistent chrome (sidebar + topbar).
+ * this layout composes the persistent chrome (sidebar + topbar) and hosts the
+ * toast stack for action feedback.
  */
 export default function DashboardLayout({
   children,
@@ -22,9 +24,11 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="flex min-h-screen flex-1 flex-col">
         <Topbar />
-        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+        <ToastProvider>
+          <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
+        </ToastProvider>
       </div>
     </div>
   );

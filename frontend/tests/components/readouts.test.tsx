@@ -34,6 +34,7 @@ const snippets: Snippet[] = [
     id: "s1",
     title: "Memoized fib",
     language: "javascript",
+    code: "function fib() {}",
     tags: ["dp"],
     savedAt: new Date(Date.now() - 86_400_000).toISOString(),
   },

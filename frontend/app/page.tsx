@@ -2,8 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
+  Bookmark,
+  Code2,
   Gauge,
-  GraduationCap,
+  ScanLine,
   Sparkles,
 } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
@@ -24,14 +26,33 @@ const FEATURES = [
     body: "Time and space cost rendered as readable, animated instrument readouts — Big-O made tangible, not abstract.",
   },
   {
-    icon: GraduationCap,
-    title: "Learn by doing",
-    body: "Structured lessons across sorting, search, graphs, and dynamic programming, tied to real code you can explore.",
+    icon: Sparkles,
+    title: "AI with a safety net",
+    body: "AI-powered analysis that shows its reasoning — backed by a deterministic engine that answers instantly if the AI ever can't.",
   },
   {
-    icon: Sparkles,
-    title: "AI-assisted optimization",
-    body: "Get suggested improvements and clear trade-off explanations, so you understand the why behind every rewrite.",
+    icon: Bookmark,
+    title: "A library that compounds",
+    body: "Save analyses and snippets, reopen full results anytime, and watch streaks and language stats build real intuition.",
+  },
+];
+
+/** The actual product loop — every claim here is shipped. */
+const HOW_IT_WORKS = [
+  {
+    icon: Code2,
+    title: "Paste your code",
+    body: "Drop in a function — TypeScript, JavaScript, Python, Java, Go, Rust, or C++ — or load one of 18 curated samples.",
+  },
+  {
+    icon: ScanLine,
+    title: "Run the analysis",
+    body: "Get time and space complexity with metric gauges, growth curves on a log scale, and notes on what the engine saw.",
+  },
+  {
+    icon: Bookmark,
+    title: "Save and revisit",
+    body: "Keep the full breakdown in your library and reopen any analysis later, rendered exactly as it was.",
   },
 ];
 
@@ -110,12 +131,12 @@ export default function Home() {
                 Start analyzing
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-              <Link
-                href="/dashboard"
+              <a
+                href="#how-it-works"
                 className={buttonClassName({ variant: "outline", size: "lg" })}
               >
-                Explore the dashboard
-              </Link>
+                See how it works
+              </a>
             </div>
 
             <p className="mt-4 text-xs text-muted-foreground">
@@ -176,6 +197,45 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* How it works */}
+        <section
+          id="how-it-works"
+          className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-20 sm:px-6"
+        >
+          <div className="mx-auto max-w-xl text-center">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              From paste to verdict in seconds
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Three steps. No setup, no profiler, no configuration.
+            </p>
+          </div>
+          <ol className="mt-10 grid gap-4 sm:grid-cols-3">
+            {HOW_IT_WORKS.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <li
+                  key={step.title}
+                  className="relative rounded-2xl border border-border bg-card/60 p-6 backdrop-blur"
+                >
+                  <span className="absolute right-5 top-4 font-mono text-3xl font-semibold text-primary/15">
+                    {i + 1}
+                  </span>
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </span>
+                  <h3 className="mt-4 text-base font-semibold tracking-tight">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {step.body}
+                  </p>
+                </li>
+              );
+            })}
+          </ol>
         </section>
 
         {/* Feature trio */}

@@ -15,10 +15,12 @@ export interface ResultsPanelProps {
   error?: string | null;
   /** Action buttons rendered with a finished result (e.g. save controls). */
   actions?: ReactNode;
+  /** Optional call-to-action rendered in the idle state (e.g. "run first analysis"). */
+  idleAction?: ReactNode;
 }
 
 /** Pre-analysis placeholder. */
-function IdleState() {
+function IdleState({ action }: { action?: ReactNode }) {
   return (
     <div className="flex h-full min-h-[420px] flex-col items-center justify-center gap-3 rounded-ds-md border border-dashed border-line bg-grid-dots p-8 text-center">
       <span className="flex size-12 items-center justify-center rounded-ds-md border border-line bg-surface-panel text-primary">
@@ -29,6 +31,7 @@ function IdleState() {
         Paste code or load a sample, then run the analyzer to see its time and
         space complexity broken down on the gradient.
       </p>
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
@@ -139,10 +142,11 @@ export function ResultsPanel({
   analysis,
   error,
   actions,
+  idleAction,
 }: ResultsPanelProps) {
   return (
     <Card className="p-4 sm:p-5" glow={status === "done"}>
-      {status === "idle" && <IdleState />}
+      {status === "idle" && <IdleState action={idleAction} />}
       {status === "analyzing" && <AnalyzingState />}
       {status === "error" && (
         <ErrorState message={error ?? "Something went wrong while analyzing."} />

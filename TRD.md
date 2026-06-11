@@ -184,7 +184,7 @@ applied, the app intentionally degrades to error/empty states.
 
 ## 8. Testing strategy
 
-- Vitest + Testing Library (jsdom). Current: **19 files / 133 tests**, all
+- Vitest + Testing Library (jsdom). Current: **24 files / 146 tests**, all
   green with typecheck, lint, and production build (verified 2026-06-10).
 - Layout: `tests/unit` (engine, growth, complexity, stats, format, mappers,
   rate limiter, ai registry, groq parse/fallback) · `tests/components`

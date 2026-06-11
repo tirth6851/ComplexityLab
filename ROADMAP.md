@@ -71,6 +71,24 @@
   (fixed via `unauthenticatedUrl`), Google SSO redirect to
   accounts.google.com confirmed in a real browser.
 
+### UX polish sprint (2026-06-10, P1–P5 complete)
+- **P1 onboarding:** dismissible `IntroStrip` guide; **Ctrl/⌘+Enter** to
+  analyze (window listener + in-Monaco command); analyzer opens on the
+  profile's `preferred_language` (finally consumed); idle-panel
+  "Run first analysis" CTA.
+- **P2 landing honesty:** feature trio rewritten to shipped truth (no phantom
+  lessons/AI-optimization); dead-end dashboard CTA → "#how-it-works" anchor;
+  new How-it-works section.
+- **P3 mobile:** Monaco height `clamp(300px, 55dvh, 460px)`; drawer **focus
+  trap** + focus restore; 36px delete tap targets; global
+  `prefers-reduced-motion` support.
+- **P4 feedback:** dependency-free toast system (`useToast`/`useToastSafe`);
+  failed deletes now toast (previously silent); `CopyButton` on the detail page.
+- **P5 round-trips:** sessionStorage analyzer handoff from saved analyses
+  ("Open in analyzer" keeps the code) **and** snippets; snippet rows expand to
+  reveal code with copy + open-in-analyzer (code was write-only before).
+- Tests **133 → 146** (24 files); all gates green.
+
 ### Detail view + product docs (2026-06-10)
 - **`/analyses/[id]` detail view shipped:** stored code + the persisted
   `result` JSONB re-rendered through `ResultsPanel`; `getAnalysis()`
@@ -106,11 +124,12 @@
 ## 🧭 Near-term (next build phases)
 
 - ~~Analysis detail view~~ — **shipped 2026-06-10** (`/analyses/[id]`).
-- **Snippet → analyzer round-trip** — "Open in analyzer" on snippet rows;
-  tags editing UI (Tag primitive already supports remove/select).
-- **Analyzer polish** — shareable results, keyboard shortcut (⌘⏎ to analyze),
-  per-user preferred language default from profile.
-- **Marketing landing page upgrade + Dark Lab visual polish pass.**
+- ~~Snippet → analyzer round-trip~~ — **shipped 2026-06-10**; tags editing UI
+  still open (Tag primitive already supports remove/select).
+- ~~Keyboard shortcut + preferred-language default~~ — **shipped 2026-06-10**;
+  shareable results still open.
+- ~~Landing honesty + how-it-works~~ — **shipped 2026-06-10**; a deeper visual
+  upgrade pass remains optional.
 - **Global rate limiting** — move the limiter window to Upstash/Vercel KV.
 
 ## 🗺️ Mid-term
@@ -143,7 +162,6 @@
   fine at this scale; memoize per-request (React `cache()`) when it matters.
 - Monaco themes mirror token hexes by hand (documented exception to the
   no-hardcoded-colors rule) — keep in sync when tokens change.
-- Mobile drawer doesn't trap focus (Escape/backdrop close only).
 - No CI pipeline yet — gates run locally (`typecheck · lint · build · test`).
 - 4 moderate `npm audit` advisories in dev tooling (vitest/jsdom chain).
 

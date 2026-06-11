@@ -93,6 +93,8 @@ export interface CodeEditorProps {
   /** Monaco language id (from `lib/analysis/languages.ts`). */
   language: string;
   height?: number | string;
+  /** Invoked on Ctrl/⌘+Enter inside the editor (Monaco swallows window keys). */
+  onRun?: () => void;
 }
 
 export function CodeEditor({
@@ -100,8 +102,14 @@ export function CodeEditor({
   onChange,
   language,
   height = 440,
+  onRun,
 }: CodeEditorProps) {
   const dark = useIsDark();
+  // Latest-callback ref: the Monaco command is registered once at mount.
+  const onRunRef = React.useRef(onRun);
+  React.useEffect(() => {
+    onRunRef.current = onRun;
+  });
 
   return (
     <MonacoEditor
@@ -110,12 +118,15 @@ export function CodeEditor({
       value={value}
       onChange={(next) => onChange(next ?? "")}
       beforeMount={defineThemes}
-      onMount={(editor) => {
+      onMount={(editor, monaco) => {
         // Use the app's real mono font (next/font registers a custom family).
         const mono = getComputedStyle(document.documentElement)
           .getPropertyValue("--font-mono")
           .trim();
         if (mono) editor.updateOptions({ fontFamily: mono });
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () =>
+          onRunRef.current?.(),
+        );
       }}
       theme={dark ? "complexitylab-dark" : "complexitylab-light"}
       options={{

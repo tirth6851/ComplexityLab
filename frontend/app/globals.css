@@ -285,3 +285,17 @@
     animation: cx-scanmove 1.8s var(--ease-out) forwards;
   }
 }
+
+/* Respect users who opt out of motion: collapse decorative animations and
+   transitions to near-instant. Status is still conveyed by text (e.g. the
+   "Analyzing…" label), never by motion alone. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

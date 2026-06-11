@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Clock, ScanLine } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
+import { OpenInAnalyzerButton } from "@/components/analyzer/open-in-analyzer-button";
 import { Card } from "@/components/ui/card";
 import { ComplexityBadge } from "@/components/ui/complexity-badge";
+import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorState } from "@/components/ui/error-state";
 import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
 import { ResultsPanel } from "@/components/analyzer/results-panel";
@@ -55,7 +57,10 @@ export default async function AnalysisDetailPage({
               <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-muted">
                 <span>{languageLabel(res.data.language)}</span>
                 <span aria-hidden>·</span>
-                <span className="inline-flex items-center gap-1">
+                <span
+                  className="inline-flex items-center gap-1"
+                  title={res.data.createdAt}
+                >
                   <Clock className="h-3.5 w-3.5" aria-hidden />
                   {timeAgo(res.data.createdAt)}
                 </span>
@@ -70,13 +75,10 @@ export default async function AnalysisDetailPage({
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Link
-                href="/analyzer"
-                className={buttonClassName({ variant: "outline", size: "sm" })}
-              >
-                <ScanLine className="h-3.5 w-3.5" aria-hidden />
-                New analysis
-              </Link>
+              <OpenInAnalyzerButton
+                code={res.data.code}
+                language={res.data.language}
+              />
               <ConfirmDeleteButton
                 action={deleteAnalysisAndRedirectAction.bind(null, res.data.id)}
                 label={`Delete ${res.data.title}`}
@@ -86,13 +88,16 @@ export default async function AnalysisDetailPage({
 
           {/* Source code */}
           <Card className="overflow-hidden">
-            <div className="flex items-center justify-between border-b border-line-subtle bg-surface-panel px-4 py-2.5">
+            <div className="flex items-center justify-between gap-3 border-b border-line-subtle bg-surface-panel px-4 py-1.5">
               <span className="font-mono text-2xs uppercase tracking-label text-ink-faint">
                 Source code
               </span>
-              <span className="font-mono text-2xs text-ink-faint">
-                {languageLabel(res.data.language)} ·{" "}
-                {res.data.code.split("\n").length} lines
+              <span className="flex items-center gap-2">
+                <span className="font-mono text-2xs text-ink-faint">
+                  {languageLabel(res.data.language)} ·{" "}
+                  {res.data.code.split("\n").length} lines
+                </span>
+                <CopyButton value={res.data.code} label="Copy source code" />
               </span>
             </div>
             <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-ink-secondary">
@@ -108,13 +113,11 @@ export default async function AnalysisDetailPage({
               <p className="text-sm text-ink-muted">
                 No detailed results are stored for this analysis.
               </p>
-              <Link
-                href="/analyzer"
-                className={buttonClassName({ variant: "outline", size: "sm" })}
-              >
-                <ScanLine className="h-3.5 w-3.5" aria-hidden />
-                Re-analyze in editor
-              </Link>
+              <OpenInAnalyzerButton
+                code={res.data.code}
+                language={res.data.language}
+                label="Re-analyze in editor"
+              />
             </Card>
           )}
         </>

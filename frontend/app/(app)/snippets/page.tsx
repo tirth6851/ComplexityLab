@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Bookmark, Clock, ScanLine } from "lucide-react";
+import { Bookmark, ScanLine } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,14 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tag } from "@/components/ui/tag";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { ConfirmDeleteButton } from "@/components/ui/confirm-delete-button";
+import { SnippetItem } from "@/components/snippets/snippet-item";
 import { buttonClassName } from "@/components/ui/button";
 import { listSnippets } from "@/lib/db/snippets";
-import { languageLabel } from "@/lib/analysis/languages";
-import { timeAgo } from "@/lib/format";
 import { deleteSnippetAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -64,40 +61,11 @@ export default async function SnippetsPage() {
             />
           ) : (
             res.data.map((s) => (
-              <div
+              <SnippetItem
                 key={s.id}
-                className="flex items-center justify-between gap-3 rounded-ds-sm px-2 py-2.5 transition-colors hover:bg-surface-raised"
-              >
-                <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-ds-sm border border-line-subtle bg-surface-panel text-ink-muted">
-                    <Bookmark className="h-4 w-4" aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{s.title}</p>
-                    <p className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
-                      <span>{languageLabel(s.language)}</span>
-                      <span aria-hidden>·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {timeAgo(s.savedAt)}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {s.tags.length > 0 && (
-                    <div className="hidden gap-1.5 sm:flex">
-                      {s.tags.map((tag) => (
-                        <Tag key={tag}>{tag}</Tag>
-                      ))}
-                    </div>
-                  )}
-                  <ConfirmDeleteButton
-                    action={deleteSnippetAction.bind(null, s.id)}
-                    label={`Delete snippet ${s.title}`}
-                  />
-                </div>
-              </div>
+                snippet={s}
+                deleteAction={deleteSnippetAction.bind(null, s.id)}
+              />
             ))
           )}
         </CardContent>

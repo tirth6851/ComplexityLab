@@ -15,6 +15,30 @@ describe("ResultsPanel", () => {
     expect(screen.getByText("Ready to analyze")).toBeInTheDocument();
   });
 
+  it("renders an injected idle action only in the idle state", () => {
+    const { rerender } = render(
+      <ResultsPanel
+        status="idle"
+        analysis={null}
+        idleAction={<button>Run first analysis</button>}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Run first analysis" }),
+    ).toBeInTheDocument();
+
+    rerender(
+      <ResultsPanel
+        status="analyzing"
+        analysis={null}
+        idleAction={<button>Run first analysis</button>}
+      />,
+    );
+    expect(
+      screen.queryByRole("button", { name: "Run first analysis" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders the scanning state", () => {
     render(<ResultsPanel status="analyzing" analysis={null} />);
     expect(screen.getByText("Scanning structure…")).toBeInTheDocument();

@@ -21,7 +21,7 @@
 | Abuse control | `lib/rate-limit.ts` + `lib/action-limit.ts` | Sliding-window per-user limits on the API route and every server action |
 | Observability | `lib/log.ts` | Structured JSON logs (no code content) → Vercel runtime logs |
 | Legal | `/privacy`, `/terms`, `ConsentGate` | Site-wide forced consent (cookie `cl-consent`); decline leaves the site |
-| Tests | Vitest + Testing Library (jsdom) | 19 files / 133 tests |
+| Tests | Vitest + Testing Library (jsdom) | 24 files / 146 tests |
 | Deploy | Vercel | Root Directory = `frontend`; GitHub `main` auto-deploys |
 
 ---
@@ -55,7 +55,9 @@ ComplexityLab/
    │  ├─ ui/                               # design-system primitives (see DESIGN_HANDOFF.md)
    │  ├─ layout/                           # sidebar, topbar, nav, page-title, mobile drawer
    │  ├─ readouts/                         # dashboard panels (now prop-driven, no mock data)
-   │  ├─ analyzer/                         # workbench, code-editor, results-panel, timeline, save-actions
+   │  ├─ analyzer/                         # workbench, code-editor, results-panel, timeline,
+   │  │                                    #   save-actions, intro-strip, open-in-analyzer-button
+   │  ├─ snippets/                         # snippet-item (expandable code row)
    │  └─ settings/                         # tabs, profile-form, danger-zone
    ├─ lib/
    │  ├─ ai/                               # provider abstraction (types, registry, providers/)
@@ -80,7 +82,7 @@ ComplexityLab/
 | `/sign-in`, `/sign-up` | static | public | Google-only Clerk auth |
 | `/sso-callback` | client | public | OAuth handshake |
 | `/dashboard` | dynamic | **protected** | Readouts on real data + derived stats |
-| `/analyzer` | static shell, client island | **protected** | Monaco workbench + results panel |
+| `/analyzer` | dynamic, client island | **protected** | Monaco workbench + results panel; opens on the profile's preferred language; accepts sessionStorage handoffs |
 | `/analyses` | dynamic | **protected** | Saved analyses list + delete (rows link to details) |
 | `/analyses/[id]` | dynamic | **protected** | Stored code + persisted `result` JSONB re-rendered through the results panel |
 | `/snippets` | dynamic | **protected** | Saved snippets list + delete |

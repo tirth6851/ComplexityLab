@@ -39,6 +39,7 @@ export interface Snippet {
   id: string;
   title: string;
   language: string;
+  code: string;
   tags: string[];
   /** ISO timestamp. */
   savedAt: string;

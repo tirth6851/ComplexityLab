@@ -73,6 +73,7 @@ export function mapSnippet(row: SnippetRow): Snippet {
     id: row.id,
     title: row.title,
     language: row.language,
+    code: row.code,
     tags: row.tags ?? [],
     savedAt: row.created_at,
   };

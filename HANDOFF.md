@@ -7,9 +7,10 @@
 > live Groq AI (heuristic fallback), Supabase data layer, real app flows, rate limiting,
 > structured logging, legal/consent pack, and a `/analyses/[id]` detail view (2026-06-10).
 > All gates green: 0 TS errors · 0 ESLint errors · production build passes ·
-> **133/133 tests pass**. All work is committed and pushed to GitHub `main`
-> (auto-deploys production). History was **rewritten** on 2026-06-09 to purge a
-> leaked `.env.local` — old SHAs are dead.
+> **146/146 tests pass**. All work — including the 2026-06-10 **UX polish
+> sprint (P1–P5)** — is committed and pushed to GitHub `main` (auto-deploys
+> production). History was **rewritten** on 2026-06-09 to purge a leaked
+> `.env.local` — old SHAs are dead.
 > **Read `MISSION_CONTROL.md` first for current sprint state.**
 > **Live:** https://complexity-lab-eight.vercel.app (auto-deploys from GitHub `main`).
 > **Companion docs:** `ARCHITECTURE.md` (technical deep-dive) · `ROADMAP.md` (status ledger +
@@ -70,7 +71,7 @@ screen (Google SSO is enabled in Clerk — confirmed working)** → unauthed API
 | **AI architecture** | ✅ | `lib/ai` registry; `AI_PROVIDER=mock` default |
 | **Database layer** | ✅ code / ⚠️ ops | Schema + RLS + server-only data layer; **migration not yet applied** |
 | **App flows** | ✅ | Analyses, snippets, settings, save/delete, empty/error/loading |
-| **Tests** | ✅ | Vitest + RTL, 19 files / 133 tests |
+| **Tests** | ✅ | Vitest + RTL, 24 files / 146 tests |
 | **Analyses detail view** | ✅ | `/analyses/[id]` (2026-06-10) |
 | **Groq integration** | ✅ | Live behind `AI_PROVIDER=groq`, auto-fallback to heuristic engine |
 | **Rate limiting + logging** | ✅ | Per-user sliding-window limits on API + all actions; structured JSON logs |
@@ -203,6 +204,12 @@ screen (Google SSO is enabled in Clerk — confirmed working)** → unauthed API
    (`OPERATING_MANUAL.md`, `MISSION_CONTROL.md`, `SECOND_BRAIN.md`,
    `RULES_OF_ENGAGEMENT.md`); drift fixes across this file, `ARCHITECTURE.md`,
    `ROADMAP.md`, `DESIGN_HANDOFF.md`, `CLAUDE.md`.
+3. **UX polish sprint (P1–P5, same day):** analyzer onboarding (IntroStrip,
+   Ctrl/⌘+Enter, preferred-language default, idle CTA) · honest landing +
+   how-it-works · mobile (responsive editor height, drawer focus trap, tap
+   targets, reduced-motion) · feedback (toast system, delete failures
+   surfaced, CopyButton) · round-trips (analyzer handoff from analyses +
+   snippets, expandable snippet code). Tests 133 → **146** (24 files).
 
 ---
 
@@ -248,9 +255,10 @@ In production set these as **Vercel environment variables**; Root Directory = `f
   Vitest. App lives in **`frontend/`**.
 - **State:** Deployed + verified at **https://complexity-lab-eight.vercel.app**.
   Analyzer with Groq AI, DB-backed flows, settings, rate limiting, logging,
-  legal/consent pack, `/analyses/[id]` detail view, 133 tests. Everything
-  committed and pushed; GitHub `main` auto-deploys production
-  (**a push is a deploy** — never push without explicit instruction).
+  legal/consent pack, `/analyses/[id]` detail view, UX polish sprint
+  (onboarding, mobile, toasts, round-trips), 146 tests. Everything committed
+  and pushed; GitHub `main` auto-deploys production (**a push is a deploy** —
+  never push without explicit instruction).
 - **Run it:** `cd frontend && npm install && npm run dev` → http://localhost:3000.
   Verify: `npm run typecheck && npm run lint && npm run build && npm run test`.
 - **The one blocker:** the DB migration (`supabase/migrations/…_init.sql`) is **not

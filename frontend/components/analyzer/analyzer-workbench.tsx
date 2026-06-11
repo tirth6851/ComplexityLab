@@ -6,24 +6,31 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { CodeEditor } from "./code-editor";
+import { IntroStrip } from "./intro-strip";
 import { ResultsPanel, type AnalyzerStatus } from "./results-panel";
 import { SaveActions } from "./save-actions";
 import { LANGUAGES, type LanguageId } from "@/lib/analysis/languages";
 import { SAMPLES } from "@/lib/analysis/samples";
+import { takeAnalyzerHandoff } from "@/lib/analyzer-handoff";
 import type { CodeAnalysis } from "@/lib/ai/types";
-
-const DEFAULT_LANGUAGE: LanguageId = "typescript";
 
 /** Min visible "scan" time so results don't flash in jarringly. */
 const MIN_SCAN_MS = 650;
 
-export function AnalyzerWorkbench() {
-  const [language, setLanguage] = React.useState<LanguageId>(DEFAULT_LANGUAGE);
+export interface AnalyzerWorkbenchProps {
+  /** Buffer starts on this language's first sample (user's profile preference). */
+  initialLanguage?: LanguageId;
+}
+
+export function AnalyzerWorkbench({
+  initialLanguage = "typescript",
+}: AnalyzerWorkbenchProps) {
+  const [language, setLanguage] = React.useState<LanguageId>(initialLanguage);
   const [sampleId, setSampleId] = React.useState<string>(
-    SAMPLES[DEFAULT_LANGUAGE][0].id,
+    SAMPLES[initialLanguage][0].id,
   );
   const [code, setCode] = React.useState<string>(
-    SAMPLES[DEFAULT_LANGUAGE][0].code,
+    SAMPLES[initialLanguage][0].code,
   );
   const [status, setStatus] = React.useState<AnalyzerStatus>("idle");
   const [analysis, setAnalysis] = React.useState<CodeAnalysis | null>(null);
@@ -35,6 +42,20 @@ export function AnalyzerWorkbench() {
     code: string;
     language: LanguageId;
   } | null>(null);
+
+  // A pending "open in analyzer" handoff (from a saved analysis or snippet)
+  // replaces the default sample buffer once, on mount. SSR can't read
+  // sessionStorage, so this must be a one-shot post-hydration update — an
+  // intentional external-store read, not a render-cascading sync.
+  /* eslint-disable react-hooks/set-state-in-effect -- one-shot sessionStorage consume */
+  React.useEffect(() => {
+    const handoff = takeAnalyzerHandoff();
+    if (!handoff) return;
+    setLanguage(handoff.language);
+    setSampleId("");
+    setCode(handoff.code);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const monacoLanguage =
     LANGUAGES.find((l) => l.id === language)?.monaco ?? "plaintext";
@@ -84,8 +105,32 @@ export function AnalyzerWorkbench() {
 
   const empty = code.trim().length === 0;
 
+  /** Single entry point for every analyze trigger (button, shortcut, idle CTA). */
+  function requestAnalyze() {
+    if (empty || status === "analyzing") return;
+    void analyze();
+  }
+
+  // Ctrl/⌘+Enter anywhere on the page (Monaco registers its own command —
+  // see CodeEditor — because it swallows window-level keydowns when focused).
+  const analyzeRef = React.useRef(requestAnalyze);
+  React.useEffect(() => {
+    analyzeRef.current = requestAnalyze;
+  });
+  React.useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        analyzeRef.current();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <IntroStrip />
       <div className="grid items-start gap-6 xl:grid-cols-2">
         {/* ---- input side ---- */}
         <Card className="overflow-hidden">
@@ -121,7 +166,7 @@ export function AnalyzerWorkbench() {
             </div>
             <div className="ml-auto">
               <Button
-                onClick={analyze}
+                onClick={requestAnalyze}
                 disabled={empty || status === "analyzing"}
               >
                 <ScanLine className="h-4 w-4" aria-hidden />
@@ -135,7 +180,10 @@ export function AnalyzerWorkbench() {
               value={code}
               onChange={setCode}
               language={monacoLanguage}
-              height={460}
+              // Full 460px on desktop; on small viewports cap to ~half the
+              // screen so the Analyze button and results stay reachable.
+              height="clamp(300px, 55dvh, 460px)"
+              onRun={requestAnalyze}
             />
             {status === "analyzing" && (
               <div
@@ -147,12 +195,16 @@ export function AnalyzerWorkbench() {
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-line-subtle px-4 py-2">
+          <div className="flex items-center justify-between gap-3 border-t border-line-subtle px-4 py-2">
             <span className="font-mono text-2xs uppercase tracking-label text-ink-faint">
               {code.length.toLocaleString()} chars
+              <span className="hidden sm:inline" aria-hidden>
+                {" "}
+                · ctrl/⌘ ↩ to analyze
+              </span>
             </span>
             <span className="font-mono text-2xs uppercase tracking-label text-ink-faint">
-              static heuristic scan · no code leaves your account
+              analyzed server-side · code never logged
             </span>
           </div>
         </Card>
@@ -162,6 +214,17 @@ export function AnalyzerWorkbench() {
           status={status}
           analysis={analysis}
           error={error}
+          idleAction={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={requestAnalyze}
+              disabled={empty}
+            >
+              <ScanLine className="h-3.5 w-3.5" aria-hidden />
+              Run first analysis
+            </Button>
+          }
           actions={
             analysis && analyzed ? (
               <SaveActions
