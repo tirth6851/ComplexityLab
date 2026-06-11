@@ -3,6 +3,8 @@
  * Supabase (see `lib/db`); rows are mapped into these shapes for the UI.
  */
 
+import type { CodeAnalysis } from "@/lib/ai/types";
+
 /** Canonical Big-O classes the visual system has dedicated stops for. */
 export type Complexity =
   | "O(1)"
@@ -25,6 +27,12 @@ export interface Analysis {
   verdict: string;
   /** ISO timestamp. Render with `timeAgo()` from lib/format. */
   createdAt: string;
+}
+
+/** `Analysis` extended with the stored source code and full engine result. */
+export interface AnalysisDetail extends Analysis {
+  code: string;
+  result: CodeAnalysis | null;
 }
 
 export interface Snippet {

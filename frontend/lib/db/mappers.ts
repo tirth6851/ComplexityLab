@@ -1,4 +1,5 @@
-import type { Analysis, Profile, Snippet } from "@/types";
+import type { Analysis, AnalysisDetail, Profile, Snippet } from "@/types";
+import type { CodeAnalysis } from "@/lib/ai/types";
 
 /**
  * Supabase row shapes and row → domain mappers. Pure functions (no client,
@@ -56,6 +57,14 @@ export function mapAnalysis(row: AnalysisRow): Analysis {
     spaceComplexity: row.space_complexity,
     verdict: row.verdict,
     createdAt: row.created_at,
+  };
+}
+
+export function mapAnalysisDetail(row: AnalysisRow): AnalysisDetail {
+  return {
+    ...mapAnalysis(row),
+    code: row.code,
+    result: (row.result as CodeAnalysis) ?? null,
   };
 }
 

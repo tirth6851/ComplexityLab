@@ -68,7 +68,10 @@ export default async function AnalysesPage() {
                 key={a.id}
                 className="flex items-center justify-between gap-3 rounded-ds-sm px-2 py-2.5 transition-colors hover:bg-surface-raised"
               >
-                <div className="min-w-0 flex-1">
+                <Link
+                  href={`/analyses/${a.id}`}
+                  className="min-w-0 flex-1"
+                >
                   <p className="truncate font-mono text-sm font-medium">
                     {a.title}
                   </p>
@@ -85,7 +88,7 @@ export default async function AnalysesPage() {
                       {a.verdict}
                     </p>
                   )}
-                </div>
+                </Link>
                 <div className="flex shrink-0 items-center gap-1.5">
                   <ComplexityBadge complexity={a.timeComplexity} />
                   <ComplexityBadge

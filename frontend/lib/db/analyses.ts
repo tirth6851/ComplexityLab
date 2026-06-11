@@ -1,9 +1,9 @@
 import "server-only";
 
-import type { Analysis } from "@/types";
+import type { Analysis, AnalysisDetail } from "@/types";
 import type { CodeAnalysis } from "@/lib/ai/types";
 import { dbError, getAdminClient, type DbResult } from "./admin";
-import { mapAnalysis, type AnalysisRow } from "./mappers";
+import { mapAnalysis, mapAnalysisDetail, type AnalysisRow } from "./mappers";
 import { getOrCreateProfile } from "./profiles";
 
 /** Analyses, always scoped to the signed-in user's profile. */
@@ -26,6 +26,31 @@ export async function listAnalyses(
     return { ok: true, data: (res.data as AnalysisRow[]).map(mapAnalysis) };
   } catch (e) {
     return dbError(e, "Could not load your analyses.");
+  }
+}
+
+export async function getAnalysis(
+  id: string,
+): Promise<DbResult<AnalysisDetail>> {
+  const profile = await getOrCreateProfile();
+  if (!profile.ok) return profile;
+
+  try {
+    const db = getAdminClient();
+    const res = await db
+      .from("analyses")
+      .select("*")
+      .eq("id", id)
+      .eq("profile_id", profile.data.id)
+      .single<AnalysisRow>();
+    if (res.error) {
+      if (res.error.code === "PGRST116")
+        return { ok: false, error: "Analysis not found." };
+      throw res.error;
+    }
+    return { ok: true, data: mapAnalysisDetail(res.data) };
+  } catch (e) {
+    return dbError(e, "Could not load the analysis.");
   }
 }
 
