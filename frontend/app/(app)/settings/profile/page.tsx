@@ -32,7 +32,7 @@ export default async function ProfileSettingsPage() {
           <ErrorState
             title="Could not load your profile"
             message={profile.error}
-            hint="If the database hasn't been provisioned yet, apply supabase/migrations and check the Supabase env vars."
+            hint="This is usually temporary — please refresh in a moment. If it keeps happening, the data service may be down."
           />
         )}
       </CardContent>

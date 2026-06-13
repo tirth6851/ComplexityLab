@@ -86,3 +86,37 @@ describe("ResultsPanel", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("ResultsPanel screen-reader announcements", () => {
+  it("announces the verdict politely when analysis completes", () => {
+    render(<ResultsPanel status="done" analysis={analysis} />);
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("Analysis complete.");
+    expect(status).toHaveTextContent(analysis.time.notation);
+    expect(status).toHaveTextContent(analysis.space.notation);
+  });
+
+  it("announces progress while analyzing", () => {
+    render(<ResultsPanel status="analyzing" analysis={null} />);
+    expect(screen.getByRole("status")).toHaveTextContent("Analyzing code…");
+  });
+
+  it("announces failure assertively via role=alert", () => {
+    render(
+      <ResultsPanel
+        status="error"
+        analysis={null}
+        error="Rate limit exceeded."
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Analysis failed. Rate limit exceeded.",
+    );
+  });
+
+  it("keeps both live regions silent while idle", () => {
+    render(<ResultsPanel status="idle" analysis={null} />);
+    expect(screen.getByRole("status").textContent).toBe("");
+    expect(screen.getByRole("alert").textContent).toBe("");
+  });
+});

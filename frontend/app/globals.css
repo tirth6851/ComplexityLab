@@ -133,8 +133,8 @@
 
     --text-primary:   #edf2fc;
     --text-secondary: #8a9dbf;
-    --text-muted:     #556478;
-    --text-faint:     #3a4a5c;
+    --text-muted:     #8493ac; /* ≈5.4:1 on surface-panel — WCAG AA */
+    --text-faint:     #7c8aa3; /* ≈4.8:1 on surface-panel — WCAG AA */
     --text-on-accent: #041811;
 
     --border-subtle:  #131e30;
