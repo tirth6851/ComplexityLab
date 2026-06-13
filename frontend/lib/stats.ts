@@ -1,4 +1,5 @@
 import type { Analysis, DashboardStat, ProgressMetric, Snippet } from "@/types";
+import { languageLabel } from "@/lib/analysis/languages";
 
 /**
  * Pure dashboard-stat derivations from real rows. `now` is injectable for
@@ -98,7 +99,7 @@ export function computeLanguageMix(analyses: Analysis[]): ProgressMetric[] {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4)
     .map(([language, count]) => ({
-      label: language,
+      label: languageLabel(language),
       value: Math.round((count / analyses.length) * 100),
     }));
 }

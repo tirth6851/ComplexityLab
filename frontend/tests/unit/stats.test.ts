@@ -100,7 +100,27 @@ describe("computeLanguageMix", () => {
     ];
     const mix = computeLanguageMix(analyses);
     expect(mix).toHaveLength(4);
-    expect(mix[0]).toEqual({ label: "typescript", value: 38 }); // 3/8
+    expect(mix[0]).toEqual({ label: "TypeScript", value: 38 }); // 3/8
     expect(mix.every((m) => m.value > 0 && m.value <= 100)).toBe(true);
+  });
+
+  it("renders friendly language labels, not raw ids", () => {
+    const analyses = [
+      analysis({ language: "cpp" }),
+      analysis({ language: "typescript" }),
+    ];
+    const mix = computeLanguageMix(analyses);
+    expect(mix.map((m) => m.label).sort()).toEqual(["C++", "TypeScript"]);
+  });
+
+  it("rounds each share independently (top shares need not sum to 100)", () => {
+    const analyses = [
+      analysis({ language: "typescript" }),
+      analysis({ language: "python" }),
+      analysis({ language: "go" }),
+    ];
+    const mix = computeLanguageMix(analyses);
+    // 1/3 each -> 33 (sum 99); shares are intentionally not normalized.
+    expect(mix.every((m) => m.value === 33)).toBe(true);
   });
 });

@@ -24,7 +24,8 @@ export function WelcomeCardSkeleton() {
 
 /**
  * Greets the REAL signed-in user (via Clerk currentUser). The rest of the
- * dashboard is mock data; this is the one live, personalized element.
+ * dashboard renders real Supabase-derived data (recent analyses, saved
+ * snippets, and computed stats); this card is the personalized greeting.
  */
 export async function WelcomeCard() {
   const user = await currentUser();

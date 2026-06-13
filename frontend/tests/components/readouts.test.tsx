@@ -77,13 +77,20 @@ describe("ProgressOverview", () => {
     render(
       <ProgressOverview
         stats={[{ label: "Analyses", value: "4", hint: "+2 this week" }]}
-        metrics={[{ label: "typescript", value: 75 }]}
+        metrics={[{ label: "TypeScript", value: 75 }]}
       />,
     );
     expect(screen.getByText("Analyses")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
     expect(screen.getByText("Language mix")).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();
+
+    // Language-mix bars expose accessible progressbar semantics.
+    const bar = screen.getByRole("progressbar");
+    expect(bar).toHaveAttribute("aria-valuenow", "75");
+    expect(bar).toHaveAttribute("aria-valuemin", "0");
+    expect(bar).toHaveAttribute("aria-valuemax", "100");
+    expect(bar).toHaveAttribute("aria-label", "TypeScript");
   });
 
   it("renders the empty state when there is no data", () => {
