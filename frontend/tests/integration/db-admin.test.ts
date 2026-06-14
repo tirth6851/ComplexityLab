@@ -28,13 +28,26 @@ describe("getAdminClient", () => {
 });
 
 describe("dbError", () => {
-  it("extracts messages from Error instances", () => {
-    const res = dbError<null>(new Error("boom"), "fallback");
-    expect(res).toEqual({ ok: false, error: "boom" });
+  it("never leaks the raw provider message to the UI — returns the friendly fallback", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = dbError<null>(
+      new Error('relation "public.analyses" does not exist'),
+      "Could not load your analyses.",
+    );
+    // UI sees only the safe fallback…
+    expect(res).toEqual({ ok: false, error: "Could not load your analyses." });
+    // …but the raw detail is still logged server-side for debugging.
+    expect(spy).toHaveBeenCalledWith(
+      "[db]",
+      'relation "public.analyses" does not exist',
+    );
+    spy.mockRestore();
   });
 
-  it("falls back for unknown error shapes", () => {
+  it("returns the fallback for unknown error shapes too", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const res = dbError<null>({ weird: true }, "fallback message");
     expect(res).toEqual({ ok: false, error: "fallback message" });
+    spy.mockRestore();
   });
 });

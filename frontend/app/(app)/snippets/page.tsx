@@ -42,7 +42,7 @@ export default async function SnippetsPage() {
             <ErrorState
               title="Could not load snippets"
               message={res.error}
-              hint="If the database hasn't been provisioned yet, apply supabase/migrations and check the Supabase env vars."
+              hint="This is usually temporary — please refresh in a moment. If it keeps happening, the data service may be down."
             />
           ) : res.data.length === 0 ? (
             <EmptyState

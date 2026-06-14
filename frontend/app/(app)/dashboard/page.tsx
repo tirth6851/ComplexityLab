@@ -45,9 +45,9 @@ export default async function DashboardPage() {
           <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warn" aria-hidden />
           <span>
             <span className="font-medium text-ink-primary">
-              Database unavailable.
+              Your data is temporarily unavailable.
             </span>{" "}
-            Showing empty data — {dbError}
+            Showing empty placeholders for now — please refresh in a moment.
           </span>
         </div>
       )}

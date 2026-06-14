@@ -146,6 +146,20 @@ export function ResultsPanel({
 }: ResultsPanelProps) {
   return (
     <Card className="p-4 sm:p-5" glow={status === "done"}>
+      {/* Screen-reader announcements — the analyzer's core output is otherwise
+          visual-only. Polite for progress/verdict; assertive for failure. Both
+          regions stay mounted so swapping their text triggers an announcement. */}
+      <p className="sr-only" role="status" aria-live="polite">
+        {status === "analyzing" && "Analyzing code…"}
+        {status === "done" &&
+          analysis &&
+          `Analysis complete. Time complexity ${analysis.time.notation}, space complexity ${analysis.space.notation}. ${analysis.verdict}`}
+      </p>
+      <p className="sr-only" role="alert">
+        {status === "error"
+          ? `Analysis failed. ${error ?? "Something went wrong while analyzing."}`
+          : ""}
+      </p>
       {status === "idle" && <IdleState action={idleAction} />}
       {status === "analyzing" && <AnalyzingState />}
       {status === "error" && (
