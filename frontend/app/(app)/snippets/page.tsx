@@ -23,7 +23,7 @@ export default async function SnippetsPage() {
   const res = await listSnippets(100);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div className="flex flex-col gap-1.5">
