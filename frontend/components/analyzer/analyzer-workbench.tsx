@@ -164,7 +164,12 @@ export function AnalyzerWorkbench({
                 ))}
               </Select>
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              {empty && (
+                <span className="text-xs text-ink-faint" aria-live="polite">
+                  Paste code to analyze
+                </span>
+              )}
               <Button
                 onClick={requestAnalyze}
                 disabled={empty || status === "analyzing"}

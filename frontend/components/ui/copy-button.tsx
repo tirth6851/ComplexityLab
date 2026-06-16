@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToastSafe } from "@/components/ui/toaster";
 
 export interface CopyButtonProps {
   /** Text written to the clipboard. */
@@ -16,6 +17,7 @@ export interface CopyButtonProps {
 export function CopyButton({ value, label, className }: CopyButtonProps) {
   const [copied, setCopied] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast } = useToastSafe();
 
   React.useEffect(() => {
     return () => {
@@ -30,7 +32,7 @@ export function CopyButton({ value, label, className }: CopyButtonProps) {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard unavailable (permissions/insecure context) — leave state as is.
+      toast("Could not copy — clipboard access was denied.", { variant: "error" });
     }
   }
 

@@ -13,6 +13,7 @@ const SAVE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export interface SaveActionResult {
   ok: boolean;
+  id?: string;
   error?: string;
 }
 
@@ -61,7 +62,7 @@ export async function saveAnalysisAction(input: {
 
   revalidatePath("/analyses");
   revalidatePath("/dashboard");
-  return { ok: true };
+  return { ok: true, id: res.data.id };
 }
 
 export async function saveSnippetAction(input: {
@@ -85,5 +86,5 @@ export async function saveSnippetAction(input: {
 
   revalidatePath("/snippets");
   revalidatePath("/dashboard");
-  return { ok: true };
+  return { ok: true, id: res.data.id };
 }

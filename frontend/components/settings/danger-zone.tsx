@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteAllDataAction } from "@/app/(app)/settings/actions";
@@ -12,6 +13,7 @@ type State = "idle" | "armed" | "deleting" | "done" | "error";
  * snippets cascade); a fresh profile is created on the next visit.
  */
 export function DangerZone() {
+  const router = useRouter();
   const [state, setState] = React.useState<State>("idle");
   const [error, setError] = React.useState<string | null>(null);
 
@@ -32,6 +34,7 @@ export function DangerZone() {
     const res = await deleteAllDataAction();
     if (res.ok) {
       setState("done");
+      setTimeout(() => router.push("/dashboard"), 1200);
     } else {
       setState("error");
       setError(res.error ?? "Could not delete your data.");

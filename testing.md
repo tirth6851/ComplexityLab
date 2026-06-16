@@ -144,13 +144,13 @@ follow-up.
 # Needs Improvement (P2)
 
 ### UI Improvements
-- **Save success has no path to the saved item** — after "Saved"/"Snippet saved" there's no "View" link or toast; the user must self-navigate to confirm (`save-actions.tsx`). Breaks the save→review loop.
-- **List deletes have no success confirmation** — the row just vanishes; a brief "Deleted" toast would match the detail-page redirect (`confirm-delete-button.tsx`).
+- ✅ **Save success has no path to the saved item** — fixed: "View" link appears after "Saved"/"Snippet saved" (`save-actions.tsx`; actions now return `id`).
+- ✅ **List deletes have no success confirmation** — fixed: `ConfirmDeleteButton` accepts a `successMessage` prop; wired to "Analysis deleted" / "Snippet deleted" in list views.
 
 ### UX Improvements
-- **Empty code buffer disables Analyze with no explanation** — two greyed-out buttons, no "Paste code to analyze" hint (`analyzer-workbench.tsx`).
-- **"Delete all lab data" ends in a stranded state** — button shows "Data deleted" but no toast/redirect; user is left on a now-stale Account page (`danger-zone.tsx`).
-- **Copy-to-clipboard fails silently** on insecure contexts / denied permission — no checkmark, no error toast (`copy-button.tsx`).
+- ✅ **Empty code buffer disables Analyze with no explanation** — fixed: "Paste code to analyze" hint appears inline when the buffer is empty (`analyzer-workbench.tsx`).
+- ✅ **"Delete all lab data" ends in a stranded state** — fixed: redirects to `/dashboard` 1.2s after deletion so a fresh profile is created (`danger-zone.tsx`).
+- ✅ **Copy-to-clipboard fails silently** — fixed: shows an error toast when clipboard access is denied (`copy-button.tsx`).
 
 ### Accessibility Improvements
 - **Consent dialog lacks a focus trap / Escape handling** (`consent-gate.tsx`) — keyboard/SR users can Tab behind the `aria-modal` overlay. Reuse the working trap from `mobile-nav.tsx`.
@@ -194,65 +194,81 @@ follow-up.
 > (see `TESTING_READINESS_REPORT.md` → *Recommended Test Order* for the rationale).
 
 ### Authentication
-- [ ] Google Login (AUTH-03 — **regression-prone, untested**)
-- [ ] Logout (AUTH-07)
-- [ ] Session Persistence (AUTH-08)
-- [ ] Unauthorized Access → redirect to `/sign-in` (AUTH-02)
-- [ ] Error States — failed SSO resets spinner + shows alert (AUTH-04 — **untested**)
+- [☑] Google Login (AUTH-03 — **regression-prone, untested**)
+- [☑] Logout (AUTH-07)
+- [☑] Session Persistence (AUTH-08)
+- [☑] Unauthorized Access → redirect to `/sign-in` (AUTH-02)
+- [X] Error States — failed SSO resets spinner + shows alert (AUTH-04 — **untested**)
 
-**Notes:**
+**Notes:
+1) ✅ Fixed: already-logged-in users visiting `/sign-in` or `/sign-up` are now redirected to `/dashboard` via a server-side `auth()` check.
+
+
+
 
 ---
 
 ### Analyzer
-- [ ] Small Input (ANL-02)
-- [ ] Large Input — accept at 100,000 chars; 413 above (EDG-01)
-- [ ] Invalid Code / empty buffer disables Analyze (ANL-04)
-- [ ] AI Analysis (real `GROQ_API_KEY`) — **verify tier matches engine** _(P1-1 fixed + unit-guarded; confirm with a live key)_
-- [ ] AI Fallback to heuristic engine (ERR-05)
-- [ ] Timeout Handling (20s AbortController → fallback)
-- [ ] Rate Limiting — 20/min → 429 + Retry-After (SEC-06)
-- [ ] Error Recovery (ERR-06)
+- [☑] Small Input (ANL-02)
+- [☑] Large Input — accept at 100,000 chars; 413 above (EDG-01)
+- [X] Invalid Code / empty buffer disables Analyze (ANL-04)
+- [☑] AI Analysis (real `GROQ_API_KEY`) — **verify tier matches engine** _(P1-1 fixed + unit-guarded; confirm with a live key)_
+- [X] AI Fallback to heuristic engine (ERR-05)
+- [X] Timeout Handling (20s AbortController → fallback)
+- [X] Rate Limiting — 20/min → 429 + Retry-After (SEC-06)
+- [☑] Error Recovery (ERR-06)
 
-**Notes:**
+**Pick:**
+![alt text](image.png)
+![alt text](image-1.png)
+**Notes:
+1. in testign i realisd the weebsite is allowing same user to run simutaliasy on scans
+2. the auto compleat is only availabe to tpye script not for other languages
+3. no rate limit i spamed same code to analise alot of time and it allowed and i evern trd by changing the code but still no limit or colldown 
+4. allow users to name a custom code so i want if user bring their code pastes and then when use speses save and snipet or any make use to ask user for the name of the code.
+5. i removes the curly brackes and it yet run not it was in java and that would be a major syntax error 
+**
+
+**Sugetion: this is a random suggetion that to make the side bar hiden just like how windows tasks bar is it goes but when coursor gone the it apeares again and make the logo of complxty lab in the tab to like how other apps here have:**
+![alt text](image-2.png)
 
 ---
 
 ### Analyses
-- [ ] Save (ANA-02)
-- [ ] View detail (ANA-05)
-- [ ] Delete — two-step + auto-disarm (ANA-07/08)
-- [ ] Ownership — User B cannot see/open User A's analysis (SEC-02/03 — **mandatory, untested**)
-- [ ] Mobile layout (rows truncate; secondary columns hidden < sm)
+- [☑] Save (ANA-02)
+- [☑] View detail (ANA-05)
+- [☑] Delete — two-step + auto-disarm (ANA-07/08)
+- [☑] Ownership — User B cannot see/open User A's analysis (SEC-02/03 — **mandatory, untested**)
+- [X] Mobile layout (rows truncate; secondary columns hidden < sm)
 
 **Notes:**
 
 ---
 
 ### Snippets
-- [ ] Create (SNP-02)
-- [ ] Edit — _N/A: snippets are create/view/delete only (no rename/tag UI)_
-- [ ] Delete — two-step (SNP-06)
-- [ ] Visibility — tags hidden < sm; expand/collapse code
-- [ ] Ownership — cross-account isolation (SEC-02/03)
+- [☑] Create (SNP-02)
+- [☑] Edit — _N/A: snippets are create/view/delete only (no rename/tag UI)_
+- [☑] Delete — two-step (SNP-06)
+- [X] Visibility — tags hidden < sm; expand/collapse code
+- [☑] Ownership — cross-account isolation (SEC-02/03)
 
 **Notes:**
 
 ---
 
 ### Dashboard
-- [ ] Stats — analyses/snippets/day-streak + this-week (DSH-03)
-- [ ] Empty States — new account shows encouraging empty widgets (DSH-05)
-- [ ] Navigation — Quick actions + Welcome CTAs
-- [ ] Mobile — 3-col → stacked
-- [ ] Language mix shows **friendly labels** (C++/TypeScript) + accessible progress bars _(fixed this session)_
+- [☑] Stats — analyses/snippets/day-streak + this-week (DSH-03)
+- [☑] Empty States — new account shows encouraging empty widgets (DSH-05)
+- [☑] Navigation — Quick actions + Welcome CTAs
+- [X] Mobile — 3-col → stacked
+- [☑] Language mix shows **friendly labels** (C++/TypeScript) + accessible progress bars _(fixed this session)_
 
 **Notes:**
 
 ---
 
 ### Accessibility
-- [ ] Keyboard Navigation — skip links; Ctrl/⌘+Enter; **consent dialog focus trap (P2)**
+- [☑] Keyboard Navigation — skip links; Ctrl/⌘+Enter; **consent dialog focus trap (P2)**
 - [ ] Screen Reader — **analyzer result/error announced via live regions (P1-3 fixed; confirm with a real SR)**
 - [ ] Focus States — visible rings on all controls
 - [ ] Color Contrast — **meta/hint text clears AA (P1-2 fixed; spot-check the raised tints)**
@@ -272,12 +288,12 @@ follow-up.
 
 # Final Sign Off
 
-**Tester:** _________________________  **Date:** ____________
+**Tester:** Tirth.M  **Date:** 14/06/2026
 
 **Ready For Beta?**
 
 - [ ] Yes
-- [ ] No
+- [X] No
 
 **Known Issues at sign-off:** _(carry over any still-Open P0/P1 from above)_
 

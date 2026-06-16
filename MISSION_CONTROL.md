@@ -38,6 +38,33 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
   functions assert `profile_id` filter is always applied; cross-account IDOR
   read/delete simulated via PGRST116; insert payload verified to use resolved
   profile id, not a caller-supplied value. Tests: 153 → **163**.
+- **P1 gap — Delete/settings Server Actions untested**
+  (`tests/integration/delete-actions.test.ts`, `tests/integration/settings-actions.test.ts`)
+  — 22 new tests covering `deleteAnalysisAction`, `deleteAnalysisAndRedirectAction`,
+  `deleteSnippetAction`, `updateProfileAction`, `deleteAllDataAction`. Asserts:
+  rate-limit guard fires first, empty id rejected, DB failures surfaced, all
+  `revalidatePath` calls and redirect confirmed on success. Tests: 163 → **185**.
+- **EDG-01 fix + SEC-04 coverage** (`tests/integration/analyze-route.test.ts`)
+  — EDG-01: boundary test for exactly 100,000-char payload (uses realistic
+  multi-line code to avoid regex scan overhead on a single huge line); SEC-04:
+  asserts submitted code content never appears in `console.log` output. Tests:
+  185 → **187**.
+- **AUTH-04 regression covered** (`tests/components/google-auth-button.test.tsx`)
+  — 7 new tests for `GoogleAuthButton`: idle state, loading/disabled during
+  SSO flight, `sso()` resolving with `{ error }` (the regression path), throw
+  path, error-message priority (`longMessage` → `message` → generic fallback),
+  sign-up mode calling `signUp.sso()`. Tests: 187 → **194**.
+- **`ConfirmDeleteButton` covered** (`tests/components/confirm-delete-button.test.tsx`)
+  — 9 new tests: idle state, arm on click, 3s auto-disarm (fake-timer isolated
+  describe + `fireEvent` to avoid user-event timer hang), blur-disarm, pending
+  state, toast-on-failure, generic-toast fallback, no-toast-on-success. Tests:
+  194 → **203**.
+- **`AnalyzerWorkbench` covered** (`tests/components/analyzer-workbench.test.tsx`)
+  — 8 new tests: initial sample preload, language-switch preserves buffer, sample
+  selection, double-trigger guard (ANL-09), Ctrl/⌘+Enter keyboard shortcut,
+  successful analysis result + SaveActions render, HTTP error state, network error
+  state. Uses real timers + 2s `waitFor` to clear the 650ms MIN_SCAN_MS floor
+  (fake timers deadlock React's scheduler in jsdom). Tests: 203 → **211**.
 
 ### Previously shipped (on main, 2026-06-10)
 - UX polish sprint P1–P5: analyzer onboarding, landing honesty, mobile,
@@ -58,8 +85,7 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 
 - Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
-- Back-fill remaining tests: Google SSO error-reset, `ConfirmDeleteButton`,
-  delete/settings Server Actions, `AnalyzerWorkbench` orchestration
+- Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
 ## Quality gates — last verified 2026-06-14 (beta-prep-audit branch)
 
@@ -68,4 +94,4 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
 | `npm run build` | ✅ green (16 routes) |
-| `npm run test` | ✅ 25 files / **163 tests** |
+| `npm run test` | ✅ 30 files / **211 tests** |

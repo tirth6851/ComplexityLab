@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Bookmark, Check, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Bookmark, Check, ExternalLink, Save } from "lucide-react";
+import { Button, buttonClassName } from "@/components/ui/button";
 import {
   saveAnalysisAction,
   saveSnippetAction,
@@ -18,8 +19,9 @@ export interface SaveActionsProps {
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
-function useSave(action: () => Promise<{ ok: boolean; error?: string }>) {
+function useSave(action: () => Promise<{ ok: boolean; id?: string; error?: string }>) {
   const [state, setState] = React.useState<SaveState>("idle");
+  const [savedId, setSavedId] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   async function run() {
@@ -29,13 +31,14 @@ function useSave(action: () => Promise<{ ok: boolean; error?: string }>) {
     const res = await action();
     if (res.ok) {
       setState("saved");
+      if (res.id) setSavedId(res.id);
     } else {
       setState("error");
       setError(res.error ?? "Save failed.");
     }
   }
 
-  return { state, error, run };
+  return { state, savedId, error, run };
 }
 
 /**
@@ -71,6 +74,15 @@ export function SaveActions({ analysis, code, language }: SaveActionsProps) {
               ? "Saving…"
               : "Save analysis"}
         </Button>
+        {analysisSave.state === "saved" && analysisSave.savedId && (
+          <Link
+            href={`/analyses/${analysisSave.savedId}`}
+            className={buttonClassName({ variant: "ghost", size: "sm" })}
+          >
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            View
+          </Link>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -88,6 +100,15 @@ export function SaveActions({ analysis, code, language }: SaveActionsProps) {
               ? "Saving…"
               : "Save snippet"}
         </Button>
+        {snippetSave.state === "saved" && snippetSave.savedId && (
+          <Link
+            href="/snippets"
+            className={buttonClassName({ variant: "ghost", size: "sm" })}
+          >
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            View
+          </Link>
+        )}
       </div>
       {firstError && (
         <span className="text-xs text-destructive">{firstError}</span>

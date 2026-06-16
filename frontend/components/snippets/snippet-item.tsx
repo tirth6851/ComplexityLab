@@ -73,6 +73,7 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
           <ConfirmDeleteButton
             action={deleteAction}
             label={`Delete snippet ${snippet.title}`}
+            successMessage="Snippet deleted"
           />
         </div>
       </div>

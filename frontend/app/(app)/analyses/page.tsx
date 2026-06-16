@@ -99,6 +99,7 @@ export default async function AnalysesPage() {
                   <ConfirmDeleteButton
                     action={deleteAnalysisAction.bind(null, a.id)}
                     label={`Delete analysis ${a.title}`}
+                    successMessage="Analysis deleted"
                   />
                 </div>
               </div>
