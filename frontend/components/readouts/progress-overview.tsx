@@ -38,9 +38,9 @@ export function ProgressOverview({
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-ds-md border border-line-subtle bg-surface-panel p-3"
+                className="rounded-ds-lg border border-line bg-surface-panel/70 p-3 shadow-inset-well"
               >
-                <p className="font-mono text-xl font-semibold tracking-tight text-ink-primary">
+                <p className="font-mono text-2xl font-semibold tracking-tight text-ink-primary">
                   {stat.value}
                 </p>
                 <p className="mt-1 font-mono text-2xs uppercase tracking-label text-ink-muted">

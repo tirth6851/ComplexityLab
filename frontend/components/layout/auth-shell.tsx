@@ -15,19 +15,26 @@ export function AuthShell({
   footer: ReactNode;
 }) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,hsl(var(--primary)/0.08),transparent)]"
+        className="pointer-events-none absolute inset-0 bg-grid-lines opacity-45"
       />
-      <div className="relative w-full max-w-sm">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[-14rem] h-[34rem] w-[52rem] -translate-x-1/2 rounded-full bg-primary/12 blur-3xl"
+      />
+      <div className="relative w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
-        <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <div className="rounded-ds-xl border border-line bg-card/85 p-8 shadow-ds-xl backdrop-blur-xl">
           <div className="mb-6 text-center">
-            <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+            <p className="font-mono text-2xs uppercase tracking-label text-primary">
+              Secure workspace
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
           </div>
           {children}
           <p className="mt-5 text-center text-xs leading-relaxed text-muted-foreground">

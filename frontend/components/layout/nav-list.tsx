@@ -13,7 +13,7 @@ export function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex-1 space-y-1 p-4" aria-label="Primary">
+    <nav className="flex-1 space-y-1.5 p-4" aria-label="Primary">
       {NAV_ITEMS.map((item) => {
         const root = item.match ?? item.href;
         const active =
@@ -39,10 +39,10 @@ export function NavList({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-ds-sm px-3 py-2 text-sm font-medium transition-colors duration-[120ms] ease-ds",
+              "flex items-center gap-3 rounded-ds-md border px-3 py-2.5 text-sm font-medium transition-all duration-[120ms] ease-ds",
               active
-                ? "bg-[var(--accent-muted)] text-primary"
-                : "text-ink-secondary hover:bg-surface-raised hover:text-ink-primary",
+                ? "border-primary/25 bg-[var(--accent-muted)] text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+                : "border-transparent text-ink-secondary hover:border-line hover:bg-surface-raised/70 hover:text-ink-primary",
             )}
           >
             {inner}
@@ -51,7 +51,7 @@ export function NavList({ onNavigate }: { onNavigate?: () => void }) {
           <span
             key={item.label}
             aria-disabled="true"
-            className="flex cursor-default items-center gap-3 rounded-ds-sm px-3 py-2 text-sm font-medium text-ink-muted/70"
+            className="flex cursor-default items-center gap-3 rounded-ds-md border border-transparent px-3 py-2.5 text-sm font-medium text-ink-muted/70"
           >
             {inner}
           </span>

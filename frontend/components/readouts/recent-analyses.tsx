@@ -49,9 +49,10 @@ export function RecentAnalyses({ analyses }: { analyses: Analysis[] }) {
           />
         ) : (
           analyses.map((a) => (
-            <div
+            <Link
               key={a.id}
-              className="flex items-center justify-between gap-4 rounded-ds-sm px-2 py-2.5 transition-colors hover:bg-surface-raised"
+              href={`/analyses/${a.id}`}
+              className="flex items-center justify-between gap-4 rounded-ds-md border border-transparent px-3 py-3 transition-all hover:border-line hover:bg-surface-raised/70"
             >
               <div className="min-w-0">
                 <p className="truncate font-mono text-sm font-medium">{a.title}</p>
@@ -68,7 +69,7 @@ export function RecentAnalyses({ analyses }: { analyses: Analysis[] }) {
                 <ComplexityBadge complexity={a.timeComplexity} />
                 <ComplexityBadge complexity={a.spaceComplexity} showDot={false} />
               </div>
-            </div>
+            </Link>
           ))
         )}
       </CardContent>

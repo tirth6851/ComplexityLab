@@ -10,12 +10,12 @@ const base =
 const variants: Record<Variant, string> = {
   // Signal Green primary — luminous, with a brightness lift + glow on hover.
   default:
-    "bg-primary text-primary-foreground hover:brightness-110 hover:shadow-glow-green",
+    "bg-primary text-primary-foreground shadow-[0_0_28px_-12px_rgba(0,229,153,0.9)] hover:brightness-110 hover:shadow-glow-green",
   secondary:
-    "border-line bg-secondary text-secondary-foreground hover:bg-surface-raised",
+    "border-line bg-secondary text-secondary-foreground hover:border-line-strong hover:bg-surface-raised",
   outline:
-    "border-line bg-transparent text-ink-primary hover:bg-surface-raised",
-  ghost: "text-ink-primary hover:bg-surface-raised",
+    "border-line bg-card/40 text-ink-primary hover:border-primary/35 hover:bg-surface-raised",
+  ghost: "text-ink-primary hover:bg-surface-raised/80",
   destructive:
     "bg-destructive text-destructive-foreground hover:brightness-110",
 };

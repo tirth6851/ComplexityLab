@@ -25,16 +25,16 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="rounded-ds-sm transition-colors hover:bg-surface-raised">
-      <div className="flex items-center justify-between gap-3 px-2 py-2.5">
+    <div className="rounded-ds-lg border border-transparent transition-all hover:border-line hover:bg-surface-raised/70">
+      <div className="flex items-center justify-between gap-3 px-3 py-3">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-label={`${open ? "Hide" : "Show"} code for ${snippet.title}`}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-ds-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-ds-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-ds-sm border border-line-subtle bg-surface-panel text-ink-muted">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-ds-md border border-line bg-surface-panel text-primary">
             <Bookmark className="h-4 w-4" aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
@@ -79,7 +79,7 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
       </div>
 
       {open && (
-        <div className="mx-2 mb-2 overflow-hidden rounded-ds-sm border border-line-subtle bg-surface-panel">
+        <div className="mx-3 mb-3 overflow-hidden rounded-ds-lg border border-line bg-[#050816]">
           <div className="flex items-center justify-end gap-1.5 border-b border-line-subtle px-2 py-1">
             <CopyButton
               value={snippet.code}

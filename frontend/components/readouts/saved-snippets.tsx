@@ -51,10 +51,10 @@ export function SavedSnippets({ snippets }: { snippets: Snippet[] }) {
           snippets.map((s) => (
             <div
               key={s.id}
-              className="flex items-center justify-between gap-4 rounded-ds-sm px-2 py-2.5 transition-colors hover:bg-surface-raised"
+              className="flex items-center justify-between gap-4 rounded-ds-md border border-transparent px-3 py-3 transition-all hover:border-line hover:bg-surface-raised/70"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-ds-sm border border-line-subtle bg-surface-panel text-ink-muted">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-ds-md border border-line bg-surface-panel text-primary">
                   <Bookmark className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
