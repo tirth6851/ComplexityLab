@@ -68,7 +68,10 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               ? "Saved"
               : "Save changes"}
         </Button>
-        {error && <span className="text-xs text-destructive">{error}</span>}
+        <span role="status" aria-live="polite" className="text-xs">
+          {state === "saved" && <span className="text-primary">Profile saved.</span>}
+          {state === "error" && <span className="text-destructive">{error}</span>}
+        </span>
       </div>
     </form>
   );
