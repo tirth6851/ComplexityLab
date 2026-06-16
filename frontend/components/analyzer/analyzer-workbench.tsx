@@ -73,14 +73,25 @@ export function AnalyzerWorkbench({
     if (sample) setCode(sample.code);
   }
 
+  const abortRef = React.useRef<AbortController | null>(null);
+
+  // Cancel any in-flight request when the component unmounts.
+  React.useEffect(() => {
+    return () => { abortRef.current?.abort(); };
+  }, []);
+
   async function analyze() {
     if (status === "analyzing") return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setStatus("analyzing");
     setError(null);
     try {
       const [res] = await Promise.all([
         fetch("/api/analyze", {
           method: "POST",
+          signal: controller.signal,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code, language }),
         }),
@@ -98,6 +109,7 @@ export function AnalyzerWorkbench({
       setResultVersion((v) => v + 1);
       setStatus("done");
     } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : "Analysis failed.");
       setStatus("error");
     }

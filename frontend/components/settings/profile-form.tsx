@@ -20,6 +20,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   );
   const [state, setState] = React.useState<SaveState>("idle");
   const [error, setError] = React.useState<string | null>(null);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +34,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     const res = await updateProfileAction({ displayName, preferredLanguage });
     if (res.ok) {
       setState("saved");
-      setTimeout(() => setState("idle"), 2500);
+      timerRef.current = setTimeout(() => setState("idle"), 2500);
     } else {
       setState("error");
       setError(res.error ?? "Could not save your profile.");

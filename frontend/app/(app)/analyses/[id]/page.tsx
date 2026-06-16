@@ -14,9 +14,16 @@ import { languageLabel } from "@/lib/analysis/languages";
 import { timeAgo } from "@/lib/format";
 import { deleteAnalysisAndRedirectAction } from "./actions";
 
-export const metadata: Metadata = {
-  title: "Analysis · ComplexityLab",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const res = await getAnalysis(id);
+  if (!res.ok) return { title: "Analysis · ComplexityLab" };
+  return { title: `${res.data.title} · ComplexityLab` };
+}
 
 export default async function AnalysisDetailPage({
   params,
