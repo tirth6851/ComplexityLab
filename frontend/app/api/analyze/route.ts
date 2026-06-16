@@ -4,12 +4,7 @@ import { getAnalysisProvider } from "@/lib/ai";
 import { isLanguageId } from "@/lib/analysis/languages";
 import { logEvent } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
-
-/** Hard cap on submitted source size (chars). */
-const MAX_CODE_LENGTH = 100_000;
-
-/** Per-user analysis budget: 20 runs per minute. */
-const ANALYZE_LIMIT = { limit: 20, windowMs: 60_000 };
+import { ANALYZE_RATE_LIMIT, MAX_CODE_LENGTH } from "@/lib/limits";
 
 /**
  * POST /api/analyze — run a complexity analysis through the active provider.
@@ -21,7 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in to analyze code." }, { status: 401 });
   }
 
-  const limit = rateLimit(`analyze:${userId}`, ANALYZE_LIMIT);
+  const limit = rateLimit(`analyze:${userId}`, ANALYZE_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("analyze.rate_limited", { userId, retryAfterSec });

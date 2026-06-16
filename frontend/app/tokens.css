@@ -30,29 +30,29 @@
   --ink-400:  #344e72;
 
   /* ---- Signal Green scale ---- */
-  --green-200: #a8f8d8;
-  --green-300: #7df3c2;
-  --green-400: #45eca6;
-  --green-500: #21e08c;
-  --green-600: #15b873;
-  --green-700: #0e8453;
+  --green-200: #b8ffe8;
+  --green-300: #7dffd2;
+  --green-400: #35f5b1;
+  --green-500: #00e599;
+  --green-600: #10b981;
+  --green-700: #087f59;
   --green-900: #0a3a28;
 
   /* Brand accent aliases (Signal Green). NB: NOT `--accent`. */
-  --accent-green: #21e08c;
-  --accent-hover: #32f09a;
-  --accent-muted: rgba(33, 224, 140, 0.08);
-  --accent-ring:  rgba(33, 224, 140, 0.40);
+  --accent-green: #00e599;
+  --accent-hover: #35f5b1;
+  --accent-muted: rgba(0, 229, 153, 0.08);
+  --accent-ring:  rgba(0, 229, 153, 0.40);
 
   /* ---- Status colors (brand-constant) ---- */
-  --ok:        #21e08c;
-  --ok-bg:     rgba(33, 224, 140, 0.08);
-  --warn:      #ffb02e;
-  --warn-bg:   rgba(255, 176, 46, 0.08);
-  --danger:    #ff5151;
-  --danger-bg: rgba(255, 81, 81, 0.08);
-  --info:      #2bb8e0;
-  --info-bg:   rgba(43, 184, 224, 0.08);
+  --ok:        #10b981;
+  --ok-bg:     rgba(16, 185, 129, 0.10);
+  --warn:      #f59e0b;
+  --warn-bg:   rgba(245, 158, 11, 0.10);
+  --danger:    #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.10);
+  --info:      #22d3ee;
+  --info-bg:   rgba(34, 211, 238, 0.10);
 
   /* ---- Supporting hue scales ---- */
   --red-300: #ff9a9a;
@@ -67,23 +67,23 @@
   --violet-900: #1a1042;
 
   /* ---- Complexity tier colors (mirrors BigOBadge TIER map) ---- */
-  --cx-optimal:  #21e08c;
-  --cx-good:     #2bb8e0;
-  --cx-fair:     #ffc04d;
-  --cx-poor:     #ffb02e;
-  --cx-critical: #ff5151;
+  --cx-optimal:  #00e599;
+  --cx-good:     #22d3ee;
+  --cx-fair:     #f59e0b;
+  --cx-poor:     #fb923c;
+  --cx-critical: #ef4444;
 
   /* ---- Complexity gradient: O(1) optimal → O(n!) catastrophic ---- */
-  --c-o1:    #21e08c;
-  --c-log:   #2bb8e0;
+  --c-o1:    #00e599;
+  --c-log:   #22d3ee;
   --c-n:     #5aabff;
-  --c-nlogn: #ffc04d;
-  --c-n2:    #ffb02e;
-  --c-exp:   #ff5151;
+  --c-nlogn: #f59e0b;
+  --c-n2:    #fb923c;
+  --c-exp:   #ef4444;
   --c-fact:  #cc2020;
 
-  --c-o1-bg:    rgba(33,  224, 140, 0.10);
-  --c-log-bg:   rgba(43,  184, 224, 0.10);
+  --c-o1-bg:    rgba(0, 229, 153, 0.10);
+  --c-log-bg:   rgba(34, 211, 238, 0.10);
   --c-n-bg:     rgba(90,  171, 255, 0.10);
   --c-nlogn-bg: rgba(255, 192,  77, 0.10);
   --c-n2-bg:    rgba(255, 176,  46, 0.10);
@@ -103,9 +103,9 @@
 
   /* ---- Syntax highlighting (code panes) ---- */
   --syntax-keyword:  #a88bff;
-  --syntax-function: #2bb8e0;
-  --syntax-string:   #45eca6;
-  --syntax-number:   #7df3c2;
+  --syntax-function: #22d3ee;
+  --syntax-string:   #35f5b1;
+  --syntax-number:   #7dffd2;
   --syntax-comment:  #3a4a5c;
 
   /* =========================================================
@@ -206,9 +206,9 @@
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03),
                   inset 0 0 0 1px rgba(0, 0, 0, 0.25);
 
-  --glow-green: 0 0 0 1px rgba(33, 224, 140, 0.4),
-                0 0 24px -2px rgba(33, 224, 140, 0.45);
-  --glow-green-soft: 0 0 32px -6px rgba(33, 224, 140, 0.5);
+  --glow-green: 0 0 0 1px rgba(0, 229, 153, 0.4),
+                0 0 24px -2px rgba(0, 229, 153, 0.45);
+  --glow-green-soft: 0 0 36px -8px rgba(0, 229, 153, 0.48);
   --glow-amber: 0 0 0 1px rgba(255, 176, 46, 0.4),
                 0 0 22px -3px rgba(255, 176, 46, 0.4);
   --glow-red:   0 0 0 1px rgba(255, 81, 81, 0.4),

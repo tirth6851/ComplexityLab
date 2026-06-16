@@ -72,14 +72,27 @@ export function complexityTier(c: Complexity): ComplexityTier {
 
 /**
  * Best-effort tier for an arbitrary Big-O string (e.g. analyzer output that
- * isn't one of the known `Complexity` literals). Falls back to `good`.
+ * isn't one of the known `Complexity` literals). Mirrors the canonical
+ * `complexityTier()` mapping for every standard class — tolerating both unicode
+ * (`n²`, `2ⁿ`) and ASCII (`n^2`, `2^n`) forms — so an AI-produced verdict and a
+ * heuristic-engine verdict for the same Big-O class always agree. Falls back to
+ * `good` for linear and unrecognized shapes.
+ *
+ * Checks run costliest → cheapest so the dominant term wins. Critical must
+ * precede the polynomial check (`2^n` vs `n^2`) and the linearithmic check must
+ * precede the bare-log check (`n log n` is `fair`, not `optimal`).
  */
 export function tierFromNotation(notation = ""): ComplexityTier {
-  const n = notation.toLowerCase().replace(/\s+/g, "");
-  if (/2\^|2ⁿ|!|n\^n|nⁿ/.test(n)) return "critical";
-  if (/\^3|³|n\^4|⁴/.test(n)) return "poor";
-  if (/\^2|²/.test(n)) return "fair";
-  if (/log/.test(n) && !/nlog/.test(n)) return "optimal";
-  if (/o\(1\)|o\(c\)/.test(n)) return "optimal";
+  const n = notation.toLowerCase().replace(/[\s*·]+/g, "");
+
+  // Factorial / exponential (base^n, nⁿ).
+  if (/!|\^n|ⁿ/.test(n)) return "critical";
+  // Polynomial of degree ≥ 2 (n², n³, n^4, n^10, …).
+  if (/\^(?:[2-9]|\d\d)|[²³⁴⁵⁶⁷⁸⁹]/.test(n)) return "poor";
+  // Linearithmic (n log n) — must precede the bare-log check below.
+  if (/nlog/.test(n)) return "fair";
+  // Logarithmic or constant.
+  if (/log/.test(n) || /\(1\)|\(c\)/.test(n)) return "optimal";
+  // Linear (n) and anything unrecognized.
   return "good";
 }

@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 const CONSENT_COOKIE = "cl-consent";
 /** Bump when the privacy policy / terms materially change to re-prompt. */
 const CONSENT_VERSION = "v1";
@@ -51,6 +54,39 @@ export function ConsentGate() {
     getSnapshot,
     getServerSnapshot,
   );
+  const dialogRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Focus trap + Escape handler while dialog is visible.
+  React.useEffect(() => {
+    if (consented || EXEMPT_PATHS.includes(pathname)) return;
+    const dialog = dialogRef.current;
+
+    const onKey = (e: KeyboardEvent) => {
+      // Consent is mandatory — Escape is intentionally not wired to a dismiss
+      // action here, but we still need to intercept Tab to keep focus inside.
+      if (e.key === "Tab" && dialog) {
+        const focusable = Array.from(
+          dialog.querySelectorAll<HTMLElement>(FOCUSABLE),
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [consented, pathname]);
 
   if (consented || EXEMPT_PATHS.includes(pathname)) return null;
 
@@ -64,6 +100,7 @@ export function ConsentGate() {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="consent-title"

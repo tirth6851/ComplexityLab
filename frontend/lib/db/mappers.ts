@@ -6,6 +6,17 @@ import type { CodeAnalysis } from "@/lib/ai/types";
  * no server-only import) so they are unit-testable in isolation.
  */
 
+/** Minimal shape check — avoids crashing ResultsPanel on corrupt/legacy rows. */
+function isCodeAnalysis(v: unknown): v is CodeAnalysis {
+  if (typeof v !== "object" || v === null) return false;
+  const r = v as Record<string, unknown>;
+  return (
+    typeof r.verdict === "string" &&
+    typeof r.time === "object" && r.time !== null &&
+    typeof r.space === "object" && r.space !== null
+  );
+}
+
 export interface ProfileRow {
   id: string;
   clerk_user_id: string;
@@ -64,7 +75,7 @@ export function mapAnalysisDetail(row: AnalysisRow): AnalysisDetail {
   return {
     ...mapAnalysis(row),
     code: row.code,
-    result: (row.result as CodeAnalysis) ?? null,
+    result: isCodeAnalysis(row.result) ? row.result : null,
   };
 }
 

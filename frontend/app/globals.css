@@ -87,60 +87,60 @@
   }
 
   .dark {
-    /* ---- Dark Lab (default) — values from the DS token package ---- */
-    --background: 220 23% 7%;
-    --foreground: 215 70% 96%;
+    /* ---- Dark Lab (default) - premium green SaaS palette ---- */
+    --background: 230 52% 5%;
+    --foreground: 0 0% 100%;
 
-    --card: 222 30% 10%;
-    --card-foreground: 215 70% 96%;
+    --card: 218 49% 8%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 220 28% 13%;
-    --popover-foreground: 215 70% 96%;
+    --popover: 218 45% 10%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Signal Green — luminous on near-black */
-    --primary: 152 76% 50%;
-    --primary-foreground: 160 90% 5%;
+    /* Signal Green - luminous on near-black */
+    --primary: 160 100% 45%;
+    --primary-foreground: 230 52% 5%;
 
-    --secondary: 220 28% 13%;
-    --secondary-foreground: 215 70% 96%;
+    --secondary: 218 38% 13%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 30% 10%;
-    --muted-foreground: 215 20% 54%;
+    --muted: 218 38% 13%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 200 18% 16%;
-    --accent-foreground: 215 70% 96%;
+    --accent: 218 38% 13%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 100% 66%;
-    --destructive-foreground: 215 70% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 28% 17%;
-    --input: 220 28% 17%;
-    --ring: 152 76% 50%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 160 100% 45%;
 
-    /* Complexity gradient — DS stops (O(1) green → O(2ⁿ) red) */
-    --complexity-1: 152 76% 50%;
-    --complexity-2: 193 75% 52%;
-    --complexity-3: 39 100% 65%;
-    --complexity-4: 37 100% 59%;
-    --complexity-5: 0 100% 66%;
+    /* Complexity gradient - cheap green to costly red */
+    --complexity-1: 160 100% 45%;
+    --complexity-2: 187 85% 53%;
+    --complexity-3: 38 92% 50%;
+    --complexity-4: 28 90% 55%;
+    --complexity-5: 0 84% 60%;
 
     /* ---- DS surface/text/border tokens (dark) ---- */
-    --surface-inset:  #07090f;
-    --bg-base:        #0b1020;
-    --surface-card:   #0f1629;
-    --surface-panel:  #141e32;
-    --surface-raised: #1a263e;
+    --surface-inset:  #050816;
+    --bg-base:        #050816;
+    --surface-card:   #0b1220;
+    --surface-panel:  #111a2b;
+    --surface-raised: #172338;
 
-    --text-primary:   #edf2fc;
-    --text-secondary: #8a9dbf;
-    --text-muted:     #556478;
-    --text-faint:     #3a4a5c;
+    --text-primary:   #ffffff;
+    --text-secondary: #94a3b8;
+    --text-muted:     #64748b;
+    --text-faint:     #475569;
     --text-on-accent: #041811;
 
-    --border-subtle:  #131e30;
-    --border-default: #1c2c44;
-    --border-strong:  #263b5a;
-    --border-accent:  rgba(33, 224, 140, 0.35);
+    --border-subtle:  #162033;
+    --border-default: #1e293b;
+    --border-strong:  #334155;
+    --border-accent:  rgba(0, 229, 153, 0.38);
 
     --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-ring);
   }

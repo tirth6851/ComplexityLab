@@ -4,6 +4,19 @@ import {
   complexityTier,
   tierFromNotation,
 } from "@/lib/complexity";
+import type { Complexity } from "@/types";
+
+/** Every canonical Big-O class the visual system has a dedicated stop for. */
+const CANONICAL: Complexity[] = [
+  "O(1)",
+  "O(log n)",
+  "O(n)",
+  "O(n log n)",
+  "O(n²)",
+  "O(n³)",
+  "O(2ⁿ)",
+  "O(n!)",
+];
 
 describe("complexityLevel", () => {
   it("maps the canonical classes onto the 5-stop gradient", () => {
@@ -29,23 +42,40 @@ describe("complexityTier", () => {
 });
 
 describe("tierFromNotation (free-form input)", () => {
-  it("detects exponential and factorial as critical", () => {
-    expect(tierFromNotation("O(2^n)")).toBe("critical");
+  // The core guarantee: an AI-produced verdict and a heuristic-engine verdict
+  // for the SAME Big-O class must land on the same tier/color/label.
+  it("agrees with complexityTier() for every canonical Big-O class", () => {
+    for (const c of CANONICAL) {
+      expect(tierFromNotation(c)).toBe(complexityTier(c));
+    }
+  });
+
+  it("maps every canonical class to its expected tier", () => {
+    expect(tierFromNotation("O(1)")).toBe("optimal");
+    expect(tierFromNotation("O(log n)")).toBe("optimal");
+    expect(tierFromNotation("O(n)")).toBe("good");
+    expect(tierFromNotation("O(n log n)")).toBe("fair");
+    expect(tierFromNotation("O(n²)")).toBe("poor");
+    expect(tierFromNotation("O(n³)")).toBe("poor");
     expect(tierFromNotation("O(2ⁿ)")).toBe("critical");
     expect(tierFromNotation("O(n!)")).toBe("critical");
   });
 
-  it("detects cubic as poor and quadratic as fair", () => {
+  it("handles ASCII and alternate notations identically", () => {
+    expect(tierFromNotation("O(n^2)")).toBe("poor");
     expect(tierFromNotation("O(n^3)")).toBe("poor");
-    expect(tierFromNotation("O(n³)")).toBe("poor");
-    expect(tierFromNotation("O(n^2)")).toBe("fair");
-    expect(tierFromNotation("O(n²)")).toBe("fair");
+    expect(tierFromNotation("O(n^4)")).toBe("poor");
+    expect(tierFromNotation("O(2^n)")).toBe("critical");
+    expect(tierFromNotation("O(k^n)")).toBe("critical");
+    expect(tierFromNotation("O(n^n)")).toBe("critical");
+    expect(tierFromNotation("O(n*log n)")).toBe("fair");
+    expect(tierFromNotation("o(n log n)")).toBe("fair"); // case-insensitive
+    expect(tierFromNotation("O(c)")).toBe("optimal");
   });
 
-  it("detects constant/log as optimal and falls back to good", () => {
-    expect(tierFromNotation("O(1)")).toBe("optimal");
-    expect(tierFromNotation("O(log n)")).toBe("optimal");
+  it("falls back to good for linear and unrecognized shapes", () => {
     expect(tierFromNotation("O(n)")).toBe("good");
     expect(tierFromNotation("")).toBe("good");
+    expect(tierFromNotation("not a notation")).toBe("good");
   });
 });

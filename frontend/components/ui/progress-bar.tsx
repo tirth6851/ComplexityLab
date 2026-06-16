@@ -50,7 +50,14 @@ export function ProgressBar({
           )}
         </div>
       )}
-      <div className="h-1.5 overflow-hidden rounded-pill bg-surface-inset shadow-inset-well">
+      <div
+        role="progressbar"
+        aria-valuenow={v}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label}
+        className="h-1.5 overflow-hidden rounded-pill bg-surface-inset shadow-inset-well"
+      >
         <div
           className="h-full rounded-pill transition-[width] duration-[360ms] ease-ds"
           style={{ width: `${v}%`, background: fill }}

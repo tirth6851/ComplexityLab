@@ -1,7 +1,9 @@
 import "server-only";
 
+import { cache } from "react";
 import type { Analysis, AnalysisDetail } from "@/types";
 import type { CodeAnalysis } from "@/lib/ai/types";
+import { TITLE_MAX_LENGTH } from "@/lib/limits";
 import { dbError, getAdminClient, type DbResult } from "./admin";
 import { mapAnalysis, mapAnalysisDetail, type AnalysisRow } from "./mappers";
 import { getOrCreateProfile } from "./profiles";
@@ -29,7 +31,11 @@ export async function listAnalyses(
   }
 }
 
-export async function getAnalysis(
+/**
+ * Per-request memoized read — deduplicates the call made by both
+ * `generateMetadata` and the page component in the same render pass.
+ */
+export const getAnalysis = cache(async function getAnalysis(
   id: string,
 ): Promise<DbResult<AnalysisDetail>> {
   const profile = await getOrCreateProfile();
@@ -52,7 +58,7 @@ export async function getAnalysis(
   } catch (e) {
     return dbError(e, "Could not load the analysis.");
   }
-}
+});
 
 export interface NewAnalysis {
   title: string;
@@ -73,7 +79,7 @@ export async function createAnalysis(
       .from("analyses")
       .insert({
         profile_id: profile.data.id,
-        title: input.title.slice(0, 200),
+        title: input.title.slice(0, TITLE_MAX_LENGTH),
         language: input.language,
         code: input.code,
         time_complexity: input.analysis.time.notation,

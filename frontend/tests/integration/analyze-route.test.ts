@@ -42,6 +42,14 @@ describe("POST /api/analyze", () => {
     expect(res.status).toBe(400);
   });
 
+  it("accepts a payload of exactly 100,000 characters with 200", async () => {
+    // Use short repeated lines so the engine scan stays bounded per line.
+    const line = "const x = 1;\n";
+    const code = line.repeat(Math.floor(100_000 / line.length)).padEnd(100_000, "x");
+    const res = await POST(makeRequest({ code, language: "typescript" }));
+    expect(res.status).toBe(200);
+  });
+
   it("rejects oversized payloads with 413", async () => {
     const res = await POST(
       makeRequest({ code: "x".repeat(100_001), language: "typescript" }),
@@ -60,6 +68,18 @@ describe("POST /api/analyze", () => {
     const blocked = await POST(makeRequest(payload));
     expect(blocked.status).toBe(429);
     expect(blocked.headers.get("Retry-After")).toMatch(/^\d+$/);
+  });
+
+  it("never logs the submitted code — only metadata (SEC-04)", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // Use a value unlikely to appear in analysis metadata or notes.
+    const code = "const PRIV_SENTINEL_XYZ = 42;";
+
+    await POST(makeRequest({ code, language: "javascript" }));
+
+    const loggedText = logSpy.mock.calls.map(([line]) => String(line)).join("\n");
+    expect(loggedText).not.toContain("PRIV_SENTINEL_XYZ");
+    logSpy.mockRestore();
   });
 
   it("analyzes valid code end-to-end through the provider registry", async () => {

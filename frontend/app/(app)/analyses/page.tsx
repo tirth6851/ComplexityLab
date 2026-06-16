@@ -26,7 +26,7 @@ export default async function AnalysesPage() {
   const res = await listAnalyses(100);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div className="flex flex-col gap-1.5">
@@ -45,7 +45,7 @@ export default async function AnalysesPage() {
             <ErrorState
               title="Could not load analyses"
               message={res.error}
-              hint="If the database hasn't been provisioned yet, apply supabase/migrations and check the Supabase env vars."
+              hint="This is usually temporary — please refresh in a moment. If it keeps happening, the data service may be down."
             />
           ) : res.data.length === 0 ? (
             <EmptyState
@@ -66,7 +66,7 @@ export default async function AnalysesPage() {
             res.data.map((a) => (
               <div
                 key={a.id}
-                className="flex items-center justify-between gap-3 rounded-ds-sm px-2 py-2.5 transition-colors hover:bg-surface-raised"
+                className="flex items-center justify-between gap-3 rounded-ds-lg border border-transparent px-3 py-3 transition-all hover:border-line hover:bg-surface-raised/70"
               >
                 <Link
                   href={`/analyses/${a.id}`}
@@ -99,6 +99,7 @@ export default async function AnalysesPage() {
                   <ConfirmDeleteButton
                     action={deleteAnalysisAction.bind(null, a.id)}
                     label={`Delete analysis ${a.title}`}
+                    successMessage="Analysis deleted"
                   />
                 </div>
               </div>

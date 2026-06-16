@@ -10,6 +10,8 @@ export interface ConfirmDeleteButtonProps {
   action: () => Promise<{ ok: boolean; error?: string }>;
   /** Accessible label, e.g. "Delete analysis quickSort()". */
   label: string;
+  /** If set, shows a success toast with this message after deletion. */
+  successMessage?: string;
   className?: string;
 }
 
@@ -20,6 +22,7 @@ export interface ConfirmDeleteButtonProps {
 export function ConfirmDeleteButton({
   action,
   label,
+  successMessage,
   className,
 }: ConfirmDeleteButtonProps) {
   const [armed, setArmed] = React.useState(false);
@@ -46,6 +49,8 @@ export function ConfirmDeleteButton({
       const res = await action();
       if (res && !res.ok) {
         toast(res.error ?? "Delete failed — try again.", { variant: "error" });
+      } else if (res?.ok && successMessage) {
+        toast(successMessage);
       }
     });
   }

@@ -1,5 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import type { ComplexityLevel } from "@/lib/complexity";
+
+export type { ComplexityLevel };
 
 type Variant =
   | "default"
@@ -9,9 +12,6 @@ type Variant =
   | "success"
   | "warning"
   | "info";
-
-/** Complexity gradient stops (1 = cheap/green … 5 = costly/red). */
-export type ComplexityLevel = 1 | 2 | 3 | 4 | 5;
 
 const variants: Record<Variant, string> = {
   default: "bg-primary/12 text-primary ring-1 ring-inset ring-primary/25",

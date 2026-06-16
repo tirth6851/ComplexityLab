@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Snippet } from "@/types";
+import { TITLE_MAX_LENGTH } from "@/lib/limits";
 import { dbError, getAdminClient, type DbResult } from "./admin";
 import { mapSnippet, type SnippetRow } from "./mappers";
 import { getOrCreateProfile } from "./profiles";
@@ -45,7 +46,7 @@ export async function createSnippet(
       .from("saved_snippets")
       .insert({
         profile_id: profile.data.id,
-        title: input.title.slice(0, 200),
+        title: input.title.slice(0, TITLE_MAX_LENGTH),
         language: input.language,
         code: input.code,
         tags: (input.tags ?? []).slice(0, 8).map((t) => t.slice(0, 32)),

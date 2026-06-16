@@ -49,9 +49,9 @@ export function QuickActions() {
             <Link
               key={action.label}
               href={action.href}
-              className="flex flex-col items-start gap-2 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="flex flex-col items-start gap-2 rounded-ds-lg border border-line bg-surface-panel/60 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="flex h-8 w-8 items-center justify-center rounded-ds-md border border-line bg-card text-primary">
                 <Icon className="h-4 w-4" />
               </span>
               <span className="text-sm font-medium">{action.label}</span>

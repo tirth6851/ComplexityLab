@@ -10,9 +10,10 @@ export function Card({ className, glow = false, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        // DS: elevation via surface layering, not drop shadows.
-        "rounded-ds-lg border bg-card text-card-foreground",
-        glow ? "border-line-accent shadow-glow-green-soft" : "border-line-subtle",
+        "rounded-ds-xl border bg-card/80 text-card-foreground shadow-ds-md backdrop-blur",
+        glow
+          ? "border-line-accent shadow-glow-green-soft"
+          : "border-line-subtle",
         className,
       )}
       {...props}

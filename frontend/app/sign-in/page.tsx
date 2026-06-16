@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { GoogleAuthButton } from "@/components/ui/google-auth-button";
 
@@ -7,7 +9,9 @@ export const metadata: Metadata = {
   title: "Sign in · ComplexityLab",
 };
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const { userId } = await auth();
+  if (userId) redirect("/dashboard");
   return (
     <AuthShell
       title="Welcome back"

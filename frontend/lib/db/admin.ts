@@ -41,13 +41,21 @@ export type DbResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
+/**
+ * Wrap a thrown DB error into a non-throwing result. The raw provider message
+ * (which can leak schema/PostgREST internals) is logged **server-side only**;
+ * the `error` returned to the UI is always the caller's friendly `fallback`,
+ * so end users never see internal database text. Callers that need to branch on
+ * a specific condition (e.g. `PGRST116` not-found) must inspect the error
+ * **before** delegating here.
+ */
 export function dbError<T>(error: unknown, fallback: string): DbResult<T> {
-  const message =
+  const detail =
     error instanceof Error
       ? error.message
       : typeof error === "string"
         ? error
-        : fallback;
-  console.error("[db]", message);
-  return { ok: false, error: message || fallback };
+        : JSON.stringify(error);
+  console.error("[db]", detail || fallback);
+  return { ok: false, error: fallback };
 }

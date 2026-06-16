@@ -6,17 +6,14 @@ import { createSnippet } from "@/lib/db/snippets";
 import { findFunctionNames } from "@/lib/analysis/engine";
 import { isLanguageId } from "@/lib/analysis/languages";
 import { checkActionLimit } from "@/lib/action-limit";
+import { MAX_CODE_LENGTH, SAVE_RATE_LIMIT } from "@/lib/limits";
 import type { CodeAnalysis } from "@/lib/ai/types";
-
-/** Per-user save budget: 20 saves per minute. */
-const SAVE_LIMIT = { limit: 20, windowMs: 60_000 };
 
 export interface SaveActionResult {
   ok: boolean;
+  id?: string;
   error?: string;
 }
-
-const MAX_CODE_LENGTH = 100_000;
 
 /** "quickSort()" from the first declared function, else the first code line. */
 function deriveTitle(code: string): string {
@@ -42,7 +39,7 @@ export async function saveAnalysisAction(input: {
   language: string;
   analysis: CodeAnalysis;
 }): Promise<SaveActionResult> {
-  const limited = await checkActionLimit("save-analysis", SAVE_LIMIT);
+  const limited = await checkActionLimit("save-analysis", SAVE_RATE_LIMIT);
   if (limited) return { ok: false, error: limited };
 
   const invalid = validate(input.code, input.language);
@@ -61,7 +58,7 @@ export async function saveAnalysisAction(input: {
 
   revalidatePath("/analyses");
   revalidatePath("/dashboard");
-  return { ok: true };
+  return { ok: true, id: res.data.id };
 }
 
 export async function saveSnippetAction(input: {
@@ -69,7 +66,7 @@ export async function saveSnippetAction(input: {
   language: string;
   tags?: string[];
 }): Promise<SaveActionResult> {
-  const limited = await checkActionLimit("save-snippet", SAVE_LIMIT);
+  const limited = await checkActionLimit("save-snippet", SAVE_RATE_LIMIT);
   if (limited) return { ok: false, error: limited };
 
   const invalid = validate(input.code, input.language);
@@ -85,5 +82,5 @@ export async function saveSnippetAction(input: {
 
   revalidatePath("/snippets");
   revalidatePath("/dashboard");
-  return { ok: true };
+  return { ok: true, id: res.data.id };
 }

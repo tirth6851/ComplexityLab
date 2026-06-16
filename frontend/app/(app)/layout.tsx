@@ -14,7 +14,11 @@ export default function DashboardLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="relative flex min-h-screen overflow-hidden bg-background">
+      <div aria-hidden className="pointer-events-none fixed inset-0">
+        <div className="absolute inset-0 bg-grid-lines opacity-35 [mask-image:radial-gradient(70%_50%_at_50%_0%,black,transparent)]" />
+        <div className="absolute left-1/2 top-[-20rem] h-[38rem] w-[64rem] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
+      </div>
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
@@ -22,7 +26,7 @@ export default function DashboardLayout({
         Skip to content
       </a>
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="relative z-10 flex min-h-screen flex-1 flex-col">
         <Topbar />
         <ToastProvider>
           <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">

@@ -7,7 +7,10 @@ export function Skeleton({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn(
+        "animate-pulse rounded-md bg-gradient-to-r from-surface-panel via-surface-raised to-surface-panel",
+        className,
+      )}
       aria-hidden
       {...props}
     />
