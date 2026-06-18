@@ -47,7 +47,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-ds-sm px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-ds-sm px-2.5 py-1 text-xs font-medium leading-none shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
         complexity ? complexityVariants[complexity] : variants[variant],
         className,
       )}

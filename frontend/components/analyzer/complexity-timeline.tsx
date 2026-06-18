@@ -69,7 +69,7 @@ export function ComplexityTimeline({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-ds-md border border-line-subtle bg-surface-panel bg-grid-dots p-4",
+        "flex flex-col gap-4 rounded-ds-lg border border-line-subtle bg-surface-panel bg-grid-dots p-5 shadow-inset-well",
         className,
       )}
     >

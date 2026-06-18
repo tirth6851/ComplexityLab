@@ -41,7 +41,7 @@ export function VerdictReadout({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 rounded-ds-md border border-l-2 border-line bg-surface-panel bg-grid-dots p-4",
+        "flex items-center gap-4 rounded-ds-lg border border-l-2 border-line-subtle bg-surface-panel bg-grid-dots p-4 shadow-inset-well",
         className,
       )}
       style={{ borderLeftColor: c, ...style }}

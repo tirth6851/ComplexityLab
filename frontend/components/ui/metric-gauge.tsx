@@ -35,7 +35,7 @@ export function MetricGauge({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2.5 rounded-ds-md border border-line-subtle bg-surface-card p-4",
+        "flex flex-col gap-3 rounded-ds-lg border border-line-subtle bg-surface-card/85 p-4 shadow-inset-well",
         className,
       )}
       {...props}
@@ -43,7 +43,7 @@ export function MetricGauge({
       <div className="flex items-baseline justify-between gap-2">
         <span className="cx-label">{label}</span>
         <span
-          className="font-mono text-lg font-bold leading-none"
+          className="font-mono text-xl font-bold leading-none"
           style={{ color }}
         >
           {value}
@@ -61,7 +61,7 @@ export function MetricGauge({
         />
       </div>
 
-      {hint && <span className="text-xs text-ink-muted">{hint}</span>}
+      {hint && <span className="text-sm leading-5 text-ink-muted">{hint}</span>}
     </div>
   );
 }

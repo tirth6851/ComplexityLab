@@ -21,7 +21,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="text-xs font-medium tracking-[0.01em] text-ink-primary"
+            className="font-mono text-2xs font-medium uppercase tracking-label text-ink-muted"
           >
             {label}
           </label>
@@ -31,7 +31,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             id={selectId}
             ref={ref}
             className={cn(
-              "h-9 w-full cursor-pointer appearance-none rounded-ds-md border border-line bg-surface-inset pl-3 pr-8 text-sm text-ink-primary shadow-inset-well outline-none transition-[border-color,box-shadow]",
+              "h-10 w-full cursor-pointer appearance-none rounded-ds-md border border-line-subtle bg-surface-inset pl-3 pr-8 text-sm text-ink-primary shadow-inset-well outline-none transition-[border-color,box-shadow]",
               "focus:border-primary/60 focus:shadow-glow-green",
               "disabled:cursor-not-allowed disabled:opacity-45",
               className,

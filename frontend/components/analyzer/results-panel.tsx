@@ -38,12 +38,12 @@ type ResultTab = (typeof tabs)[number]["id"];
 
 function IdleState({ action }: { action?: ReactNode }) {
   return (
-    <div className="flex h-full min-h-[520px] flex-col items-center justify-center gap-3 rounded-ds-xl border border-dashed border-line bg-grid-dots p-8 text-center">
-      <span className="flex size-14 items-center justify-center rounded-ds-lg border border-line bg-surface-panel text-primary shadow-glow-green-soft">
+    <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-4 rounded-ds-xl border border-dashed border-line-subtle bg-grid-dots p-8 text-center shadow-inset-well">
+      <span className="flex size-16 items-center justify-center rounded-ds-lg border border-line-accent bg-surface-panel text-primary shadow-glow-green-soft">
         <ScanLine className="h-6 w-6" aria-hidden />
       </span>
-      <p className="text-sm font-medium text-ink-primary">Ready for AI analysis</p>
-      <p className="max-w-sm text-xs leading-5 text-ink-muted">
+      <p className="font-display text-xl font-semibold text-ink-primary">Ready to analyze</p>
+      <p className="max-w-md text-sm leading-6 text-ink-secondary">
         Run the analyzer to generate time complexity, space complexity,
         optimization notes, confidence, and save actions.
       </p>
@@ -54,33 +54,33 @@ function IdleState({ action }: { action?: ReactNode }) {
 
 function AnalyzingState() {
   return (
-    <div className="min-h-[520px] space-y-4" aria-busy>
+    <div className="min-h-[560px] space-y-5" aria-busy>
       <div className="flex items-center justify-between">
-        <p className="cx-label animate-pulse text-primary">Scanning structure</p>
+        <p className="cx-label animate-pulse text-primary">Scanning structure…</p>
         <span className="rounded-pill border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-2xs uppercase tracking-label text-primary">
           AI pass
         </span>
       </div>
-      <Skeleton className="h-[72px] w-full" />
-      <Skeleton className="h-[72px] w-full" />
+      <Skeleton className="h-[84px] w-full" />
+      <Skeleton className="h-[84px] w-full" />
       <div className="grid grid-cols-2 gap-3">
         {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-[98px]" />
+          <Skeleton key={i} className="h-[112px]" />
         ))}
       </div>
-      <Skeleton className="h-[260px] w-full" />
+      <Skeleton className="h-[280px] w-full" />
     </div>
   );
 }
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="flex h-full min-h-[520px] flex-col items-center justify-center gap-3 rounded-ds-xl border border-dashed border-destructive/40 bg-[var(--danger-bg)] p-8 text-center">
+    <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-4 rounded-ds-xl border border-dashed border-destructive/40 bg-[var(--danger-bg)] p-8 text-center shadow-inset-well">
       <span className="flex size-14 items-center justify-center rounded-ds-lg border border-destructive/40 text-destructive">
         <TriangleAlert className="h-6 w-6" aria-hidden />
       </span>
-      <p className="text-sm font-medium text-ink-primary">Analysis failed</p>
-      <p className="max-w-sm text-xs leading-5 text-ink-muted">{message}</p>
+      <p className="font-display text-xl font-semibold text-ink-primary">Analysis failed</p>
+      <p className="max-w-md text-sm leading-6 text-ink-secondary">{message}</p>
     </div>
   );
 }
@@ -95,18 +95,12 @@ function TabPanel({
   if (active === "time") {
     return (
       <div className="space-y-4">
-        <VerdictReadout
-          label="TIME"
-          notation={analysis.time.notation}
-          tier={analysis.time.tier}
-        />
-        <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+        <div className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-5 shadow-inset-well">
           <p className="cx-label mb-2">Reasoning</p>
-          <p className="text-sm leading-6 text-ink-secondary">
+          <p className="text-base leading-7 text-ink-secondary">
             {analysis.time.reason}
           </p>
         </div>
-        <ComplexityTimeline highlight={analysis.time.notation} />
       </div>
     );
   }
@@ -114,14 +108,9 @@ function TabPanel({
   if (active === "space") {
     return (
       <div className="space-y-4">
-        <VerdictReadout
-          label="SPACE"
-          notation={analysis.space.notation}
-          tier={analysis.space.tier}
-        />
-        <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+        <div className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-5 shadow-inset-well">
           <p className="cx-label mb-2">Memory behavior</p>
-          <p className="text-sm leading-6 text-ink-secondary">
+          <p className="text-base leading-7 text-ink-secondary">
             {analysis.space.reason}
           </p>
         </div>
@@ -143,7 +132,7 @@ function TabPanel({
 
   if (active === "tips") {
     return (
-      <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+    <div className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-5 shadow-inset-well">
         <p className="cx-label mb-3">Optimization clues</p>
         <ul className="space-y-3">
           {analysis.notes.length > 0 ? (
@@ -165,18 +154,18 @@ function TabPanel({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+      <div className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-5 shadow-inset-well">
         <p className="cx-label mb-2">AI verdict</p>
         <p className="text-sm leading-6 text-ink-secondary">{analysis.verdict}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+        <div className="rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-4 shadow-inset-well">
           <p className="text-xs text-ink-muted">Provider</p>
           <p className="mt-2 font-mono text-sm text-ink-primary">
             {analysis.provider === "mock" ? "Heuristic engine" : analysis.provider}
           </p>
         </div>
-        <div className="rounded-ds-lg border border-line bg-surface-panel/60 p-4">
+        <div className="rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-4 shadow-inset-well">
           <p className="text-xs text-ink-muted">Confidence</p>
           <p className="mt-2 font-mono text-sm text-primary">
             {Math.round(analysis.confidence * 100)}%
@@ -197,20 +186,73 @@ function ResultState({
   const [active, setActive] = useState<ResultTab>("time");
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-label text-primary">
             AI results
           </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight">
+          <h2 className="mt-1 font-display text-2xl font-semibold tracking-normal">
             Complexity breakdown
           </h2>
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4" role="tablist">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <VerdictReadout
+            label="TIME"
+            notation={analysis.time.notation}
+            tier={analysis.time.tier}
+          />
+          <VerdictReadout
+            label="SPACE"
+            notation={analysis.space.notation}
+            tier={analysis.space.tier}
+          />
+        </div>
+
+        <p className="rounded-ds-lg border border-line-subtle bg-surface-panel/45 p-4 text-base leading-7 text-ink-secondary shadow-inset-well">
+          {analysis.verdict}
+        </p>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {analysis.metrics.map((m) => (
+            <MetricGauge
+              key={m.id}
+              label={m.label}
+              value={m.value}
+              fraction={m.fraction}
+              tier={m.tier}
+              hint={m.hint}
+            />
+          ))}
+        </div>
+
+        <ComplexityTimeline highlight={analysis.time.notation} />
+
+        {analysis.notes.length > 0 && (
+          <div className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-5 shadow-inset-well">
+            <p className="cx-label mb-2.5">What the engine saw</p>
+            <ul className="space-y-1.5">
+              {analysis.notes.map((note) => (
+                <li
+                  key={note}
+                  className="flex gap-2 text-sm leading-6 text-ink-secondary"
+                >
+                  <span className="select-none text-primary" aria-hidden>
+                    ▸
+                  </span>
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" role="tablist">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const selected = active === tab.id;
@@ -222,10 +264,10 @@ function ResultState({
               aria-selected={selected}
               onClick={() => setActive(tab.id)}
               className={cn(
-                "flex min-h-16 flex-col items-start justify-between rounded-ds-lg border p-3 text-left text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "flex min-h-20 flex-col items-start justify-between rounded-ds-lg border p-3 text-left text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 selected
-                  ? "border-primary/35 bg-primary/10 text-primary"
-                  : "border-line bg-surface-panel/50 text-ink-muted hover:border-line-strong hover:text-ink-primary",
+                  ? "border-primary/35 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_14px_28px_-24px_rgba(0,229,153,0.85)]"
+                  : "border-line-subtle bg-surface-panel/50 text-ink-muted hover:border-line-strong hover:bg-surface-raised/70 hover:text-ink-primary",
               )}
             >
               <Icon className="h-4 w-4" aria-hidden />
@@ -247,8 +289,25 @@ export function ResultsPanel({
   actions,
   idleAction,
 }: ResultsPanelProps) {
+  const statusMessage =
+    status === "analyzing"
+      ? "Analyzing code…"
+      : status === "done" && analysis
+        ? `Analysis complete. Time ${analysis.time.notation}. Space ${analysis.space.notation}.`
+        : "";
+  const alertMessage =
+    status === "error"
+      ? `Analysis failed. ${error ?? "Something went wrong while analyzing."}`
+      : "";
+
   return (
-    <Card className="min-h-[560px] p-4 sm:p-5" glow={status === "done"}>
+    <Card className="min-h-[600px] p-4 sm:p-6" glow={status === "done"}>
+      <div role="status" aria-live="polite" className="sr-only">
+        {statusMessage}
+      </div>
+      <div role="alert" className="sr-only">
+        {alertMessage}
+      </div>
       {status === "idle" && <IdleState action={idleAction} />}
       {status === "analyzing" && <AnalyzingState />}
       {status === "error" && (

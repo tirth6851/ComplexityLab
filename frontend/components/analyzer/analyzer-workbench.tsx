@@ -147,21 +147,21 @@ export function AnalyzerWorkbench({
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-[1500px] space-y-8">
       <IntroStrip />
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)]">
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(420px,0.92fr)]">
         {/* ---- input side ---- */}
-        <Card className="overflow-hidden border-line bg-card/90">
-          <div className="flex flex-wrap items-center gap-3 border-b border-line bg-surface-panel/60 p-4">
+        <Card className="overflow-hidden border-line-subtle bg-card/90 shadow-ds-xl">
+          <div className="flex flex-wrap items-center gap-4 border-b border-line-subtle bg-surface-panel/60 p-4 sm:p-5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <span className="hidden size-10 shrink-0 items-center justify-center rounded-ds-md border border-line bg-card text-primary sm:flex">
+              <span className="hidden size-11 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-card text-primary shadow-glow-green-soft sm:flex">
                 <FileCode2 className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0">
                 <p className="font-mono text-xs uppercase tracking-label text-primary">
                   Source editor
                 </p>
-                <p className="truncate text-xs text-ink-muted">
+                <p className="truncate text-sm text-ink-secondary">
                   Paste code, load a sample, or upload a source file.
                 </p>
               </div>
@@ -201,7 +201,7 @@ export function AnalyzerWorkbench({
                   Paste code to analyze
                 </span>
               )}
-            <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line bg-card/40 px-3 text-xs font-medium text-ink-primary transition-all hover:border-primary/35 hover:bg-surface-raised">
+            <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/45 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised">
               <Upload className="h-3.5 w-3.5" aria-hidden />
               Upload
               <input
@@ -223,16 +223,17 @@ export function AnalyzerWorkbench({
                 {status === "analyzing" ? "Analyzing…" : "Analyze"}
               </Button>
             </div>
+            </div>
           </div>
 
-          <div className="relative bg-[#050816]">
+          <div className="relative bg-[#050816] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
             <CodeEditor
               value={code}
               onChange={setCode}
               language={monacoLanguage}
               // Full 460px on desktop; on small viewports cap to ~half the
               // screen so the Analyze button and results stay reachable.
-              height="clamp(300px, 55dvh, 460px)"
+              height="clamp(340px, 58dvh, 560px)"
               onRun={requestAnalyze}
             />
             {status === "analyzing" && (
@@ -245,7 +246,7 @@ export function AnalyzerWorkbench({
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 border-t border-line-subtle bg-surface-panel/40 px-4 py-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-subtle bg-surface-panel/45 px-4 py-3">
             <span className="font-mono text-2xs uppercase tracking-label text-ink-faint">
               {code.length.toLocaleString()} chars
               <span className="hidden sm:inline" aria-hidden>

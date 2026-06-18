@@ -28,7 +28,7 @@ export default function AppError({
           <TriangleAlert className="h-5 w-5" aria-hidden />
         </span>
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">
+          <h2 className="font-display text-xl font-semibold tracking-normal">
             Something broke in the lab
           </h2>
           <p className="max-w-md text-sm text-ink-muted">

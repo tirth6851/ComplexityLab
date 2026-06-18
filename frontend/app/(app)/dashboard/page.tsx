@@ -35,7 +35,7 @@ export default async function DashboardPage() {
   const metrics = computeLanguageMix(analyses);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-8">
       <Suspense fallback={<WelcomeCardSkeleton />}>
         <WelcomeCard />
       </Suspense>
@@ -52,12 +52,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
           <RecentAnalyses analyses={analyses.slice(0, 5)} />
           <SavedSnippets snippets={snippets.slice(0, 5)} />
         </div>
-        <div className="space-y-6">
+        <div className="space-y-8">
           <ProgressOverview stats={stats} metrics={metrics} />
           <QuickActions />
         </div>
