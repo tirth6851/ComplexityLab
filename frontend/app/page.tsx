@@ -1,10 +1,8 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
   BarChart3,
-  BookOpenCheck,
-  BrainCircuit,
   Code2,
   Database,
   Gauge,
@@ -35,22 +33,22 @@ const platformCards = [
     accent: "Core workflow",
   },
   {
-    icon: BookOpenCheck,
-    title: "Lessons",
-    body: "Learn Big-O patterns through visual tracing flows and guided examples.",
-    accent: "Guided learning",
-  },
-  {
-    icon: BrainCircuit,
-    title: "Quiz",
-    body: "Practice identifying complexity from loops, recursion, data structures, and optimization tradeoffs.",
-    accent: "Interview prep",
+    icon: BarChart3,
+    title: "Dashboard",
+    body: "Track your analysis activity, recent work, and saved complexity patterns in one focused workspace.",
+    accent: "Workspace",
   },
   {
     icon: History,
     title: "History",
-    body: "Revisit saved analyses and snippets so your interview prep compounds over time.",
+    body: "Revisit saved analyses so your interview prep compounds over time.",
     accent: "Saved memory",
+  },
+  {
+    icon: Code2,
+    title: "Snippets",
+    body: "Save useful code examples and return to the traces that helped you understand them.",
+    accent: "Code library",
   },
 ] as const;
 
@@ -105,8 +103,8 @@ export default function Home() {
       <main id="main" className="relative z-10">
         <SectionShell
           eyebrow="ComplexityLab platform"
-          title="A focused loop for building complexity intuition"
-          description="Analyze real code, learn the pattern behind the verdict, practice the reasoning, and keep a history you can revisit before interviews."
+          title="A focused loop for understanding complexity"
+          description="Analyze real code, read the reasoning behind each verdict, save useful snippets, and return to your history when you need the pattern again."
           className="pt-16"
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -115,7 +113,8 @@ export default function Home() {
               return (
                 <div
                   key={card.title}
-                  id={card.title === "Lessons" ? "lessons" : card.title === "Quiz" ? "quiz" : undefined}
+
+
                   className="group rounded-ds-xl border border-line-subtle bg-card/70 p-6 shadow-ds-lg backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/35 hover:bg-surface-panel/70 hover:shadow-glow-green-soft"
                 >
                   <div className="flex items-center justify-between gap-3">

@@ -10,8 +10,7 @@ import {
 } from "framer-motion";
 import {
   ArrowRight,
-  BookOpenCheck,
-  BrainCircuit,
+  Code2,
   History,
   LayoutDashboard,
   Menu,
@@ -40,10 +39,9 @@ const ROTATING_WORDS = [
 
 const NAV_ITEMS = [
   { label: "Analyzer", href: "/analyzer" },
-  { label: "Lessons", href: "#lessons" },
-  { label: "Quiz", href: "#quiz" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "History", href: "/analyses" },
+  { label: "Snippets", href: "/snippets" },
 ] as const;
 
 interface Dot {
@@ -453,10 +451,10 @@ export function HeroSectionNexus() {
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <Link
-            href="#lessons"
+            href="/dashboard"
             className="inline-flex h-11 items-center gap-2 rounded-ds-md border border-line bg-card/55 px-5 text-sm font-semibold text-foreground backdrop-blur transition hover:border-primary/40 hover:bg-surface-raised"
           >
-            View Lessons
+            View Dashboard
           </Link>
         </motion.div>
 
@@ -468,10 +466,9 @@ export function HeroSectionNexus() {
         >
           {[
             [ScanLine, "Analyzer"],
-            [BookOpenCheck, "Lessons"],
-            [BrainCircuit, "Quiz"],
             [LayoutDashboard, "Dashboard"],
             [History, "History"],
+            [Code2, "Snippets"],
           ].map(([Icon, label]) => (
             <span
               key={label as string}
@@ -484,13 +481,6 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <MiniCodeTrace />
-
-        <div id="lessons" className="sr-only">
-          Lessons section
-        </div>
-        <div id="quiz" className="sr-only">
-          Quiz section
-        </div>
       </div>
 
       <NavIcon className="pointer-events-none absolute bottom-10 right-8 hidden h-24 w-24 text-primary/10 lg:block" />

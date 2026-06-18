@@ -4,7 +4,6 @@ import {
   ScanLine,
   Settings,
   History,
-  TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -12,7 +11,6 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Routes that don't exist yet render as disabled "Soon" items. */
   ready: boolean;
   /**
    * Path prefix used for the active state when the item owns a subtree whose
@@ -28,7 +26,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Analyzer", href: "/analyzer", icon: ScanLine, ready: true },
   { label: "Analyses", href: "/analyses", icon: History, ready: true },
   { label: "Snippets", href: "/snippets", icon: Code2, ready: true },
-  { label: "Progress", href: "#", icon: TrendingUp, ready: false },
   {
     label: "Settings",
     href: "/settings/profile",
