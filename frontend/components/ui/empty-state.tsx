@@ -2,10 +2,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * Consistent empty/zero-data state for readouts and lists. It gives people a
- * next step instead of a dead end, while staying quiet enough for dashboards.
- */
 export function EmptyState({
   icon: Icon,
   title,

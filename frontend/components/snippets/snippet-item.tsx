@@ -13,14 +13,9 @@ import type { Snippet } from "@/types";
 
 export interface SnippetItemProps {
   snippet: Snippet;
-  /** Bound server action deleting this snippet. */
   deleteAction: () => Promise<{ ok: boolean; error?: string }>;
 }
 
-/**
- * One snippet row. The title area toggles an inline code view with copy and
- * open-in-analyzer actions - snippets are useless if you cannot see them.
- */
 export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
   const [open, setOpen] = React.useState(false);
 
