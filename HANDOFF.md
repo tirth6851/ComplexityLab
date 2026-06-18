@@ -31,6 +31,7 @@
 8. [Environment Variables](#environment-variables)
 9. [Development Rules](#development-rules)
 10. [Quick Start For New Sessions](#quick-start-for-new-sessions)
+11. [Long-Term Vision](#long-term-vision) ← `PROJECT_BACKLOG.md` reference
 
 ---
 
@@ -453,5 +454,29 @@ Set these as **Vercel environment variables** in production; Root Directory = `f
   are manual.
 - **Read next:** `MISSION_CONTROL.md` (sprint state) · `PHASE2_PLAN.md` (Phase 2 specs)
   · `ARCHITECTURE.md` + `TRD.md` (system design) · `SECOND_BRAIN.md` (decisions/debt).
+
+---
+
+## Long-Term Vision
+
+Full backlog — every planned feature, AI roadmap item, technical debt, and future
+idea — is documented in **`PROJECT_BACKLOG.md`** at the repo root.
+
+Key sections in that file:
+
+| Section | What it tracks |
+|---|---|
+| **Current Status** | Branch, health gates, next step |
+| **Completed Features** | Everything shipped (MVP → Phase 2 F2) |
+| **In Progress** | Active work |
+| **Planned Features** | Phase 2 F3 (Compiler), F4 (Chat), F5 (Community) with full specs |
+| **Beta Blockers** | B1–B5 with status |
+| **AI Roadmap** | LeetCode Intelligence, AI tutor, pattern detection — future only |
+| **Nice-to-Have** | Improvements that aren't blocking |
+| **Technical Debt** | Known debt, accepted for MVP |
+| **Future Ideas** | Platform vision, enterprise, integrations — brain dump |
+
+**`PROJECT_BACKLOG.md` is the single source of truth for what we still want to build.**
+Update it alongside `MISSION_CONTROL.md` at the start of each working session.
 
 *End of handoff.*

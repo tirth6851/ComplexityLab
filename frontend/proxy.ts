@@ -11,6 +11,7 @@ export const PROTECTED_ROUTES = [
   "/analyzer(.*)",
   "/analyses(.*)",
   "/snippets(.*)",
+  "/playground(.*)",
   "/settings(.*)",
 ] as const;
 

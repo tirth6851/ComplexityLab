@@ -1,0 +1,351 @@
+# ComplexityLab — Project Backlog
+
+> **Single source of truth for everything still to build.**
+> This document is designed to survive context loss across Claude Code sessions.
+> For sprint-level focus see `MISSION_CONTROL.md`; for technical architecture
+> see `ARCHITECTURE.md` and `PHASE2_PLAN.md`; for decisions/debt see `SECOND_BRAIN.md`.
+>
+> **Last updated: 2026-06-18**
+
+---
+
+## Current Status
+
+| Field | Value |
+|---|---|
+| **Active branch** | `feature/next-sprint-v1` |
+| **Main branch SHA** | `5829ac4` (2026-06-14, 211 tests) |
+| **Active branch health** | `typecheck ✅ · lint ✅ · build ✅ (16 routes) · test ✅ (36 files / 299 tests)` |
+| **Production URL** | https://complexity-lab-eight.vercel.app (auto-deploys from `main`) |
+| **Current feature** | Phase 2 F2 (Progress System) — **just completed 2026-06-18** |
+| **Next task** | Merge `feature/next-sprint-v1` → `main` (requires B1 DB migration first), then start Phase 2 F3 (Compiler) |
+| **DB blocker** | `supabase/migrations/20260609000000_init.sql` NOT yet applied to production project `hhnmxyyrihrpyerdmgdw` |
+| **Key rotation** | ✅ Done (2026-06-18) — Clerk, Supabase, Groq all rotated |
+
+---
+
+## Completed Features
+
+### Foundation & Infrastructure
+- **Security baseline:** `.gitignore`, `.env.example`, secrets removed from git history
+- **Next.js 16 + React 19 + TypeScript strict + Tailwind v3** — app lives in `frontend/`
+- **Token-based design system** — `app/tokens.css`, `globals.css`
+- **Dark Lab / Signal Green design system** — primitives: `BigOBadge`, `VerdictReadout`, `MetricGauge`, `ComplexityBadge`, `ProgressBar`, `Tag`, `Input`, `Switch`, `Card`, `Button`, `Select`, theme toggle
+- **ESLint 9 flat config**
+- **Vercel deployment** — `complexity-lab` project, team `tirths-projects-de842079`, Root Dir = `frontend`, auto-deploy from `main`
+- **CI-equivalent local gates:** `typecheck · lint · build · test` (no GitHub Actions CI yet)
+
+### Authentication & Routing
+- **Google-only Clerk auth** — custom auth pages (`/sign-in`, `/sign-up`, `/sso-callback`), signals API `signIn.sso()`
+- **`proxy.ts` route protection** — `PROTECTED_ROUTES` exported for tests, `unauthenticatedUrl: "/sign-in"` (prevents accounts.dev bounce)
+- **`(app)` route group shell** — shared sidebar/topbar, dynamic topbar title, nav with active states
+- **Consent gate** (`ConsentGate`) — accept → 1-year cookie (`cl-consent=v1`); decline → redirected off site; legal pages pre-consent
+
+### Analyzer
+- **Monaco editor** — Dark-Lab themes, theme-toggle aware, dynamic import (SSR disabled)
+- **7 languages, 18 sample templates**
+- **Groq AI provider** (`lib/ai/providers/groq.ts`) — strict-JSON completion, 20s timeout, auto-fallback to heuristic on ANY failure
+- **Deterministic heuristic engine** (`lib/ai/engine.ts`) — regex/scan-based, doubles as mock provider and test oracle
+- **`lib/ai` provider registry** — `AI_PROVIDER` env, vendor-swappable with no UI changes
+- **Results panel** — TIME/SPACE verdict readouts, 4 metric gauges, SVG growth-timeline (`ComplexityTimeline`), scanline animation, reasoning notes
+- **`POST /api/analyze`** — auth guard, validation, provider dispatch, 429 + Retry-After
+- **`loading.tsx`** skeleton on the analyzer route
+- **Ctrl/⌘+Enter keyboard shortcut** to analyze
+- **Preferred language** auto-loaded from profile on analyzer open
+- **IntroStrip** onboarding guide (dismissible)
+- **Idle CTA** "Run first analysis" when editor is empty
+- **`Ctrl/⌘+Enter` in-Monaco command** registered
+
+### Data Layer & Database
+- **Supabase migration** (`20260609000000_init.sql`) — `profiles`, `analyses` (full result JSONB), `saved_snippets` (tags[]), cascade deletes, `(profile_id, created_at desc)` indexes, RLS deny-by-default
+- **Server-only `lib/db/*`** — service-role key, `server-only` package guard, Clerk-scoped, `DbResult<T>` returns (never throws)
+- **`getOrCreateProfile()`** — Clerk user → Supabase profile, per-call resolution
+
+### Save Flow (Phase 2 F1)
+- **`SaveDialog` modal** (`components/analyzer/save-dialog.tsx`) — mandatory title + optional tags; `role="alert"` on failure; pending state; a11y compliant
+- **`Dialog` primitive** (`components/ui/dialog.tsx`) — accessible: `role="dialog"`, `aria-modal`, focus trap (Tab/Shift+Tab), Escape key, backdrop click, portal to `document.body`, focus return
+- **`deriveTitle` module** (`lib/analysis/derive-title.ts`) — pure, client-safe, extracted from server-only `actions.ts`
+- **`saveAnalysisAction` + `saveSnippetAction`** — both require non-empty `title`; empty/whitespace rejected
+- **`SaveActions` rewrite** — opens SaveDialog on click; saved state disables buttons + shows View links
+
+### Progress System (Phase 2 F2 — 2026-06-18)
+- **DB migration** (`20260616000100_progress.sql`) — `user_progress` + `xp_events` tables, `level_from_xp` SQL function, `apply_progress_event` atomic RPC
+- **`lib/progress/levels.ts`** — pure `xpForLevel` / `levelFromXp` / `progressToNextLevel`
+- **`lib/progress/achievements.ts`** — static `ACHIEVEMENTS` catalog (5 entries: first_analysis, analyzer_streak_3, analyzer_streak_7, speed_demon, completionist)
+- **`lib/db/progress.ts`** — server-only: `getProgress`, `awardProgress`, `listXpHistory`, `listUnlockedAchievements`, `getProgressStats`; degrades gracefully when tables absent
+- **`lib/progress/evaluate.ts`** — achievement predicate evaluation
+- **`lib/progress/award.ts`** — `awardProgressForSave` orchestrator; best-effort, never throws, never fails the save
+- **Dashboard widgets** — `LevelCard`, `StreakCard`, `AchievementGrid`, `ActivityChart` (all Server Components, inline SVG, no new deps)
+- **Dashboard integration** — progress fetched in parallel, graceful empty state
+
+### App Flows & UX
+- **Dashboard** — real data: recent analyses, saved snippets, derived stats (counts, weekly activity, day streak, language mix)
+- **`/analyses` list** — complexity badges, empty/error/loading states, two-step delete, link to detail
+- **`/analyses/[id]` detail view** — stored code + persisted result JSONB re-rendered through `ResultsPanel`; delete-with-redirect; `CopyButton`
+- **`/snippets` list** — expandable rows revealing code, `CopyButton`, "Open in analyzer" round-trip; two-step delete
+- **"Open in analyzer" round-trips** — `sessionStorage` handoff (`lib/analyzer-handoff.ts`), one-shot `takeAnalyzerHandoff()` on mount
+- **Settings: `/settings/profile`** — display name, preferred language (Supabase)
+- **Settings: `/settings/account`** — Clerk identity, theme toggle, sign-out, delete-all-data danger zone
+- **Toast system** (`components/ui/toaster.tsx`) — `useToast()` / `useToastSafe()` (no-op fallback for portability)
+- **Mobile responsiveness** — Monaco `clamp(300px, 55dvh, 460px)`, drawer focus trap, 36px tap targets, `prefers-reduced-motion`
+- **Error boundary** `(app)/error.tsx`; loading skeletons everywhere
+
+### Security & Operations
+- **Rate limiting** — `lib/rate-limit.ts` (sliding window, in-memory per instance); `lib/action-limit.ts` — analyze 20/min, saves 20/min, deletes 60/min, profile 10/min, delete-all 3/h
+- **Structured logging** (`lib/log.ts`) — JSON events → Vercel runtime; code content never logged
+- **Legal pack** — `/privacy`, `/terms`, forced `ConsentGate`
+- **`dbError()`** — raw provider text logged server-side only; friendly copy to users
+- **Secrets purged from git history** — `git filter-branch` + force-push (2026-06-09); all keys rotated (2026-06-18)
+- **Screen reader accessibility** — `role="status"` + `aria-live="polite"` + `role="alert"` live regions in `ResultsPanel`
+- **WCAG AA contrast** — `--text-muted: #8493ac`, `--text-faint: #7c8aa3` on dark surfaces
+
+### Tests (36 files / 299 tests — 2026-06-18)
+- Engine-vs-samples (every sample template), route auth, protected-route matcher, save actions, ownership scoping (SEC-02/03), delete/settings actions, EDG-01 boundary, SEC-04 log-content, `GoogleAuthButton` (AUTH-04), `ConfirmDeleteButton`, `AnalyzerWorkbench`, `Dialog`, `SaveDialog`, `LevelCard`/`StreakCard`/`AchievementGrid`/`ActivityChart`, progress unit tests (levels, achievements, award)
+
+---
+
+## In Progress
+
+**Nothing actively in flight as of 2026-06-18.** Phase 2 F2 (Progress System) completed.
+
+**Immediate next steps (in order):**
+1. Apply B1 DB migration to production (`supabase/migrations/20260609000000_init.sql` → project `hhnmxyyrihrpyerdmgdw`)
+2. Merge `feature/next-sprint-v1` → `main` (requires B1 first, or merge optimistically if the app degrades gracefully)
+3. Start Phase 2 F3 (Compiler) on a new branch `feature/phase2-compiler`
+
+---
+
+## Planned Features
+
+### Phase 2 Roadmap (specs in `docs/phase2/` and `PHASE2_PLAN.md`)
+
+All Phase 2 features are **post-beta** (require B1 + B3 resolved first).
+Build order: **F3 → F4 → F5** (F1+F2 already shipped).
+
+#### F3 — Online Compiler (Monaco + Judge0) · Size: M · ~2 days
+- **Route:** `POST /api/execute` — auth → per-minute burst (in-memory) → per-day quota (DB) → validate → Judge0 CE → normalize → record metadata
+- **Page:** `/playground` — `CodeEditor` reuse, stdin textarea, language select (7 langs), Run button, ExecutionResult panel (status badge, stdout, stderr/compile_output, time/memory)
+- **Database:** `code_executions` table — metadata only (status, time, memory, language); never store code/stdout/stdin
+- **Provider:** Judge0 CE via RapidAPI free tier; `JUDGE0_API_KEY` server-only; `wait=true&base64_encoded=true`; `maxDuration=15`, Judge0 `wall_time_limit=8s`
+- **Quotas:** 100 runs/day, 10/min burst (configurable in `lib/limits.ts`)
+- **New env var:** `JUDGE0_API_KEY` (add to `.env.example` + Vercel before merge)
+- **Migration:** `supabase/migrations/20260616000200_executions.sql`
+- **Tests:** unit (language normalizer, status mapping), integration (`/api/execute` auth/validation/quota), component (`ExecutionResult`)
+- **Risk:** Judge0 `language_id` drift if RapidAPI changes IDs — centralize mapping in `lib/execute/languages.ts`
+
+#### F4 — AI Chat (context-aware, streaming, persisted) · Size: L · ~3 days
+- **Route:** `POST /api/chat` (streaming) — auth → daily-quota check (DB) → per-minute burst → load/create conversation → assemble context → `getChatProvider().stream()` → pipe `ReadableStream` to client → on stream end: persist user+assistant messages, bump `ai_usage`
+- **Page:** `/chat` — `ConversationList` sidebar, `MessageThread`, `Composer`; hand-rolled `ReadableStream` reader (no SDK)
+- **Provider:** new `ChatProvider` interface beside `AnalysisProvider`; `CHAT_PROVIDER` env, default groq-if-key-else-mock; same registry pattern
+- **Database:** `chat_conversations` (profile_id, title, context_type, context_ref_id), `chat_messages` (role, content, token_count), `ai_usage` ((profile_id, day) PK, message_count, tokens_in/out)
+- **Context anchoring:** optional `contextRef` (analysis ID) → include code + stored `CodeAnalysis` in system prompt; history trimmed to last 12 messages to cap prompt tokens
+- **Quotas:** 50 messages/day (user turns only), 10/min burst
+- **Persistence rules:** user message persisted PRE-stream (survives disconnect); assistant message + token counts persisted POST-stream (server-side `finally`); quota gated on `message_count`, tokens are analytics-only
+- **New env var:** `CHAT_MODEL` (add to `.env.example` + Vercel)
+- **Migration:** `supabase/migrations/20260616000300_chat.sql`
+- **Atomic SQL function:** `bump_ai_usage(profile_id, day, msgs, tokens_in, tokens_out)`
+- **Prompt-injection guard:** anchored code treated as untrusted data in system prompt, not instructions
+- **Tests:** unit (prompt builders, history trimming), integration (`/api/chat` auth/quota/persistence), component (MessageThread, Composer)
+
+#### F5 — Community (share · feed · likes · comments · moderation) · Size: XL · ~4–5 days
+- **Pages:** `/community` (feed), `/community/[id]` (post detail), `/community/moderation` (admin-gated)
+- **Database:** `community_posts` (immutable snapshot of code + Big-O + result, author denormalized, `status` field, `like_count` + `comment_count` denormalized, GIN search tsvector), `post_likes` ((post_id, profile_id) PK), `post_comments` (body, status), `post_reports` (reason, status)
+- **Cross-user reads:** feed/detail filter by `status='visible'` (not owner) via service-role client; all mutations remain owner-scoped — document this clearly in `lib/db/community.ts`
+- **Atomic SQL functions:** `toggle_post_like()`, `community_posts_search_update` trigger
+- **Pagination:** keyset (cursor) pagination for the feed — O(1) deep pages, stable under inserts
+- **Quotas:** post 10/day, comment 60/day, like 120/min, report 20/day
+- **Author identity:** denormalized at post time (`author_name` snapshot, "Anonymous" fallback)
+- **Moderation:** report flow → admin hide (`status='hidden'`) or remove (`status='removed'`); `/community/moderation` is admin-gated
+- **XSS protection:** escape user-generated content (no raw HTML)
+- **Soft deps (polish, not blocking):** F2 level badge on author, "Discuss with AI" link to F4 chat
+- **Share from analyzer:** SaveActions gets a "Share to Community" option after F1 title dialog resolves; posts are immutable snapshots
+- **Migration:** `supabase/migrations/20260616000400_community.sql`
+- **Tests:** unit (cursor encode/decode, search branch), integration (visibility vs ownership scoping, moderation actions), component (`PostCard` optimistic like + comment/report)
+
+---
+
+## Beta Blockers
+
+Track these before any public beta launch.
+
+| # | Issue | Status | Notes |
+|---|---|---|---|
+| B1 | **DB migration unapplied** — `supabase/migrations/20260609000000_init.sql` not applied to Supabase project `hhnmxyyrihrpyerdmgdw`; saves/dashboard broken | 🔵 External | Apply via Supabase Dashboard SQL editor. Then apply `20260616000100_progress.sql`. **Top rollout dependency.** |
+| B2 | **Leaked secrets unrotated** | ✅ Done (2026-06-18) | Clerk, Supabase (incl. service-role), Groq all rotated |
+| B3 | **`beta-prep-audit` branch not merged** — 5 code fixes + QA docs + ownership tests undeployed | 🟡 Ready | Already incorporated into `feature/next-sprint-v1`; merge `feature/next-sprint-v1` → `main` to deploy |
+| B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner; zero manual coverage | ⬜ Pending | Test with a real Google account in production |
+| B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | ⬜ Pending | Test with two separate Google sign-ins; verify one user can't read/delete another's data |
+
+---
+
+## Strongly Recommended Before Public Launch
+
+- **Production Clerk instance** — replace `pk_test` / `accounts.dev` with a production instance (custom domain). Current dev instance won't scale and may have rate limits.
+- **CI gate** — GitHub Actions: `typecheck && lint && build && test` on every push to `main` and every PR. No CI currently; gates run locally only.
+- **Global rate limiting** — move the in-memory sliding-window to Upstash/Vercel KV for cross-instance enforcement. Current limits are per-warm-instance and can be exceeded on serverless cold starts.
+- **Product analytics** — wire a funnel (e.g. PostHog) to measure: sign-up → first analysis, first save, save rate, day streak, own-code conversion. North star: weekly analyses per active user.
+
+---
+
+## AI Roadmap
+
+### Current AI Layer
+- Groq `llama-3.3-70b-versatile` for analysis (JSON mode), deterministic heuristic fallback
+- Planned F4 Chat: Groq-backed streaming chat, context-aware per-conversation
+- Provider registry in `lib/ai` — vendor-swappable via `AI_PROVIDER` env
+
+### LeetCode Intelligence (Future — not scheduled)
+
+Build a curated LeetCode knowledge base to help users practice algorithmic problem-solving with guided feedback, not just solutions.
+
+**Core capabilities to build:**
+- **Problem knowledge base** — curated dataset of LeetCode problems, organized by pattern (sliding window, two pointers, BFS/DFS, dynamic programming, greedy, etc.)
+- **Groq-backed inference** — use Groq as the inference model for all LeetCode intelligence features
+- **Embeddings + RAG retrieval** — embed problems and user code; retrieve similar problems using cosine similarity / vector search
+- **Hint system** — give progressive hints instead of immediate solutions; detect which step of the algorithm the user is stuck on
+- **Algorithm pattern detection** — identify patterns in user code (e.g. "you're doing a linear scan — consider a hash map")
+- **Time + space complexity explanation** — explain WHY a solution is O(n log n), not just the label; compare to optimal
+- **Solution comparison** — compare user's solution to the canonical optimal; highlight structural differences
+- **Personalized feedback** — track which problems/patterns the user has attempted; tailor hints based on previous mistakes
+- **Practice recommendations** — recommend next problems based on weak topics and current level
+- **Weak topic tracking** — persist accuracy by pattern/category; surface in dashboard
+- **Interview follow-up questions** — after solving, generate follow-up questions ("What if the array is sorted?", "Can you do this in O(1) space?")
+- **Adaptive difficulty** — adjust problem difficulty as user improves
+
+**Technical approach:**
+- Supabase `pgvector` extension for embedding storage and similarity search
+- Problem embeddings pre-computed (Groq or open embedding model)
+- RAG pipeline: user code → embed → retrieve K similar problems → assemble prompt → Groq → structured response
+- Per-user accuracy store: `(user_id, pattern, attempt_count, success_count)`
+
+> **This is a future roadmap item. Do not build until Phase 2 is complete and beta is stable.**
+
+### AI Tutor Chat (Phase 2 F4 — first milestone toward the above)
+Already planned in Phase 2. F4 lays the foundation (conversation persistence, streaming, context anchoring) that the LeetCode intelligence layer will build on.
+
+### Other AI Ideas
+- **Explain-my-complexity** — after analysis, a "Tell me why" button that streams a pedagogical explanation tuned to the user's level (beginner / intermediate / advanced)
+- **Alternative solution suggestion** — "Here's how you could rewrite this as O(n log n)" with code examples
+- **Code review AI** — general code quality review beyond just complexity (naming, structure, edge cases)
+- **Interview simulation mode** — timed coding sessions with an AI interviewer asking follow-up questions in real time
+
+---
+
+## Nice-to-Have Features
+
+These improve the product but are not essential for MVP or beta.
+
+### Analyzer Improvements
+- **Snippet tag editing** — `Tag` primitive already supports add/remove; just needs UI wired in the snippet editor
+- **Syntax highlighting on stored-code view** — currently plain `<pre>` (Monaco is too heavy for view-only; consider a lightweight highlighter like `shiki`)
+- **Shareable result URLs** — a `/r/[id]` public-accessible route for sharing a single analysis result
+- **More language support** — beyond the current 7 (JavaScript, TypeScript, Python, Java, C++, Go, Rust)
+- **Editor themes** — additional Dark-Lab themes for the Monaco editor
+- **Code diff view** — show "before/after" when user analyzes a refactored version
+
+### Dashboard Improvements
+- **XP history chart** — already built (`ActivityChart`); add week/month/all-time toggle
+- **Achievement notifications** — toast when a new achievement is unlocked
+- **More achievements** — current catalog has 5; expand with: "100 analyses", "All languages tried", "7-day streak", "First community post", "First helpful comment"
+- **Leaderboard** — opt-in, weekly XP rankings (requires community feature)
+- **Progress export** — "download my history as CSV"
+
+### UX & Design
+- **Onboarding flow** — guided multi-step wizard for new users: try the analyzer → save first result → explore dashboard
+- **Empty-state CTAs** — improve empty states on `/analyses` and `/snippets` to guide new users
+- **Better landing page** — animated complexity visualizer on the hero (shows O(n) vs O(n²) growth curves)
+- **Dark/light mode polish** — review every component for light-mode contrast
+- **Keyboard shortcuts** — a `/keyboard-shortcuts` page or modal listing all shortcuts
+- **"What's new" changelog** — in-app changelog (modal or page) when new features ship
+
+### Settings & Account
+- **Email notifications** — daily streak reminders, achievement unlocks (requires email provider)
+- **Profile page** — public profile page showing username, level, and selected stats (opt-in)
+- **Export all data** — ZIP download of analyses, snippets, and XP history (GDPR compliance)
+- **Account deletion confirmation email**
+
+### Mobile
+- **PWA support** — manifest + service worker for "Add to home screen"
+- **Bottom navigation** — replace the side drawer with a bottom tab bar on mobile
+- **Touch-optimized code editor** — investigate mobile-friendly alternatives to Monaco (CodeMirror 6)
+
+### Performance
+- **Memoize `getOrCreateProfile()`** with React `cache()` — currently runs 2–3 queries per page load
+- **Global rate limiting via Upstash/KV** — replace in-memory limiter for cross-instance enforcement
+- **Image optimization** — `next/image` for any images added in the future
+- **Streaming SSR** — investigate `Suspense` boundaries on slow DB calls
+
+---
+
+## Technical Debt
+
+These should eventually be addressed but were accepted for MVP/beta.
+
+| Debt | Severity | Notes |
+|---|---|---|
+| **Heuristic engine is regex/scan-based (no AST)** | Medium | Python comprehensions not counted as loops; some space-complexity cases undercounted (dict growth via index assignment); amortized costs (e.g. `list.append`) ignored. Fix: build an AST-based engine for Python/JS |
+| **`getOrCreateProfile()` runs per data call** | Low | 2–3 small queries per page load. Fix: `React.cache()` memoization per-request |
+| **Rate limits are per warm instance** | Medium | In-memory sliding window; cold starts start fresh. Fix: Upstash/Vercel KV (store-agnostic signature already in place) |
+| **No CI pipeline** | High | All gates run locally. Fix: GitHub Actions `typecheck · lint · build · test` on every push and PR |
+| **4 moderate `npm audit` advisories** | Low | In dev tooling (vitest/jsdom chain); not in production code |
+| **Clerk dev instance in production** | High | `pk_test` / `accounts.dev` keys; must upgrade before public launch |
+| **Monaco theme colors are hardcoded hex** | Low | Sanctioned exception to the "tokens only" rule; must be kept in sync manually when tokens change |
+| **No DB indexes on Phase 2 tables** | Low | Phase 2 migrations include indexes (`(profile_id, created_at desc)`), but won't be applied until B1 is resolved |
+| **SECOND_BRAIN.md last updated 2026-06-10** | Low | Missing Phase 2 decisions (Dialog a11y choices, progress atomicity pattern, best-effort award pattern) — should be updated after F2 merge |
+| **Snippet tags non-editable after save** | Low | `Tag` primitive supports add/remove; no edit UI wired |
+| **Stored-code view has no syntax highlighting** | Low | Plain `<pre>` — deliberate (Monaco too heavy for view-only) |
+| **No `supabase/migrations` lint/validation** | Low | Migrations are applied manually; no automated check that they match the TypeScript types |
+
+---
+
+## Future Ideas
+
+A brain dump of every feature idea discussed or worth capturing. Nothing lost.
+
+### Platform & Community
+- **Algorithm catalog** — browsable library of classic algorithms (sorting, searching, graph traversal, DP) with complexity annotations. The original product vision.
+- **Animated visualizers** — step-through animations of algorithm execution (e.g. quicksort pivot selection, BFS frontier expansion). Build on top of the catalog.
+- **Lessons content model** — structured lessons tied to algorithm types; RSC lesson pages with embedded analyzer; progress tracked per lesson
+- **Per-lesson quizzes** — attempts, scoring, feedback; "You've seen this pattern before in your history"
+- **Community feed** — planned F5; share analyses publicly, like, comment, discover others' code
+- **"Ask the community"** — post a problem, get complexity help from other users
+- **Weekly challenges** — algorithmic challenges with a leaderboard; winners featured
+- **Study groups** — shared snippet collections, collaborative analysis sessions
+
+### Personalization & Progress
+- **Skill graph** — per-algorithm-type skill rating, shown as a radar chart on the dashboard
+- **Learning path recommendations** — "Based on your O(n²) analyses, practice DP problems next"
+- **Spaced repetition** — resurface old analyses for review based on forgetting curve
+- **Streak recovery** — miss a day? "Freeze" your streak with a one-time recovery token (earned via XP)
+- **Level perks** — unlock features or themes at certain XP thresholds
+
+### Enterprise & Education
+- **Educator dashboard** — create class codes, track student analyses and progress, flag common mistakes
+- **Assignment mode** — educator assigns a problem, students submit analyses, results compared
+- **API access** — REST API for integrating complexity analysis into IDEs or CI pipelines (premium tier)
+- **Team workspaces** — shared analysis libraries, team-level stats
+- **SSO / SAML** — enterprise auth for educational institutions
+
+### Monetization
+- **Premium tier** — unlimited analyses per day, longer chat history, advanced export, priority support
+- **Student/educator discount** — `.edu` email verification
+- **GitHub Copilot-style pricing** — per-seat subscription for teams
+
+### Integrations
+- **VS Code extension** — analyze complexity inline in the editor without leaving the IDE
+- **GitHub Action** — CI step that flags code with worse-than-target complexity
+- **LeetCode integration** — import a problem + solution directly from LeetCode (browser extension)
+- **Notion/Confluence export** — export analysis results to documentation tools
+- **Slack bot** — `/complexity <paste code>` in Slack channels
+
+### Infrastructure
+- **Multi-region Supabase** — reduce latency for non-US users
+- **Edge runtime for `/api/analyze`** — move the route to Vercel Edge for lower cold-start latency
+- **Streaming analysis** — stream complexity verdicts as they're computed, instead of waiting for the full response
+- **Model fine-tuning** — fine-tune a small open-source model on algorithmic complexity examples for faster, cheaper inference
+- **Self-hosted Judge0** — replace RapidAPI Judge0 with a self-hosted instance for cost/privacy at scale
+
+---
+
+*End of PROJECT_BACKLOG.md — maintained alongside `MISSION_CONTROL.md`.*
+*Update the "In Progress" and "Current Status" sections every working session.*

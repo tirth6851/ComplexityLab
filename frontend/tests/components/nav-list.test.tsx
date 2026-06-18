@@ -61,6 +61,8 @@ describe("NavList", () => {
     render(<NavList />);
     const progress = screen.getByText("Progress").closest("span[aria-disabled]");
     expect(progress).not.toBeNull();
-    expect(screen.getByText("Soon")).toBeInTheDocument();
+    // Multiple not-ready items render "Soon" badges — use getAllByText
+    const soonBadges = screen.getAllByText("Soon");
+    expect(soonBadges.length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -4,6 +4,7 @@ import {
   ScanLine,
   Settings,
   History,
+  Terminal,
   TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -27,8 +28,9 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, ready: true },
   { label: "Analyzer", href: "/analyzer", icon: ScanLine, ready: true },
   { label: "Analyses", href: "/analyses", icon: History, ready: true },
-  { label: "Snippets", href: "/snippets", icon: Code2, ready: true },
-  { label: "Progress", href: "#", icon: TrendingUp, ready: false },
+  { label: "Snippets",    href: "/snippets",   icon: Code2,     ready: true  },
+  { label: "Playground", href: "/playground", icon: Terminal,  ready: false },
+  { label: "Progress",   href: "#",           icon: TrendingUp, ready: false },
   {
     label: "Settings",
     href: "/settings/profile",
