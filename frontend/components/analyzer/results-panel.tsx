@@ -249,6 +249,17 @@ export function ResultsPanel({
 }: ResultsPanelProps) {
   return (
     <Card className="min-h-[560px] p-4 sm:p-5" glow={status === "done"}>
+      {/* Screen-reader live regions — always present in the DOM */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {status === "analyzing" && "Analyzing code…"}
+        {status === "done" && analysis &&
+          `Analysis complete. ${analysis.time.notation} time. ${analysis.space.notation} space.`}
+      </div>
+      <div role="alert" aria-atomic="true" className="sr-only">
+        {status === "error" &&
+          `Analysis failed. ${error ?? "Something went wrong while analyzing."}`}
+      </div>
+
       {status === "idle" && <IdleState action={idleAction} />}
       {status === "analyzing" && <AnalyzingState />}
       {status === "error" && (

@@ -224,6 +224,7 @@ export function AnalyzerWorkbench({
               </Button>
             </div>
           </div>
+          </div>
 
           <div className="relative bg-[#050816]">
             <CodeEditor
