@@ -4,10 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { Bookmark, Check, ExternalLink, Save } from "lucide-react";
 import { Button, buttonClassName } from "@/components/ui/button";
+import { SaveDialog } from "@/components/analyzer/save-dialog";
+import { useToastSafe } from "@/components/ui/toaster";
 import {
   saveAnalysisAction,
   saveSnippetAction,
 } from "@/app/(app)/analyzer/actions";
+import { deriveTitle } from "@/lib/analysis/derive-title";
 import type { CodeAnalysis } from "@/lib/ai/types";
 import type { LanguageId } from "@/lib/analysis/languages";
 
@@ -17,102 +20,119 @@ export interface SaveActionsProps {
   language: LanguageId;
 }
 
-type SaveState = "idle" | "saving" | "saved" | "error";
-
-function useSave(action: () => Promise<{ ok: boolean; id?: string; error?: string }>) {
-  const [state, setState] = React.useState<SaveState>("idle");
-  const [savedId, setSavedId] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-
-  async function run() {
-    if (state === "saving" || state === "saved") return;
-    setState("saving");
-    setError(null);
-    const res = await action();
-    if (res.ok) {
-      setState("saved");
-      if (res.id) setSavedId(res.id);
-    } else {
-      setState("error");
-      setError(res.error ?? "Save failed.");
-    }
-  }
-
-  return { state, savedId, error, run };
-}
-
 /**
  * Result actions for a finished analysis: persist it to "Analyses" and/or
- * store the buffer as a saved snippet. Remounted per result (key) so the
- * saved state resets when a new analysis lands.
+ * store the buffer as a saved snippet. Each button opens a SaveDialog that
+ * requires a confirmed title before saving. Remounted per result (key) so
+ * the saved state resets when a new analysis lands.
  */
 export function SaveActions({ analysis, code, language }: SaveActionsProps) {
-  const analysisSave = useSave(() =>
-    saveAnalysisAction({ code, language, analysis }),
-  );
-  const snippetSave = useSave(() => saveSnippetAction({ code, language }));
+  const { toast } = useToastSafe();
+  const [analysisDialogOpen, setAnalysisDialogOpen] = React.useState(false);
+  const [snippetDialogOpen, setSnippetDialogOpen] = React.useState(false);
+  const [analysisSavedId, setAnalysisSavedId] = React.useState<string | null>(null);
+  const [snippetSaved, setSnippetSaved] = React.useState(false);
+  const mountedRef = React.useRef(true);
 
-  const firstError = analysisSave.error ?? snippetSave.error;
+  React.useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const defaultTitle = React.useMemo(() => deriveTitle(code), [code]);
+
+  async function handleAnalysisSave(title: string) {
+    const result = await saveAnalysisAction({ code, language, analysis, title });
+    if (!mountedRef.current) return result;
+    if (result.ok && result.id) {
+      setAnalysisSavedId(result.id);
+      toast("Analysis saved.", { variant: "success" });
+    }
+    return result;
+  }
+
+  async function handleSnippetSave(title: string, tags?: string[]) {
+    const result = await saveSnippetAction({ code, language, title, tags });
+    if (!mountedRef.current) return result;
+    if (result.ok) {
+      setSnippetSaved(true);
+      toast("Snippet saved.", { variant: "success" });
+    }
+    return result;
+  }
 
   return (
-    <div className="flex flex-col items-end gap-1.5">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={analysisSave.run}
-          disabled={analysisSave.state === "saving"}
-        >
-          {analysisSave.state === "saved" ? (
-            <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
-          ) : (
-            <Save className="h-3.5 w-3.5" aria-hidden />
-          )}
-          {analysisSave.state === "saved"
-            ? "Saved"
-            : analysisSave.state === "saving"
-              ? "Saving…"
-              : "Save analysis"}
-        </Button>
-        {analysisSave.state === "saved" && analysisSave.savedId && (
-          <Link
-            href={`/analyses/${analysisSave.savedId}`}
-            className={buttonClassName({ variant: "ghost", size: "sm" })}
+    <>
+      <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAnalysisDialogOpen(true)}
+            disabled={!!analysisSavedId}
           >
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-            View
-          </Link>
-        )}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={snippetSave.run}
-          disabled={snippetSave.state === "saving"}
-        >
-          {snippetSave.state === "saved" ? (
-            <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
-          ) : (
-            <Bookmark className="h-3.5 w-3.5" aria-hidden />
+            {analysisSavedId ? (
+              <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+            ) : (
+              <Save className="h-3.5 w-3.5" aria-hidden />
+            )}
+            {analysisSavedId ? "Saved" : "Save analysis"}
+          </Button>
+          {analysisSavedId && (
+            <Link
+              href={`/analyses/${analysisSavedId}`}
+              className={buttonClassName({ variant: "ghost", size: "sm" })}
+            >
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              View
+            </Link>
           )}
-          {snippetSave.state === "saved"
-            ? "Snippet saved"
-            : snippetSave.state === "saving"
-              ? "Saving…"
-              : "Save snippet"}
-        </Button>
-        {snippetSave.state === "saved" && snippetSave.savedId && (
-          <Link
-            href="/snippets"
-            className={buttonClassName({ variant: "ghost", size: "sm" })}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSnippetDialogOpen(true)}
+            disabled={snippetSaved}
           >
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-            View
-          </Link>
-        )}
+            {snippetSaved ? (
+              <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+            ) : (
+              <Bookmark className="h-3.5 w-3.5" aria-hidden />
+            )}
+            {snippetSaved ? "Snippet saved" : "Save snippet"}
+          </Button>
+          {snippetSaved && (
+            <Link
+              href="/snippets"
+              className={buttonClassName({ variant: "ghost", size: "sm" })}
+            >
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              View
+            </Link>
+          )}
+        </div>
       </div>
-      {firstError && (
-        <span className="text-xs text-destructive">{firstError}</span>
-      )}
-    </div>
+
+      <SaveDialog
+        key={analysisDialogOpen ? "analysis-open" : "analysis-closed"}
+        open={analysisDialogOpen}
+        onClose={() => setAnalysisDialogOpen(false)}
+        onSave={handleAnalysisSave}
+        defaultTitle={defaultTitle}
+        language={language}
+        timeComplexity={analysis.time.notation}
+        spaceComplexity={analysis.space.notation}
+      />
+      <SaveDialog
+        key={snippetDialogOpen ? "snippet-open" : "snippet-closed"}
+        open={snippetDialogOpen}
+        onClose={() => setSnippetDialogOpen(false)}
+        onSave={handleSnippetSave}
+        defaultTitle={defaultTitle}
+        showTags
+        language={language}
+      />
+    </>
   );
 }

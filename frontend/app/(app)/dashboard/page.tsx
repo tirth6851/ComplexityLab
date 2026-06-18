@@ -9,8 +9,17 @@ import { RecentAnalyses } from "@/components/readouts/recent-analyses";
 import { SavedSnippets } from "@/components/readouts/saved-snippets";
 import { ProgressOverview } from "@/components/readouts/progress-overview";
 import { QuickActions } from "@/components/readouts/quick-actions";
+import { LevelCard } from "@/components/progress/level-card";
+import { StreakCard } from "@/components/progress/streak-card";
+import { AchievementGrid } from "@/components/progress/achievement-grid";
+import { ActivityChart } from "@/components/progress/activity-chart";
 import { listAnalyses } from "@/lib/db/analyses";
 import { listSnippets } from "@/lib/db/snippets";
+import {
+  getProgress,
+  listXpHistory,
+  listUnlockedAchievements,
+} from "@/lib/db/progress";
 import { computeDashboardStats, computeLanguageMix } from "@/lib/stats";
 
 export const metadata: Metadata = {
@@ -18,10 +27,14 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const [analysesRes, snippetsRes] = await Promise.all([
-    listAnalyses(50),
-    listSnippets(50),
-  ]);
+  const [analysesRes, snippetsRes, progressRes, historyRes, unlockedRes] =
+    await Promise.all([
+      listAnalyses(50),
+      listSnippets(50),
+      getProgress(),
+      listXpHistory(30),
+      listUnlockedAchievements(),
+    ]);
 
   const analyses = analysesRes.ok ? analysesRes.data : [];
   const snippets = snippetsRes.ok ? snippetsRes.data : [];
@@ -33,6 +46,10 @@ export default async function DashboardPage() {
 
   const stats = computeDashboardStats(analyses, snippets);
   const metrics = computeLanguageMix(analyses);
+
+  const progress = progressRes.ok ? progressRes.data : null;
+  const xpHistory = historyRes.ok ? historyRes.data : [];
+  const unlockedKeys = unlockedRes.ok ? unlockedRes.data.map((a) => a.key) : [];
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -58,8 +75,19 @@ export default async function DashboardPage() {
           <SavedSnippets snippets={snippets.slice(0, 5)} />
         </div>
         <div className="space-y-8">
+          <LevelCard progress={progress} />
+          <StreakCard progress={progress} />
           <ProgressOverview stats={stats} metrics={metrics} />
           <QuickActions />
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ActivityChart history={xpHistory} />
+        </div>
+        <div>
+          <AchievementGrid unlockedKeys={unlockedKeys} />
         </div>
       </div>
     </div>

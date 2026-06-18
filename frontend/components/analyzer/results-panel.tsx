@@ -302,10 +302,10 @@ export function ResultsPanel({
 
   return (
     <Card className="min-h-[600px] p-4 sm:p-6" glow={status === "done"}>
-      <div role="status" aria-live="polite" className="sr-only">
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {statusMessage}
       </div>
-      <div role="alert" className="sr-only">
+      <div role="alert" aria-atomic="true" className="sr-only">
         {alertMessage}
       </div>
       {status === "idle" && <IdleState action={idleAction} />}

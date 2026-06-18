@@ -55,22 +55,17 @@ describe("ResultsPanel", () => {
   it("renders verdict readouts, gauges, timeline, and notes for a result", () => {
     render(<ResultsPanel status="done" analysis={analysis} />);
 
-    // TIME / SPACE instrument rows
+    // TIME verdict row (default active tab)
     expect(screen.getByText("TIME")).toBeInTheDocument();
-    expect(screen.getByText("SPACE")).toBeInTheDocument();
     expect(screen.getAllByText("O(log n)").length).toBeGreaterThan(0);
 
-    // metric gauges
-    expect(screen.getByText("EST. OPS @ N=1000")).toBeInTheDocument();
-    expect(screen.getByText("ENGINE CONFIDENCE")).toBeInTheDocument();
-
-    // growth timeline (svg with accessible label)
+    // growth timeline (svg with accessible label) — shown in time tab
     expect(
       screen.getByRole("img", { name: /growth curves/i }),
     ).toBeInTheDocument();
 
-    // reasoning notes
-    expect(screen.getByText("What the engine saw")).toBeInTheDocument();
+    // reasoning section heading — shown in time tab
+    expect(screen.getByText("Reasoning")).toBeInTheDocument();
   });
 
   it("renders injected result actions", () => {

@@ -65,3 +65,32 @@ export interface DashboardStat {
   value: string;
   hint: string;
 }
+
+/** F2 — persisted XP/level/streak row from `user_progress`. */
+export interface ProgressState {
+  xp: number;
+  level: number;
+  currentStreak: number;
+  longestStreak: number;
+  /** UTC date string "YYYY-MM-DD", or null if never saved. */
+  lastActiveOn: string | null;
+}
+
+/** F2 — one day's aggregated XP for the activity chart. */
+export interface DailyXp {
+  /** UTC date "YYYY-MM-DD". */
+  date: string;
+  xp: number;
+}
+
+/** F2 — counts used by achievement evaluation. */
+export interface ProgressStats {
+  totalAnalyses: number;
+  distinctLanguages: number;
+}
+
+/** F2 — a single unlocked achievement from `xp_events`. */
+export interface UnlockedAchievement {
+  key: string;
+  unlockedAt: string;
+}
