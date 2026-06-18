@@ -11,7 +11,16 @@
 **Active branch:** `feature/next-sprint-v1` — all health gates green.
 **Gate status:** `typecheck ✅ · lint ✅ · test 38 files / 341 tests ✅`
 
-**Now:** Phase 2 F2 (Progress: XP, levels, streaks, achievements) is actively being implemented on `feature/next-sprint-v1`.
+**Ownership split (active):** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
+
+**Now:** Phase 2 F3 backend complete. Backend next = F4 (AI Chat). Frontend developer next = `/playground` UI (F3 frontend).
+
+**F3 API contract (for frontend developer):**
+- Endpoint: `POST /api/execute`
+- Request: `{ code: string, language: string, stdin?: string }`  
+- Response: `{ result: ExecutionResult }` — type in `lib/execute/types.ts`
+- Languages: `python | javascript | typescript | java | go | rust | cpp`
+- Auth: Clerk session required (401 if signed out)
 
 ### Shipped (2026-06-13, beta-prep-audit branch — NOT YET MERGED TO MAIN)
 
@@ -144,11 +153,12 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 
 | # | Issue | Owner | Status |
 |---|---|---|---|
-| B1 | **DB migration unapplied** — `supabase/migrations/20260609000000_init.sql` not applied to project `hhnmxyyrihrpyerdmgdw`; saves/dashboard broken | Ext. developer | 🔵 External dependency — not this sprint |
-| B2 | **Leaked secrets unrotated** — Clerk, Supabase (incl. service-role), Groq; service-role bypasses RLS | User | ✅ Done (2026-06-18) |
-| B3 | **`beta-prep-audit` branch not merged** — 5 code fixes + QA docs + ownership tests undeployed | Code | 🟡 Ready |
-| B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner; zero automated coverage | QA | ⬜ Pending |
+| B1 | **DB migrations unapplied** — `_init.sql`, `_progress.sql`, `_executions.sql` not applied to project `hhnmxyyrihrpyerdmgdw`; saves/dashboard/quota broken. Apply in order. | Ext. developer | 🔵 External dependency |
+| B2 | **Leaked secrets unrotated** | User | ✅ Done (2026-06-18) |
+| B3 | **`beta-prep-audit` branch not merged** — 5 code fixes + QA docs + ownership tests undeployed | Code | 🟡 Ready — in `feature/next-sprint-v1`, merge → `main` to deploy |
+| B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending |
+| B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | ⬜ Pending — apply after B1 |
 
 ## Strongly recommended before public launch
 

@@ -3,11 +3,15 @@
 > **Audience:** A senior engineer — human or a fresh Claude Code session — opening this
 > repository with zero prior conversation history.
 >
-> **Status as of 2026-06-18:** MVP, beta stabilization, Phase 2 F1 (Save Flow), and
-> Phase 2 F2 (Progress: XP, levels, streaks, achievements) are complete or in progress
-> on `feature/next-sprint-v1`. Branch health check is **fully green** —
-> **239/239 tests** (32 files), typecheck ✅, lint ✅, build ✅. `main` last verified
-> green at **211/211 tests** (commit `5829ac4`, 2026-06-14).
+> **Status as of 2026-06-18:** MVP, beta stabilization, Phase 2 F1 (Save Flow),
+> Phase 2 F2 (Progress: XP, levels, streaks, achievements), and Phase 2 F3
+> (Code Execution Backend) are complete on `feature/next-sprint-v1`. Branch health
+> check is **fully green** — **341/341 tests** (38 files), typecheck ✅, lint ✅.
+> `main` last verified green at **211/211 tests** (commit `5829ac4`, 2026-06-14).
+>
+> **Ownership split (active):** Backend (AI Platform) is handled by this AI session.
+> Frontend/UX is handled by a separate developer. F3 frontend (`/playground/page.tsx`,
+> `components/playground/`) is NOT yet started.
 >
 > **Live:** https://complexity-lab-eight.vercel.app — GitHub `main` auto-deploys
 > production. **A push to `main` is a deploy.**
@@ -154,6 +158,36 @@ modal requiring a confirmed title before persisting.
 | `tests/components/dialog.test.tsx` | **NEW** | 11 tests: a11y, focus, keyboard (Tab, Shift+Tab, Escape), backdrop, X button |
 | `tests/components/save-dialog.test.tsx` | **NEW** | 12 tests: form validation, tags parsing, error/success paths, pending state |
 
+### Phase 2 F3 — Code Execution Backend (2026-06-18 · branch `feature/next-sprint-v1`)
+
+Spec: `docs/phase2/03-compiler.md`. Backend-only (frontend UI owned by separate developer).
+Establishes the proxy+quota pattern that F4 (Chat) will reuse.
+
+**Ownership split:** This session (AI Platform & Backend) owns everything below.
+The other developer owns: `/playground/page.tsx`, `components/playground/`.
+
+| File | Change | Notes |
+|---|---|---|
+| `supabase/migrations/20260616000200_executions.sql` | **NEW** | `code_executions` table (metadata only); `(profile_id, created_at desc)` index; RLS deny-by-default. **Manual apply required.** |
+| `lib/execute/types.ts` | **NEW** | `ExecutionStatus` union + `ExecutionResult` interface |
+| `lib/execute/languages.ts` | **NEW** | `JUDGE0_LANGUAGES` (7 langs → IDs) + `isExecutable()`. Verify IDs against live endpoint. |
+| `lib/execute/judge0.ts` | **NEW** | `buildJudge0Request`, `normalizeResult`, `callJudge0`. Pure functions directly unit-testable. RESOURCE_LIMITS: cpu=5s, wall=8s, mem=128MB, stack=64MB. |
+| `lib/db/executions.ts` | **NEW** | Server-only: `countExecutionsToday` (UTC quota, graceful on DB failure) + `recordExecution` (metadata only — no code/stdout/stdin) |
+| `lib/limits.ts` | **MODIFIED** | +`MAX_EXEC_CODE_LENGTH=20000`, `MAX_EXEC_STDIN_LENGTH=4000`, `EXECUTE_RATE_LIMIT={10/min}`, `EXECUTE_DAILY_QUOTA=100` |
+| `app/api/execute/route.ts` | **NEW** | `POST /api/execute`, `maxDuration=15`. Pipeline: auth→rate-limit(10/min)→quota(DB, graceful degrade)→validate→AbortController(12s)+Judge0→best-effort record. Privacy: code/stdin/stdout never logged or persisted. |
+| `proxy.ts` | **MODIFIED** | `/playground(.*)` added to `PROTECTED_ROUTES` |
+| `components/layout/nav.ts` | **MODIFIED** | Playground nav item (Terminal icon, `ready: false`) |
+| `.env.example` | **MODIFIED** | `JUDGE0_API_KEY` + `JUDGE0_API_HOST` with server-only warning |
+| `tests/unit/judge0-normalize.test.ts` | **NEW** | 25 tests: status mapping, base64 decode, 64KB truncation, timing/memory, buildJudge0Request, isExecutable |
+| `tests/integration/execute-route.test.ts` | **NEW** | 17 tests: 401 unauth, 429 rate-limit, 429 quota, graceful quota-fail, 400/413 validation, 200 happy path, 200 compile error, 200 Judge0 unreachable, recordExecution-fail non-blocking, SEC metadata-only, SEC never logs code/stdout |
+| **Health check** | ✅ Green | 38 files / 341 tests · typecheck ✅ · lint ✅ |
+
+**Technical debt (F3):**
+- Judge0 language IDs must be verified against live `/languages` endpoint before first deploy — RapidAPI may renumber IDs
+- `wait=true` synchronous mode must be confirmed available on the RapidAPI free tier before deploy; polling fallback not implemented
+- `JUDGE0_API_KEY` + `JUDGE0_API_HOST` must be added to Vercel env vars before frontend merge
+- `supabase/migrations/20260616000200_executions.sql` must be applied to `hhnmxyyrihrpyerdmgdw` (tracked as B6)
+
 ### Phase 2 F2 — Progress System (2026-06-18 · branch `feature/next-sprint-v1`)
 
 Spec: `docs/phase2/02-progress.md`. XP, levels, streaks, achievements — event-driven,
@@ -191,34 +225,37 @@ calls silently no-op — no errors surface to users.
 
 ### Immediate Code Fixes
 
-All H1–H3 items resolved 2026-06-17. Phase 2 F2 completed 2026-06-18. Branch `feature/next-sprint-v1` health check **green**: 36 files / 299 tests.
+All H1–H3 items resolved 2026-06-17. Phase 2 F2 + F3 Backend completed 2026-06-18. Branch `feature/next-sprint-v1` health check **green**: 38 files / 341 tests.
 
 | # | Item | Priority | Status |
 |---|---|---|---|
 | H1 | **Fix JSX parse error in `analyzer-workbench.tsx`** | P1 | ✅ Done |
-| H2 | **Re-run health check** | P1 | ✅ Done — 36 files / 299 tests |
+| H2 | **Re-run health check** | P1 | ✅ Done — 38 files / 341 tests |
 | H3 | **Fix `results-panel.test.tsx`** | P2 | ✅ Done |
 | F2 | **Phase 2 F2 — Progress System** | Feature | ✅ Done (2026-06-18) |
+| F3 | **Phase 2 F3 — Code Execution Backend** | Feature | ✅ Done (2026-06-18) |
 
 ### Beta Blockers
 
 | # | Issue | Owner | Status |
 |---|---|---|---|
-| B1 | **DB migration unapplied** — `supabase/migrations/20260609000000_init.sql` not applied to project `hhnmxyyrihrpyerdmgdw`; saves/dashboard broken until applied | Ext. developer | 🔵 External — not this sprint |
+| B1 | **DB migrations unapplied** — `_init.sql`, `_progress.sql`, `_executions.sql` not applied to project `hhnmxyyrihrpyerdmgdw`. Apply in order. Saves/dashboard/quota tracking broken until applied. | Ext. developer | 🔵 External — not this sprint |
 | B2 | **Leaked secrets** — Clerk, Supabase (incl. service-role), Groq | User | ✅ Done (2026-06-18) |
 | B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership test (two Google accounts) | QA | ⬜ Pending |
+| B6 | **F3 migration unapplied** — `20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade) | Manual | ⬜ Pending — apply after B1 |
 
 ### Phase 2 Remaining Features
 
 Full specs in `PHASE2_PLAN.md` and `docs/phase2/02-05-*.md`. These are post-beta.
 
-| Feature | Size | Status |
-|---|---|---|
-| F2 — Progress (XP, levels, streaks, achievements) | M | ⬜ Not started |
-| F3 — Compiler (Monaco + Judge0) | M | ⬜ Not started |
-| F4 — Chat (streaming AI, context-aware) | L | ⬜ Not started |
-| F5 — Community (share, feed, likes, comments, moderation) | XL | ⬜ Not started |
+| Feature | Size | Status | Owner |
+|---|---|---|---|
+| F2 — Progress (XP, levels, streaks, achievements) | M | ✅ Done (2026-06-18) | Backend |
+| F3 — Compiler Backend | M | ✅ Done (2026-06-18) | Backend |
+| F3 — Compiler Frontend (`/playground` UI) | M | ⬜ Not started | **Frontend developer** |
+| F4 — Chat (streaming AI, context-aware) | L | ⬜ Not started | Backend (route + DB) / Frontend (UI) |
+| F5 — Community (share, feed, likes, comments, moderation) | XL | ⬜ Not started | Both |
 
 ### Recommended Before Public Launch
 
@@ -248,8 +285,9 @@ Single source of truth for all feature status. Completed features are detailed i
 | Beta stabilization | ✅ Done | 5 P1 fixes, QA docs, 211 tests — `main` at `5829ac4` |
 | Deployment (Vercel, auto-deploy from `main`) | ✅ Done | complexity-lab-eight.vercel.app · Root Dir = `frontend` |
 | **Phase 2 F1 — Save Flow (Dialog + SaveDialog)** | ✅ Done | On `feature/next-sprint-v1`; all health gates green |
-| **Phase 2 F2 — Progress (XP · levels · streaks · achievements)** | ✅ Done | On `feature/next-sprint-v1`; 299 tests green; DB migration pending B1 |
-| Phase 2 F3 — Compiler | ⬜ Not started | `docs/phase2/03-compiler.md` |
+| **Phase 2 F2 — Progress (XP · levels · streaks · achievements)** | ✅ Done | On `feature/next-sprint-v1`; 341 tests green; DB migration pending B1 |
+| **Phase 2 F3 — Compiler (Backend)** | ✅ Done (backend) | `POST /api/execute`, Judge0 client, quota, 42 tests — 2026-06-18. Frontend UI pending (other developer). |
+| Phase 2 F3 — Compiler (Frontend/UI) | ⬜ Not started (other dev) | `/playground/page.tsx` + `components/playground/`. API contract: `POST /api/execute` → `{ result: ExecutionResult }`. |
 | Phase 2 F4 — Chat | ⬜ Not started | `docs/phase2/04-chat.md` |
 | Phase 2 F5 — Community | ⬜ Not started | `docs/phase2/05-community.md` |
 | Lessons / quizzes / progress persistence | 🔮 Future | Not started — see `ROADMAP.md` |
@@ -411,8 +449,13 @@ SUPABASE_SERVICE_ROLE_KEY=…           # SERVER-ONLY — bypasses RLS
 AI_PROVIDER=mock                      # mock | groq | openai | anthropic | gemini
 GROQ_API_KEY=…                        # SERVER-ONLY
 GROQ_MODEL=llama-3.3-70b-versatile
+JUDGE0_API_KEY=…                      # SERVER-ONLY — RapidAPI key for Judge0 CE (F3)
+JUDGE0_API_HOST=judge0-ce.p.rapidapi.com  # default; override for self-hosted
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+**Vercel note:** `JUDGE0_API_KEY` and `JUDGE0_API_HOST` must be added to Vercel
+environment variables before the F3 frontend is merged and deployed.
 
 Set these as **Vercel environment variables** in production; Root Directory = `frontend`.
 
@@ -438,12 +481,13 @@ Set these as **Vercel environment variables** in production; Root Directory = `f
   (Google-only, dev instance) · Supabase · Groq (live, heuristic fallback) · Vitest.
   App lives in **`frontend/`**.
 - **State:** Live at https://complexity-lab-eight.vercel.app. `main` = commit `5829ac4`,
-  211 tests green. **Active branch: `feature/next-sprint-v1`** (Phase 2 F1 + F2 done;
-  **299/299 tests green**, all gates clean).
+  211 tests green. **Active branch: `feature/next-sprint-v1`** (Phase 2 F1 + F2 + F3 backend done;
+  **341/341 tests green**, typecheck ✅, lint ✅).
 - **Run:** `cd frontend && npm install && npm run dev` → http://localhost:3000.
   Verify: `npm run typecheck && npm run lint && npm run build && npm run test`.
-- **Next task:** Merge `feature/next-sprint-v1` to `main` (after user applies B1 DB
-  migration), or start Phase 2 F3 (Compiler) on a new branch.
+- **Ownership split:** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
+- **Next task (Backend):** Start Phase 2 F4 (AI Chat) — spec in `docs/phase2/04-chat.md`.
+- **Next task (Frontend dev):** Implement `/playground/page.tsx` + `components/playground/` using `POST /api/execute`. `ExecutionResult` type is in `lib/execute/types.ts`.
 - **DB blocker:** migration `supabase/migrations/20260609000000_init.sql` not applied
   to project `hhnmxyyrihrpyerdmgdw` — saves/dashboard error until applied. Google SSO
   is already enabled and verified.
