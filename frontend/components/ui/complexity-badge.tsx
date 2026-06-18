@@ -46,7 +46,7 @@ export function ComplexityBadge({
   return (
     <span
       className={cn(
-        "inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-ds-sm border px-2 font-mono text-xs font-medium",
+        "inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-ds-sm border px-2.5 font-mono text-xs font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
         className,
       )}
       style={{

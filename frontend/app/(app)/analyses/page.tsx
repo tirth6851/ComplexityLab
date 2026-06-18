@@ -26,7 +26,7 @@ export default async function AnalysesPage() {
   const res = await listAnalyses(100);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-8">
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div className="flex flex-col gap-1.5">
@@ -40,7 +40,7 @@ export default async function AnalysesPage() {
             New analysis
           </Link>
         </CardHeader>
-        <CardContent className="space-y-1">
+        <CardContent className="space-y-2">
           {!res.ok ? (
             <ErrorState
               title="Could not load analyses"
@@ -66,16 +66,16 @@ export default async function AnalysesPage() {
             res.data.map((a) => (
               <div
                 key={a.id}
-                className="flex items-center justify-between gap-3 rounded-ds-lg border border-transparent px-3 py-3 transition-all hover:border-line hover:bg-surface-raised/70"
+                className="group flex items-center justify-between gap-4 rounded-ds-lg border border-transparent px-4 py-4 transition-all hover:border-line-subtle hover:bg-surface-raised/70"
               >
                 <Link
                   href={`/analyses/${a.id}`}
                   className="min-w-0 flex-1"
                 >
-                  <p className="truncate font-mono text-sm font-medium">
+                  <p className="truncate font-mono text-sm font-semibold text-ink-primary group-hover:text-primary">
                     {a.title}
                   </p>
-                  <p className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
+                  <p className="mt-1 flex items-center gap-2 text-sm text-ink-muted">
                     <span>{languageLabel(a.language)}</span>
                     <span aria-hidden>·</span>
                     <span className="inline-flex items-center gap-1">
@@ -84,7 +84,7 @@ export default async function AnalysesPage() {
                     </span>
                   </p>
                   {a.verdict && (
-                    <p className="mt-1 hidden truncate text-xs text-ink-faint sm:block">
+                    <p className="mt-2 hidden truncate text-sm text-ink-faint sm:block">
                       {a.verdict}
                     </p>
                   )}

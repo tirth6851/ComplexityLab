@@ -8,7 +8,7 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        "animate-pulse rounded-md bg-gradient-to-r from-surface-panel via-surface-raised to-surface-panel",
+        "animate-pulse rounded-ds-md bg-gradient-to-r from-surface-panel via-surface-raised to-surface-panel shadow-inset-well",
         className,
       )}
       aria-hidden

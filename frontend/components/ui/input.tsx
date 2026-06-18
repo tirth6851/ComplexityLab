@@ -29,7 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs font-medium tracking-[0.01em] text-ink-primary"
+            className="font-mono text-2xs font-medium uppercase tracking-label text-ink-muted"
           >
             {label}
           </label>
@@ -45,11 +45,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             aria-invalid={error ? true : undefined}
             className={cn(
-              "h-9 w-full rounded-ds-md border bg-surface-inset text-sm text-ink-primary shadow-inset-well outline-none transition-[border-color,box-shadow] placeholder:text-ink-faint",
+              "h-10 w-full rounded-ds-md border bg-surface-inset text-sm text-ink-primary shadow-inset-well outline-none transition-[border-color,box-shadow] placeholder:text-ink-faint",
               "focus:border-primary/60 focus:shadow-glow-green",
               error
                 ? "border-destructive/60"
-                : "border-line",
+                : "border-line-subtle",
               icon ? "pl-9 pr-3" : "px-3",
               mono && "font-mono",
               className,

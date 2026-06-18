@@ -12,7 +12,7 @@ const analysis = analyzeCode({
 describe("ResultsPanel", () => {
   it("renders the idle call-to-action", () => {
     render(<ResultsPanel status="idle" analysis={null} />);
-    expect(screen.getByText("Ready for AI analysis")).toBeInTheDocument();
+    expect(screen.getByText("Ready to analyze")).toBeInTheDocument();
   });
 
   it("renders an injected idle action only in the idle state", () => {
@@ -41,7 +41,7 @@ describe("ResultsPanel", () => {
 
   it("renders the scanning state", () => {
     render(<ResultsPanel status="analyzing" analysis={null} />);
-    expect(screen.getByText("Scanning structure")).toBeInTheDocument();
+    expect(screen.getByText("Scanning structure…")).toBeInTheDocument();
   });
 
   it("renders the error state with the message", () => {

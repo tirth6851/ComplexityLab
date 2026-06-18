@@ -31,7 +31,7 @@ export function RecentAnalyses({ analyses }: { analyses: Analysis[] }) {
           </Link>
         )}
       </CardHeader>
-      <CardContent className="space-y-1">
+      <CardContent className="space-y-2">
         {analyses.length === 0 ? (
           <EmptyState
             icon={Clock}
@@ -52,11 +52,11 @@ export function RecentAnalyses({ analyses }: { analyses: Analysis[] }) {
             <Link
               key={a.id}
               href={`/analyses/${a.id}`}
-              className="flex items-center justify-between gap-4 rounded-ds-md border border-transparent px-3 py-3 transition-all hover:border-line hover:bg-surface-raised/70"
+              className="group flex items-center justify-between gap-4 rounded-ds-lg border border-transparent px-4 py-3.5 transition-all hover:border-line-subtle hover:bg-surface-raised/70"
             >
               <div className="min-w-0">
-                <p className="truncate font-mono text-sm font-medium">{a.title}</p>
-                <p className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
+                <p className="truncate font-mono text-sm font-semibold text-ink-primary group-hover:text-primary">{a.title}</p>
+                <p className="mt-1 flex items-center gap-2 text-sm text-ink-muted">
                   <span>{languageLabel(a.language)}</span>
                   <span aria-hidden>·</span>
                   <span className="inline-flex items-center gap-1">

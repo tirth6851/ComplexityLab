@@ -72,7 +72,7 @@ export function IntroStrip() {
     <Card
       role="region"
       aria-label="Getting started"
-      className="relative overflow-hidden p-4 sm:p-5"
+      className="relative overflow-hidden p-5 sm:p-6"
     >
       <div
         aria-hidden
@@ -89,22 +89,22 @@ export function IntroStrip() {
           <X className="h-3.5 w-3.5" aria-hidden />
         </button>
       </div>
-      <ol className="mt-3 grid gap-4 sm:grid-cols-3">
+      <ol className="mt-4 grid gap-4 sm:grid-cols-3">
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
             <li key={step.title} className="flex gap-3">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-ds-md border border-line-subtle bg-surface-panel text-primary">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well">
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-ink-primary">
+                <p className="text-sm font-semibold text-ink-primary">
                   <span className="mr-1.5 font-mono text-2xs text-ink-faint">
                     {i + 1}
                   </span>
                   {step.title}
                 </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">
+                <p className="mt-1 text-sm leading-6 text-ink-secondary">
                   {step.body}
                 </p>
               </div>

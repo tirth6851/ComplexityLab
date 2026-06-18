@@ -50,7 +50,7 @@ export function BigOBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center whitespace-nowrap rounded-ds-sm border font-mono font-bold leading-none tracking-[0.01em]",
+        "inline-flex items-center whitespace-nowrap rounded-ds-sm border font-mono font-bold leading-none tracking-normal",
         s.wrap,
         className,
       )}

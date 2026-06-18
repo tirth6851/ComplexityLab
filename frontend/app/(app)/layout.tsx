@@ -16,8 +16,9 @@ export default function DashboardLayout({
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-background">
       <div aria-hidden className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-grid-lines opacity-35 [mask-image:radial-gradient(70%_50%_at_50%_0%,black,transparent)]" />
-        <div className="absolute left-1/2 top-[-20rem] h-[38rem] w-[64rem] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
+        <div className="absolute inset-0 bg-grid-lines opacity-25 [mask-image:radial-gradient(70%_46%_at_50%_0%,black,transparent)]" />
+        <div className="absolute left-1/2 top-[-22rem] h-[38rem] w-[64rem] -translate-x-1/2 rounded-full bg-primary/7 blur-3xl" />
+        <div className="absolute bottom-[-24rem] right-[-18rem] h-[38rem] w-[38rem] rounded-full bg-info/5 blur-3xl" />
       </div>
       <a
         href="#main-content"
@@ -29,7 +30,7 @@ export default function DashboardLayout({
       <div className="relative z-10 flex min-h-screen flex-1 flex-col">
         <Topbar />
         <ToastProvider>
-          <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">
+          <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-10">
             {children}
           </main>
         </ToastProvider>

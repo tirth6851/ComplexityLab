@@ -29,7 +29,7 @@ export function LegalPage({
       </header>
 
       <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="font-display text-4xl font-bold tracking-normal">{title}</h1>
         <p className="mt-2 font-mono text-xs uppercase tracking-label text-ink-muted">
           Effective {effectiveDate}
         </p>
@@ -48,8 +48,8 @@ export function LegalSection({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold tracking-tight">{heading}</h2>
-      <div className="space-y-3 text-sm leading-relaxed text-ink-secondary">
+      <h2 className="font-display text-xl font-semibold tracking-normal">{heading}</h2>
+      <div className="space-y-3 text-base leading-7 text-ink-secondary">
         {children}
       </div>
     </section>

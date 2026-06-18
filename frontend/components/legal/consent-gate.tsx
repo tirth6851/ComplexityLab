@@ -111,7 +111,7 @@ export function ConsentGate() {
           <span className="flex size-9 items-center justify-center rounded-ds-md bg-primary/10 text-primary">
             <FlaskConical className="h-4 w-4" aria-hidden />
           </span>
-          <h2 id="consent-title" className="text-base font-semibold tracking-tight">
+          <h2 id="consent-title" className="font-display text-xl font-semibold tracking-normal">
             Before you enter the lab
           </h2>
         </div>

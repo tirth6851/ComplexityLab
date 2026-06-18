@@ -1,20 +1,32 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { JetBrains_Mono } from "next/font/google";
+import {
+  IBM_Plex_Sans,
+  JetBrains_Mono,
+  Space_Grotesk,
+} from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConsentGate } from "@/components/legal/consent-gate";
 import { SITE } from "@/constants/site";
 import "./globals.css";
 
-/**
- * Fonts:
- *  - Geist Sans  -> exposes the CSS var `--font-geist-sans` (default UI font).
- *  - JetBrains Mono -> bound to `--font-mono` (used for code / complexity readouts).
- * Both variables are consumed by `tailwind.config.ts` fontFamily.
- */
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display-face",
+  weight: ["600", "700"],
+  display: "swap",
+});
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans-face",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -54,7 +66,7 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
         <body
-          className={`${GeistSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+          className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
           {children}
           <ConsentGate />

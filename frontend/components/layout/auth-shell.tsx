@@ -28,13 +28,17 @@ export function AuthShell({
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
-        <div className="rounded-ds-xl border border-line bg-card/85 p-8 shadow-ds-xl backdrop-blur-xl">
+        <div className="premium-panel rounded-ds-xl p-8 sm:p-10">
+          <div
+            aria-hidden
+            className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent"
+          />
           <div className="mb-6 text-center">
             <p className="font-mono text-2xs uppercase tracking-label text-primary">
               Secure workspace
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+            <h1 className="mt-3 font-display text-3xl font-bold tracking-normal">{title}</h1>
+            <p className="mt-3 text-base leading-7 text-ink-secondary">{subtitle}</p>
           </div>
           {children}
           <p className="mt-5 text-center text-xs leading-relaxed text-muted-foreground">
@@ -49,7 +53,7 @@ export function AuthShell({
             .
           </p>
         </div>
-        <p className="mt-6 text-center text-sm text-muted-foreground">{footer}</p>
+        <p className="mt-6 text-center text-sm text-ink-secondary">{footer}</p>
       </div>
     </main>
   );

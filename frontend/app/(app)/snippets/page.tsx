@@ -23,7 +23,7 @@ export default async function SnippetsPage() {
   const res = await listSnippets(100);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-8">
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div className="flex flex-col gap-1.5">
@@ -37,7 +37,7 @@ export default async function SnippetsPage() {
             Open analyzer
           </Link>
         </CardHeader>
-        <CardContent className="space-y-1">
+        <CardContent className="space-y-2">
           {!res.ok ? (
             <ErrorState
               title="Could not load snippets"

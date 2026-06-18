@@ -130,12 +130,12 @@ export function CodeEditor({
       }}
       theme={dark ? "complexitylab-dark" : "complexitylab-light"}
       options={{
-        fontSize: 13,
-        lineHeight: 22,
+        fontSize: 14,
+        lineHeight: 24,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
         renderLineHighlight: "line",
-        padding: { top: 14, bottom: 14 },
+        padding: { top: 16, bottom: 16 },
         automaticLayout: true,
         tabSize: 2,
         wordWrap: "on",
