@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WelcomeCardSkeleton } from "@/components/readouts/welcome-card";
 
 /** Route-level loading UI for the dashboard. Mirrors the real layout's rhythm. */
 export default function DashboardLoading() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <WelcomeCardSkeleton />
+      <div className="rounded-ds-xl border border-line-subtle bg-card/80 p-8 shadow-ds-lg">
+        <HoloPulseLoader label="Loading dashboard" size="md" className="mx-auto" />
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

@@ -3,12 +3,13 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AnalysisDetailLoading() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Skeleton className="h-8 w-24" />
+      <HoloPulseLoader label="Loading analysis" size="sm" className="items-start" />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-7 w-56" />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { GoogleIcon } from "@/components/ui/icons";
 
 /**
@@ -66,7 +67,15 @@ export function GoogleAuthButton({ mode }: { mode: "sign-in" | "sign-up" }) {
         disabled={loading}
         onClick={handleGoogle}
       >
-        <GoogleIcon className="h-4 w-4" />
+        {loading ? (
+          <HoloPulseLoader
+            label="Redirecting to Google"
+            size="sm"
+            className="w-auto [&>p]:sr-only"
+          />
+        ) : (
+          <GoogleIcon className="h-4 w-4" />
+        )}
         {loading ? "Redirecting to Google…" : "Continue with Google"}
       </Button>
       {error ? (

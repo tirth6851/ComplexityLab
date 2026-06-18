@@ -10,6 +10,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VerdictReadout } from "@/components/ui/verdict-readout";
 import { MetricGauge } from "@/components/ui/metric-gauge";
@@ -56,7 +57,7 @@ function AnalyzingState() {
   return (
     <div className="min-h-[560px] space-y-5" aria-busy>
       <div className="flex items-center justify-between">
-        <p className="cx-label animate-pulse text-primary">Scanning structure…</p>
+        <HoloPulseLoader label="Scanning structure" size="sm" className="w-auto items-start" />
         <span className="rounded-pill border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-2xs uppercase tracking-label text-primary">
           AI pass
         </span>

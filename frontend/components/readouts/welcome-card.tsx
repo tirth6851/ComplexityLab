@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { ScanLine } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { buttonClassName } from "@/components/ui/button";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /** Loading placeholder shown while the signed-in user resolves. */
@@ -10,6 +11,7 @@ export function WelcomeCardSkeleton() {
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card shadow-ds-xl">
       <div className="space-y-4 p-6 sm:p-8">
+        <HoloPulseLoader label="Loading workspace" size="sm" className="items-start" />
         <Skeleton className="h-3 w-28" />
         <Skeleton className="h-7 w-64" />
         <Skeleton className="h-4 w-full max-w-lg" />
