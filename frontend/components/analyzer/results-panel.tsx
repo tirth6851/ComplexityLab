@@ -10,7 +10,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
+import { ProgressiveFluxLoader } from "@/components/ui/progressive-flux-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VerdictReadout } from "@/components/ui/verdict-readout";
 import { MetricGauge } from "@/components/ui/metric-gauge";
@@ -26,6 +26,7 @@ export interface ResultsPanelProps {
   error?: string | null;
   actions?: ReactNode;
   idleAction?: ReactNode;
+  analysisProgress?: number;
 }
 
 const tabs = [
@@ -53,14 +54,24 @@ function IdleState({ action }: { action?: ReactNode }) {
   );
 }
 
-function AnalyzingState() {
+function AnalyzingState({ progress }: { progress: number }) {
   return (
     <div className="min-h-[560px] space-y-5" aria-busy>
-      <div className="flex items-center justify-between">
-        <HoloPulseLoader label="Scanning structure" size="sm" className="w-auto items-start" />
-        <span className="rounded-pill border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-2xs uppercase tracking-label text-primary">
-          AI pass
-        </span>
+      <div className="rounded-ds-xl border border-line-subtle bg-surface-panel/55 p-5 shadow-inset-well">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-label text-primary">
+              AI analysis
+            </p>
+            <p className="mt-1 text-sm text-ink-secondary">
+              Tracing code paths and preparing complexity feedback.
+            </p>
+          </div>
+          <span className="rounded-pill border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-2xs uppercase tracking-label text-primary">
+            AI pass
+          </span>
+        </div>
+        <ProgressiveFluxLoader value={progress} label="Analysis progress" />
       </div>
       <Skeleton className="h-[84px] w-full" />
       <Skeleton className="h-[84px] w-full" />
@@ -73,7 +84,6 @@ function AnalyzingState() {
     </div>
   );
 }
-
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-4 rounded-ds-xl border border-dashed border-destructive/40 bg-[var(--danger-bg)] p-8 text-center shadow-inset-well">
@@ -289,6 +299,7 @@ export function ResultsPanel({
   error,
   actions,
   idleAction,
+  analysisProgress = 0,
 }: ResultsPanelProps) {
   const statusMessage =
     status === "analyzing"
@@ -310,7 +321,7 @@ export function ResultsPanel({
         {alertMessage}
       </div>
       {status === "idle" && <IdleState action={idleAction} />}
-      {status === "analyzing" && <AnalyzingState />}
+      {status === "analyzing" && <AnalyzingState progress={analysisProgress} />}
       {status === "error" && (
         <ErrorState message={error ?? "Something went wrong while analyzing."} />
       )}

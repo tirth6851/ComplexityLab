@@ -9,6 +9,10 @@ import { CodeEditor } from "./code-editor";
 import { IntroStrip } from "./intro-strip";
 import { ResultsPanel, type AnalyzerStatus } from "./results-panel";
 import { SaveActions } from "./save-actions";
+import {
+  ActivityToast,
+  type ActivityToastItem,
+} from "@/components/ui/activity-toast";
 import { LANGUAGES, type LanguageId } from "@/lib/analysis/languages";
 import { SAMPLES } from "@/lib/analysis/samples";
 import { takeAnalyzerHandoff } from "@/lib/analyzer-handoff";
@@ -42,6 +46,8 @@ export function AnalyzerWorkbench({
     code: string;
     language: LanguageId;
   } | null>(null);
+  const [activities, setActivities] = React.useState<ActivityToastItem[]>([]);
+  const [analysisProgress, setAnalysisProgress] = React.useState(0);
 
   // A pending "open in analyzer" handoff (from a saved analysis or snippet)
   // replaces the default sample buffer once, on mount. SSR can't read
@@ -74,16 +80,85 @@ export function AnalyzerWorkbench({
   }
 
   const abortRef = React.useRef<AbortController | null>(null);
+  const progressTimersRef = React.useRef<number[]>([]);
 
   // Cancel any in-flight request when the component unmounts.
   React.useEffect(() => {
-    return () => { abortRef.current?.abort(); };
+    return () => {
+      abortRef.current?.abort();
+      clearAnalysisProgressTimers();
+    };
   }, []);
+  function clearAnalysisProgressTimers() {
+    progressTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    progressTimersRef.current = [];
+  }
+
+  function startAnalysisProgress() {
+    clearAnalysisProgressTimers();
+    setAnalysisProgress(0);
+    const phases = [
+      { delay: 120, value: 25 },
+      { delay: 360, value: 55 },
+      { delay: 620, value: 80 },
+    ];
+    progressTimersRef.current = phases.map(({ delay, value }) =>
+      window.setTimeout(() => {
+        setAnalysisProgress((current) => Math.max(current, value));
+      }, delay),
+    );
+  }
+
+  function dismissActivity(id: string) {
+    setActivities((items) => items.filter((item) => item.id !== id));
+  }
+
+  function clearActivities() {
+    setActivities([]);
+  }
+
+  function upsertActivity(item: ActivityToastItem) {
+    setActivities((items) => {
+      const existing = items.findIndex((candidate) => candidate.id === item.id);
+      if (existing === -1) return [item, ...items].slice(0, 6);
+      const next = [...items];
+      next[existing] = item;
+      return next;
+    });
+  }
+
   async function onUploadFile(file: File | null) {
     if (!file) return;
-    const text = await file.text();
-    setCode(text);
-    setSampleId("");
+
+    const activityId = `upload-${Date.now()}-${file.name}`;
+    upsertActivity({
+      id: activityId,
+      title: file.name,
+      detail: "Reading file...",
+      status: "PROCESSING",
+      progressLabel: "Reading file...",
+    });
+
+    try {
+      const text = await file.text();
+      setCode(text);
+      setSampleId("");
+      upsertActivity({
+        id: activityId,
+        title: file.name,
+        detail: "File loaded successfully",
+        status: "SUCCESS",
+        progressLabel: "File loaded successfully",
+      });
+    } catch {
+      upsertActivity({
+        id: activityId,
+        title: file.name,
+        detail: "File upload failed",
+        status: "ERROR",
+        progressLabel: "File upload failed",
+      });
+    }
   }
 
   async function analyze() {
@@ -91,6 +166,7 @@ export function AnalyzerWorkbench({
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    startAnalysisProgress();
     setStatus("analyzing");
     setError(null);
     try {
@@ -112,10 +188,14 @@ export function AnalyzerWorkbench({
       const body = (await res.json()) as { analysis: CodeAnalysis };
       setAnalyzed({ code, language });
       setAnalysis(body.analysis);
+      clearAnalysisProgressTimers();
+      setAnalysisProgress(100);
       setResultVersion((v) => v + 1);
       setStatus("done");
     } catch (e) {
+      clearAnalysisProgressTimers();
       if (e instanceof Error && e.name === "AbortError") return;
+      setAnalysisProgress(0);
       setError(e instanceof Error ? e.message : "Analysis failed.");
       setStatus("error");
     }
@@ -265,6 +345,7 @@ export function AnalyzerWorkbench({
           status={status}
           analysis={analysis}
           error={error}
+          analysisProgress={analysisProgress}
           idleAction={
             <Button
               variant="outline"
@@ -288,6 +369,11 @@ export function AnalyzerWorkbench({
           }
         />
       </div>
+      <ActivityToast
+        items={activities}
+        onDismiss={dismissActivity}
+        onClearAll={clearActivities}
+      />
     </div>
   );
 }
