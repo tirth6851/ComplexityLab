@@ -94,3 +94,32 @@ export interface UnlockedAchievement {
   key: string;
   unlockedAt: string;
 }
+
+/** F4 — a chat conversation row (no message content). */
+export interface Conversation {
+  id: string;
+  profileId: string;
+  title: string;
+  contextType: string | null;
+  contextRefId: string | null;
+  contextMetadata: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** F4 — a single chat message. */
+export interface Message {
+  id: string;
+  conversationId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  tokenCount: number | null;
+  createdAt: string;
+}
+
+/** F4 — today's AI usage aggregates (from ai_usage). */
+export interface AiUsageToday {
+  messageCount: number;
+  tokensIn: number;
+  tokensOut: number;
+}

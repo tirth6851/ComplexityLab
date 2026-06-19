@@ -13,6 +13,7 @@ export const PROTECTED_ROUTES = [
   "/snippets(.*)",
   "/playground(.*)",
   "/settings(.*)",
+  "/chat(.*)",
 ] as const;
 
 const isProtectedRoute = createRouteMatcher([...PROTECTED_ROUTES]);

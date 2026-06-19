@@ -1,6 +1,7 @@
 import {
   Code2,
   LayoutDashboard,
+  MessageSquare,
   ScanLine,
   Settings,
   History,
@@ -29,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Analyzer", href: "/analyzer", icon: ScanLine, ready: true },
   { label: "Analyses", href: "/analyses", icon: History, ready: true },
   { label: "Snippets",    href: "/snippets",   icon: Code2,     ready: true  },
+  { label: "Chat",       href: "/chat",        icon: MessageSquare, ready: false },
   { label: "Playground", href: "/playground", icon: Terminal,  ready: false },
   { label: "Progress",   href: "#",           icon: TrendingUp, ready: false },
   {

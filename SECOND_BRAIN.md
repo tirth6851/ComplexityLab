@@ -28,6 +28,7 @@
 | D16 | 2026-06-18 | DB-backed daily quota + graceful degrade on quota-check failure | In-memory rate limits can't enforce per-day caps across serverless instances; if `countXxxToday()` returns `{ok:false}`, ALLOW the operation and log — never block a user on a transient DB issue |
 | D17 | 2026-06-18 | Three-layer kill switch for external code execution — AbortController (12s, route) + Judge0 `wall_time_limit` (8s, service) + Vercel `maxDuration` (15s) | Defensive-in-depth: each layer guards a different failure mode (runaway code, slow Judge0, Vercel billing); all three must coexist |
 | D18 | 2026-06-18 | AI provider infrastructure extracted to `lib/ai/groq-client.ts`; feature-specific providers (analysis, chat) import it | Avoids duplicating auth, timeout, AbortController, and error normalization across N provider files; interfaces stay per-feature (ISP) |
+| D19 | 2026-06-18 | **F4 token accounting strategy:** quota gate uses `ai_usage.message_count` (user turns only, 1 per exchange); token counts are analytics-only and recorded post-stream. Tokens read from Groq's final SSE chunk (`stream_options.include_usage: true`); fallback estimate is `chars/4`. Persisted via `bump_ai_usage` SQL function (atomic upsert — avoids read-modify-write races on concurrent requests). `CHAT_DAILY_QUOTA` is the gate; `tokens_in/out` are never gated — they feed a future usage-analytics panel. |
 
 ## Lessons learned
 

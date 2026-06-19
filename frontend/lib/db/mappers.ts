@@ -1,4 +1,4 @@
-import type { Analysis, AnalysisDetail, Profile, Snippet } from "@/types";
+import type { Analysis, AnalysisDetail, Conversation, Message, Profile, Snippet } from "@/types";
 import type { CodeAnalysis } from "@/lib/ai/types";
 
 /**
@@ -87,5 +87,51 @@ export function mapSnippet(row: SnippetRow): Snippet {
     code: row.code,
     tags: row.tags ?? [],
     savedAt: row.created_at,
+  };
+}
+
+// ── F4 Chat ──────────────────────────────────────────────────────────────────
+
+export interface ConversationRow {
+  id: string;
+  profile_id: string;
+  title: string;
+  context_type: string | null;
+  context_ref_id: string | null;
+  context_metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MessageRow {
+  id: string;
+  conversation_id: string;
+  role: string;
+  content: string;
+  token_count: number | null;
+  created_at: string;
+}
+
+export function mapConversation(row: ConversationRow): Conversation {
+  return {
+    id: row.id,
+    profileId: row.profile_id,
+    title: row.title,
+    contextType: row.context_type,
+    contextRefId: row.context_ref_id,
+    contextMetadata: row.context_metadata,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapMessage(row: MessageRow): Message {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    role: row.role as Message["role"],
+    content: row.content,
+    tokenCount: row.token_count,
+    createdAt: row.created_at,
   };
 }

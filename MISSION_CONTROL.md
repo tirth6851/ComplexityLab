@@ -6,14 +6,14 @@
 
 ---
 
-## Current sprint: Phase 2 — F3 Code Execution Backend (complete, awaiting frontend)
+## Current sprint: Phase 2 — F4 AI Chat Backend (complete, awaiting frontend)
 
 **Active branch:** `feature/next-sprint-v1` — all health gates green.
-**Gate status:** `typecheck ✅ · lint ✅ · test 38 files / 341 tests ✅`
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (17 routes) · test 41 files / 379 tests ✅`
 
 **Ownership split (active):** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
 
-**Now:** Phase 2 F3 backend complete. Backend next = F4 (AI Chat). Frontend developer next = `/playground` UI (F3 frontend).
+**Now:** Phase 2 F4 backend complete. Backend next = F5 (Community) or other backlog items. Frontend developer next = `/playground` UI (F3) and `/chat` UI (F4).
 
 **F3 API contract (for frontend developer):**
 - Endpoint: `POST /api/execute`
@@ -142,7 +142,28 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
   - `tests/integration/execute-route.test.ts` (17): auth, validation, rate-limiting, graceful degradation, happy path, error paths, privacy/SEC
 - **Health check: 38 files / 341 tests green.** `typecheck ✅ · lint ✅ · test ✅`
 
-**Next:** Frontend developer implements `/playground/page.tsx` + `components/playground/` UI; connects to `POST /api/execute`.
+**Next (F3):** Frontend developer implements `/playground/page.tsx` + `components/playground/` UI; connects to `POST /api/execute`.
+
+### Shipped (2026-06-18, feature/next-sprint-v1) — Phase 2 F4: AI Chat Backend
+
+**Ownership note:** Backend complete. Chat UI (`/chat/page.tsx`, `components/chat/`) is for the frontend developer. **F4 migration must be applied manually before any chat data can persist.**
+
+- **`supabase/migrations/20260616000300_chat.sql`** — `chat_conversations` + `chat_messages` + `ai_usage` tables, `bump_ai_usage` atomic upsert RPC. `context_metadata jsonb` for RAG extensibility. RLS deny-by-default on all three tables. **Must be applied to `hhnmxyyrihrpyerdmgdw` before B7 can close.**
+- **`lib/ai/groq-client.ts`** (extended) — Added `groqStream()` async generator, `GroqStreamOptions` with `onUsage` callback; `stream_options.include_usage:true` for real token counts.
+- **`lib/ai/chat-provider.ts`** — `ChatProvider` interface + `ChatStreamOpts`; separate from `AnalysisProvider` (ISP).
+- **`lib/ai/providers/groq-chat.ts`** — Groq streaming chat; throws on missing key (no fallback for chat).
+- **`lib/ai/providers/mock-chat.ts`** — Deterministic test mock; fires `onUsage` callback for coverage.
+- **`lib/ai/chat.ts`** — Provider registry; `getChatProvider()`; env-driven (`CHAT_PROVIDER`); defaults to groq-if-key-else-mock.
+- **`lib/ai/prompts/chat.ts`** — `chatSystemPrompt()` (tutor persona, anchored analysis context, 2000-char code truncation, untrusted-data instruction); `buildChatMessages()` (history windowing).
+- **`lib/db/chat.ts`** — Server-only chat data layer: `createConversation`, `getConversation`, `listMessages`, `appendMessage`, `getUsageToday`, `bumpUsage`. All functions accept explicit `profileId` (resolved once at route entry).
+- **`lib/limits.ts`** — Added: `MAX_CHAT_MESSAGE_LENGTH=4000`, `CHAT_HISTORY_LIMIT=12`, `CHAT_RATE_LIMIT={limit:20,windowMs:60000}`, `CHAT_DAILY_QUOTA=50`.
+- **`types/index.ts`** — Added `Conversation`, `Message`, `AiUsageToday` interfaces.
+- **`lib/db/mappers.ts`** — Added `ConversationRow`, `MessageRow`, `mapConversation`, `mapMessage`.
+- **`app/api/chat/route.ts`** — `POST /api/chat` with `maxDuration=30`. Full pipeline: auth → parse/validate → getOrCreateProfile (once) → daily quota gate (graceful degrade) → burst rate-limit → get/create conversation → listMessages + buildChatMessages → appendMessage(user, PRE-STREAM) → `ReadableStream` SSE → `finally`: appendMessage(assistant) + bumpUsage(1 turn). Privacy: message content never in `logEvent`.
+- **`proxy.ts`** — `/chat(.*)` added to `PROTECTED_ROUTES`.
+- **`components/layout/nav.ts`** — Chat nav item added (MessageSquare icon, `ready: false`).
+- **Tests: 41 files / 379 tests** (+38 new tests across 3 files).
+- **Health check: 41 files / 379 tests green.** `typecheck ✅ · lint ✅ · build ✅ (17 routes) · test ✅`
 
 ### Previously shipped (on main, 2026-06-10)
 - UX polish sprint P1–P5: analyzer onboarding, landing honesty, mobile,
@@ -159,6 +180,7 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 | B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending |
 | B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | ⬜ Pending — apply after B1 |
+| B7 | **F4 migration unapplied** — `supabase/migrations/20260616000300_chat.sql` not applied; chat conversations/messages/usage cannot be persisted (graceful degrade — route still works but history is lost) | Manual | ⬜ Pending — apply after B6 |
 
 ## Strongly recommended before public launch
 
@@ -166,11 +188,11 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
-## Quality gates — last verified 2026-06-18 (feature/next-sprint-v1, post-F3 backend)
+## Quality gates — last verified 2026-06-18 (feature/next-sprint-v1, post-F4 backend)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
-| `npm run build` | ✅ green (16 routes, pre-F3 frontend) |
-| `npm run test` | ✅ **38 files / 341 tests** |
+| `npm run build` | ✅ green (17 routes, including `/api/chat`) |
+| `npm run test` | ✅ **41 files / 379 tests** |

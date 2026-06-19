@@ -15,10 +15,10 @@
 |---|---|
 | **Active branch** | `feature/next-sprint-v1` |
 | **Main branch SHA** | `5829ac4` (2026-06-14, 211 tests) |
-| **Active branch health** | `typecheck ✅ · lint ✅ · test ✅ (38 files / 341 tests)` |
+| **Active branch health** | `typecheck ✅ · lint ✅ · build ✅ · test ✅ (41 files / 379 tests)` |
 | **Production URL** | https://complexity-lab-eight.vercel.app (auto-deploys from `main`) |
-| **Current feature** | Phase 2 F3 Backend — **complete 2026-06-18. Awaiting frontend (playground UI, other developer)** |
-| **Next task** | (1) Apply `20260616000200_executions.sql` to Supabase manually · (2) Frontend developer implements `/playground` UI · (3) Backend starts F4 (AI Chat) |
+| **Current feature** | Phase 2 F4 Backend — **complete 2026-06-18. Awaiting frontend (playground UI F3 + chat UI F4, other developer)** |
+| **Next task** | (1) Apply `20260616000300_chat.sql` to Supabase manually (after B1+B6) · (2) Frontend developer implements `/playground` UI + `/chat` UI · (3) Backend starts F5 (Community) or further improvements |
 | **DB blocker** | `supabase/migrations/20260609000000_init.sql` NOT yet applied to production project `hhnmxyyrihrpyerdmgdw`. Also: `20260616000100_progress.sql` and `20260616000200_executions.sql` pending same project. Apply in order. |
 | **Key rotation** | ✅ Done (2026-06-18) — Clerk, Supabase, Groq all rotated |
 
@@ -121,17 +121,39 @@
 ### Tests (38 files / 341 tests — 2026-06-18, post-F3 backend)
 - All prior tests + 42 new: `tests/unit/judge0-normalize.test.ts` (25 tests: status mapping, base64 decode, truncation, timing, resource limits) + `tests/integration/execute-route.test.ts` (17 tests: 401 unauth, 429 rate-limit, 429 quota, quota-check-fail graceful, 400/413 validation, 200 happy path, 200 compile error, 200 Judge0 unreachable, recordExecution failure non-blocking, SEC metadata-only, SEC never logs code/stdout)
 
+### AI Chat Backend (Phase 2 F4 — 2026-06-18)
+
+**Ownership note: backend complete. Chat UI (`/chat/page.tsx`, `components/chat/`) is for the frontend developer.**
+
+- **`supabase/migrations/20260616000300_chat.sql`** — `chat_conversations` + `chat_messages` + `ai_usage` tables; `bump_ai_usage` atomic upsert RPC; `context_metadata jsonb` for RAG extensibility; RLS deny-by-default. Must be applied manually to `hhnmxyyrihrpyerdmgdw`.
+- **`lib/ai/groq-client.ts`** (extended) — `groqStream()` async generator; `GroqStreamOptions.onUsage` callback; `stream_options.include_usage:true` captures real token counts from Groq's SSE usage chunk.
+- **`lib/ai/chat-provider.ts`** — `ChatProvider` interface + `ChatStreamOpts`; separate from `AnalysisProvider` (Interface Segregation Principle).
+- **`lib/ai/providers/groq-chat.ts`** — Groq streaming chat; throws on missing API key (no heuristic fallback for chat).
+- **`lib/ai/providers/mock-chat.ts`** — Deterministic test mock; fires `onUsage` after completing.
+- **`lib/ai/chat.ts`** — Provider registry; `getChatProvider()`; `CHAT_PROVIDER` env; empty string falls back to default (groq-if-key-else-mock).
+- **`lib/ai/prompts/chat.ts`** — `chatSystemPrompt()` (tutor persona, anchored analysis context, 2000-char code truncation, untrusted-data instruction); `buildChatMessages()` (history windowing to `CHAT_HISTORY_LIMIT`).
+- **`lib/db/chat.ts`** — Server-only data layer; all functions accept explicit `profileId` (resolved once at route entry, not per-call): `createConversation`, `getConversation`, `listMessages`, `appendMessage`, `getUsageToday`, `bumpUsage`.
+- **`lib/limits.ts`** — Added `MAX_CHAT_MESSAGE_LENGTH`, `CHAT_HISTORY_LIMIT`, `CHAT_RATE_LIMIT`, `CHAT_DAILY_QUOTA`.
+- **`types/index.ts`** — Added `Conversation`, `Message`, `AiUsageToday` interfaces.
+- **`lib/db/mappers.ts`** — Added `ConversationRow`, `MessageRow`, `mapConversation`, `mapMessage`.
+- **`app/api/chat/route.ts`** — `POST /api/chat` (`maxDuration=30`). Pipeline: auth → parse/validate → getOrCreateProfile (once) → daily quota gate (graceful degrade on DB failure) → burst rate-limit → get/create conversation → listMessages + buildChatMessages → appendMessage(user, PRE-STREAM) → `ReadableStream` SSE (text deltas + done sentinel) → `finally`: appendMessage(assistant) + bumpUsage(1 turn). Privacy: message content never in any `logEvent`.
+- **`proxy.ts`** — `/chat(.*)` added to `PROTECTED_ROUTES`.
+- **`components/layout/nav.ts`** — Chat nav item added (MessageSquare icon, `ready: false`).
+
+### Tests (41 files / 379 tests — 2026-06-18, post-F4 backend)
+- All prior tests + 38 new: `tests/unit/chat-prompts.test.ts` (13: prompt content, anchored context, truncation, untrusted-data instruction, `buildChatMessages` windowing) + `tests/unit/chat-registry.test.ts` (6: provider selection, env override, unknown throws) + `tests/integration/chat-route.test.ts` (18: auth, validation, daily quota, burst rate-limit, graceful degrade, not-found, new/existing conversation, pre-stream persist, finally persist + bumpUsage, SSE streaming, stream error, privacy, contextRef, empty-stream bumpUsage)
+
 ---
 
 ## In Progress
 
-**F3 Backend complete (2026-06-18). Awaiting frontend work by the other developer.**
+**F4 Backend complete (2026-06-18). Awaiting frontend work by the other developer.**
 
 **Immediate next steps (in order):**
-1. **[Manual, external]** Apply `supabase/migrations/20260616000200_executions.sql` to project `hhnmxyyrihrpyerdmgdw` via Supabase SQL editor
+1. **[Manual, external]** Apply `supabase/migrations/20260616000300_chat.sql` to project `hhnmxyyrihrpyerdmgdw` via Supabase SQL editor (also apply B1, B6 migrations first)
 2. **[Other developer]** Implement `/playground/page.tsx` + `components/playground/` UI that calls `POST /api/execute`
-3. **[Backend]** Start Phase 2 F4 (AI Chat) — `docs/phase2/04-chat.md`
-4. **[Whenever]** Add `JUDGE0_API_KEY` + `JUDGE0_API_HOST` to Vercel environment variables before F3 goes live
+3. **[Other developer]** Implement `/chat/page.tsx` + `components/chat/` UI that consumes `POST /api/chat` SSE stream
+4. **[Whenever]** Add `JUDGE0_API_KEY`, `JUDGE0_API_HOST`, and optional `CHAT_MODEL` to Vercel environment variables before F3/F4 go live
 
 ---
 
@@ -153,19 +175,16 @@ Build order: **F3 → F4 → F5** (F1+F2 already shipped).
 - **ExecutionResult shape:** `{ status, statusLabel, stdout, stderr, compileOutput, timeMs, memoryKb }` — defined in `lib/execute/types.ts`
 - **Pre-deploy:** add `JUDGE0_API_KEY` + `JUDGE0_API_HOST` to Vercel env vars
 
-#### F4 — AI Chat (context-aware, streaming, persisted) · Size: L · ~3 days
-- **Route:** `POST /api/chat` (streaming) — auth → daily-quota check (DB) → per-minute burst → load/create conversation → assemble context → `getChatProvider().stream()` → pipe `ReadableStream` to client → on stream end: persist user+assistant messages, bump `ai_usage`
-- **Page:** `/chat` — `ConversationList` sidebar, `MessageThread`, `Composer`; hand-rolled `ReadableStream` reader (no SDK)
-- **Provider:** new `ChatProvider` interface beside `AnalysisProvider`; `CHAT_PROVIDER` env, default groq-if-key-else-mock; same registry pattern
-- **Database:** `chat_conversations` (profile_id, title, context_type, context_ref_id), `chat_messages` (role, content, token_count), `ai_usage` ((profile_id, day) PK, message_count, tokens_in/out)
-- **Context anchoring:** optional `contextRef` (analysis ID) → include code + stored `CodeAnalysis` in system prompt; history trimmed to last 12 messages to cap prompt tokens
-- **Quotas:** 50 messages/day (user turns only), 10/min burst
-- **Persistence rules:** user message persisted PRE-stream (survives disconnect); assistant message + token counts persisted POST-stream (server-side `finally`); quota gated on `message_count`, tokens are analytics-only
-- **New env var:** `CHAT_MODEL` (add to `.env.example` + Vercel)
-- **Migration:** `supabase/migrations/20260616000300_chat.sql`
-- **Atomic SQL function:** `bump_ai_usage(profile_id, day, msgs, tokens_in, tokens_out)`
-- **Prompt-injection guard:** anchored code treated as untrusted data in system prompt, not instructions
-- **Tests:** unit (prompt builders, history trimming), integration (`/api/chat` auth/quota/persistence), component (MessageThread, Composer)
+#### ✅ F4 — AI Chat (context-aware, streaming, persisted) · **Backend COMPLETE 2026-06-18**
+
+**Backend:** `POST /api/chat`, `lib/ai/chat*.ts`, `lib/ai/prompts/chat.ts`, `lib/db/chat.ts`, migration — all done. 38 new tests. See "AI Chat Backend" in Completed Features above.
+
+**Frontend (other developer — NOT STARTED):**
+- **Page:** `/chat/page.tsx` — `ConversationList` sidebar, `MessageThread`, `Composer`; hand-rolled `ReadableStream` reader (no SDK)
+- **Components:** `components/chat/` — conversation list, message thread, composer with streaming support
+- **Wires to:** `POST /api/chat` — SSE stream: `data: {"text":"..."}` chunks → `data: {"done":true,"conversationId":"..."}` sentinel → `data: {"error":"..."}` on failure
+- **Request body:** `{ message: string, conversationId?: string, contextRef?: { type: string, refId: string } }`
+- **Pre-deploy:** Apply `20260616000300_chat.sql` to Supabase; add optional `CHAT_MODEL` to Vercel env vars
 
 #### F5 — Community (share · feed · likes · comments · moderation) · Size: XL · ~4–5 days
 - **Pages:** `/community` (feed), `/community/[id]` (post detail), `/community/moderation` (admin-gated)
