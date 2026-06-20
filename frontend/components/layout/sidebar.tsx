@@ -61,14 +61,14 @@ export function Sidebar() {
     <aside
       className={cn(
         "relative z-20 hidden shrink-0 flex-col border-r border-line-subtle bg-card/75 shadow-ds-xl backdrop-blur-xl transition-[width] duration-200 ease-ds lg:flex",
-        collapsed ? "w-[76px]" : "w-[296px]",
+        collapsed ? "w-[68px]" : "w-[296px]",
       )}
       data-collapsed={collapsed}
     >
       <div
         className={cn(
           "flex h-20 items-center border-b border-line-subtle transition-[padding] duration-200",
-          collapsed ? "justify-center px-3" : "justify-between px-6",
+          collapsed ? "justify-center px-2.5" : "justify-between px-6",
         )}
       >
         <Logo showWordmark={!collapsed} />
@@ -86,15 +86,15 @@ export function Sidebar() {
       </div>
 
       {collapsed && (
-        <div className="flex justify-center border-b border-line-subtle px-3 py-3">
+        <div className="flex justify-center border-b border-line-subtle px-2.5 py-2.5">
           <button
             type="button"
             onClick={() => setStoredCollapsed(false)}
             aria-label="Expand sidebar"
             title="Expand sidebar (Ctrl+B)"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-ds-md border border-line-subtle bg-surface-panel text-ink-muted transition-colors hover:border-primary/35 hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-ds-md border border-line-subtle bg-surface-panel text-ink-muted transition-colors hover:border-primary/35 hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <PanelLeftOpen className="h-[22px] w-[22px]" aria-hidden />
+            <PanelLeftOpen className="h-5 w-5" aria-hidden />
           </button>
         </div>
       )}

@@ -22,7 +22,7 @@ export function NavList({
     <nav
       className={cn(
         "flex-1 space-y-2 p-4 transition-[padding] duration-200 ease-ds",
-        collapsed && "px-3",
+        collapsed && "space-y-1.5 px-2.5",
       )}
       aria-label="Workspace"
     >
@@ -37,7 +37,7 @@ export function NavList({
             <Icon
               className={cn(
                 "shrink-0 stroke-[2.1] transition-all duration-200",
-                collapsed ? "h-6 w-6" : "h-5 w-5",
+                collapsed ? "h-5 w-5" : "h-5 w-5",
               )}
               aria-hidden
             />
@@ -65,8 +65,8 @@ export function NavList({
             aria-current={active ? "page" : undefined}
             title={collapsed ? item.label : undefined}
             className={cn(
-              "group relative flex h-[52px] items-center rounded-ds-lg border text-[15px] font-semibold leading-none transition-all duration-150 ease-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              collapsed ? "justify-center px-0" : "gap-3.5 px-3.5",
+              "group relative flex items-center rounded-ds-lg border text-[15px] font-semibold leading-none transition-all duration-150 ease-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              collapsed ? "h-[46px] justify-center px-0" : "h-[52px] gap-3.5 px-3.5",
               active
                 ? "border-primary/30 bg-[var(--accent-muted)] text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_12px_28px_-24px_rgba(0,229,153,0.85)]"
                 : "border-transparent text-ink-secondary hover:border-line-subtle hover:bg-surface-raised/70 hover:text-ink-primary",
@@ -85,8 +85,8 @@ export function NavList({
             aria-disabled="true"
             title={collapsed ? item.label : undefined}
             className={cn(
-              "flex h-[52px] cursor-default items-center rounded-ds-lg border border-transparent text-[15px] font-semibold text-ink-muted/70",
-              collapsed ? "justify-center px-0" : "gap-3.5 px-3.5",
+              "flex cursor-default items-center rounded-ds-lg border border-transparent text-[15px] font-semibold text-ink-muted/70",
+              collapsed ? "h-[46px] justify-center px-0" : "h-[52px] gap-3.5 px-3.5",
             )}
           >
             {inner}
