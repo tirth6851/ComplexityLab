@@ -10,6 +10,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { CleanMotionBackground } from "@/components/ui/clean-motion-background";
 import { ProgressiveFluxLoader } from "@/components/ui/progressive-flux-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VerdictReadout } from "@/components/ui/verdict-readout";
@@ -268,31 +269,42 @@ function ResultState({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" role="tablist">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const selected = active === tab.id;
+      <CleanMotionBackground
+        items={tabs.map((tab) => ({
+          key: tab.id,
+          label: tab.fullLabel,
+          icon: tab.icon,
+        }))}
+        value={active}
+        onChange={(key) => setActive(key as ResultTab)}
+        mode="both"
+        role="tablist"
+        itemRole="tab"
+        ariaLabel="Analysis result sections"
+        layoutId="analysis-result-tab-highlight"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+        itemClassName={(_, state) =>
+          cn(
+            "flex min-h-20 flex-col items-start justify-between rounded-ds-lg border p-3 text-left text-xs",
+            state.active
+              ? "border-primary/35 text-primary"
+              : "border-line-subtle bg-surface-panel/50 text-ink-muted hover:border-line-strong hover:text-ink-primary",
+          )
+        }
+        indicatorClassName="bg-gradient-to-br from-emerald-400/14 via-teal-300/12 to-cyan-300/14"
+        getItemProps={(_, state) => ({ "aria-selected": state.active })}
+        renderItem={(item) => {
+          const tab = tabs.find((candidate) => candidate.id === item.key);
+          const Icon = tab?.icon ?? Gauge;
           return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setActive(tab.id)}
-              className={cn(
-                "flex min-h-20 flex-col items-start justify-between rounded-ds-lg border p-3 text-left text-xs transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                selected
-                  ? "border-primary/35 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_14px_28px_-24px_rgba(0,229,153,0.85)]"
-                  : "border-line-subtle bg-surface-panel/50 text-ink-muted hover:border-line-strong hover:bg-surface-raised/70 hover:text-ink-primary",
-              )}
-            >
+            <>
               <Icon className="h-4 w-4" aria-hidden />
-              <span className="font-medium sm:hidden">{tab.label}</span>
-              <span className="hidden font-medium sm:inline">{tab.fullLabel}</span>
-            </button>
+              <span className="font-medium sm:hidden">{tab?.label}</span>
+              <span className="hidden font-medium sm:inline">{tab?.fullLabel}</span>
+            </>
           );
-        })}
-      </div>
+        }}
+      />
 
       <TabPanel active={active} analysis={analysis} />
     </div>

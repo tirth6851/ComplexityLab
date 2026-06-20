@@ -27,6 +27,7 @@ import {
   type SVGProps,
 } from "react";
 import { Logo } from "@/components/layout/logo";
+import { CleanMotionBackground } from "@/components/ui/clean-motion-background";
 import { cn } from "@/lib/utils";
 
 const ROTATING_WORDS = [
@@ -347,13 +348,19 @@ export function HeroSectionNexus() {
             <Logo />
           </Link>
 
-          <div className="hidden items-center gap-7 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <NavLink key={item.label} href={item.href}>
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
+          <CleanMotionBackground
+            items={NAV_ITEMS.map((item) => ({
+              key: item.label,
+              label: item.label,
+              href: item.href,
+            }))}
+            mode="hover"
+            ariaLabel="Primary navigation"
+            layoutId="landing-nav-hover-highlight"
+            className="hidden items-center gap-1 md:flex"
+            itemClassName="rounded-pill px-3 py-1.5 text-sm font-medium text-ink-secondary hover:text-foreground"
+            indicatorClassName="border-primary/20 bg-gradient-to-r from-emerald-400/10 via-teal-300/10 to-cyan-300/10 shadow-[0_10px_30px_-24px_rgba(0,229,153,0.85)]"
+          />
 
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/sign-in" className="text-sm font-medium text-ink-secondary hover:text-foreground">
