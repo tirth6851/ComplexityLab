@@ -152,8 +152,9 @@ function ComplexityLabel({
     <text
       x={x}
       y={y}
-      className="fill-primary font-mono text-[12px] font-semibold tracking-[0.18em]"
-      opacity="0.12"
+      fill="#0f766e"
+      className="font-mono text-[12px] font-semibold tracking-[0.18em] blur-[2px]"
+      opacity="0.035"
     >
       {children}
     </text>
@@ -177,9 +178,10 @@ function CodeToken({
     <motion.text
       x={x}
       y={y}
-      className="fill-cyan-100 font-mono text-[11px] font-semibold tracking-[0.16em]"
+      fill="#0f766e"
+      className="font-mono text-[11px] font-semibold tracking-[0.16em] blur-[2px]"
       initial={false}
-      animate={{ opacity: [0, 0.08, 0.045, 0], y: [y, y - 3, y - 5, y - 5] }}
+      animate={{ opacity: [0, 0.045, 0.025, 0], y: [y, y - 3, y - 5, y - 5] }}
       transition={{
         duration,
         delay,
