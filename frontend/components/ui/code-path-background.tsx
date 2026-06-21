@@ -3,60 +3,103 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const MAIN_PATH =
-  "M690 122 H780 V220 H860 Q900 220 900 260 V418 H820 Q780 418 780 458 V520 H690";
-const BRANCH_PATH = "M690 122 H780 V220 H700 Q650 220 650 270 V345 H730";
-const RETURN_PATH = "M900 290 H948 V150";
-const SECONDARY_PATH = "M84 530 H260 V602 H430";
-const SECONDARY_BRANCH_PATH = "M172 530 V470 H308";
+const NETWORKS = {
+  main: "M650 116 H758 V198 H846 Q894 198 894 246 V350 H820 Q772 350 772 398 V492 H652",
+  mainBranch: "M758 198 H672 Q628 198 628 250 V326 H718",
+  mainLoop: "M846 198 H930 V106 H810",
+  upperLeft: "M46 118 H150 V188 H236",
+  upperLeftBranch: "M150 188 V256 H246",
+  upperRight: "M720 72 H814 V132 H918 V206 H980",
+  lowerLeft: "M-24 526 H108 V606 H246 V548 H364",
+  lowerLoop: "M108 526 V456 H240 V526",
+  lowerRight: "M668 612 H760 V552 H852 V612 H968",
+} as const;
 
-const mainParticleX = [690, 745, 780, 780, 828, 878, 900, 900, 870, 820, 780, 780, 730, 690];
-const mainParticleY = [122, 122, 122, 220, 220, 226, 290, 418, 418, 418, 458, 520, 520, 520];
-const branchParticleX = [690, 745, 780, 780, 736, 682, 650, 650, 690, 730];
-const branchParticleY = [122, 122, 122, 220, 220, 228, 270, 345, 345, 345];
-const secondaryParticleX = [84, 172, 260, 260, 352, 430];
-const secondaryParticleY = [530, 530, 530, 602, 602, 602];
+const tracerRoutes = {
+  main: {
+    x: [650, 708, 758, 758, 812, 870, 894, 894, 850, 820, 772, 772, 718, 652],
+    y: [116, 116, 116, 198, 198, 206, 246, 350, 350, 350, 398, 492, 492, 492],
+  },
+  branch: {
+    x: [650, 708, 758, 758, 704, 650, 628, 628, 678, 718],
+    y: [116, 116, 116, 198, 198, 210, 250, 326, 326, 326],
+  },
+  lower: {
+    x: [-24, 50, 108, 108, 170, 246, 246, 300, 364],
+    y: [526, 526, 526, 606, 606, 606, 548, 548, 548],
+  },
+  upper: {
+    x: [46, 104, 150, 150, 190, 236],
+    y: [118, 118, 118, 188, 188, 188],
+  },
+} as const;
 
-const mainPulseNodes = [
-  { cx: 690, cy: 122, delay: 0.15, strong: true },
-  { cx: 780, cy: 122, delay: 1.15 },
-  { cx: 780, cy: 220, delay: 2.45, strong: true },
-  { cx: 900, cy: 290, delay: 5.2, strong: true },
-  { cx: 820, cy: 418, delay: 9.1 },
-  { cx: 780, cy: 520, delay: 12.5, strong: true },
-  { cx: 690, cy: 520, delay: 14.2 },
-] as const;
-
-const branchPulseNodes = [
-  { cx: 780, cy: 220, delay: 1.7, strong: true },
-  { cx: 650, cy: 345, delay: 5.4 },
-  { cx: 730, cy: 345, delay: 8.6 },
-] as const;
-
-const staticNodes = [
-  { cx: 690, cy: 122, strong: true },
-  { cx: 780, cy: 122 },
-  { cx: 780, cy: 220, strong: true },
-  { cx: 860, cy: 220 },
-  { cx: 900, cy: 290, strong: true },
-  { cx: 900, cy: 418 },
-  { cx: 820, cy: 418 },
-  { cx: 780, cy: 520, strong: true },
-  { cx: 690, cy: 520 },
-  { cx: 650, cy: 345 },
-  { cx: 730, cy: 345 },
-  { cx: 948, cy: 150 },
+const mainNodes = [
+  { cx: 650, cy: 116, strong: true, label: "O(1)", lx: 612, ly: 94 },
+  { cx: 758, cy: 116 },
+  { cx: 758, cy: 198, strong: true },
+  { cx: 846, cy: 198 },
+  { cx: 894, cy: 246, strong: true, label: "O(log n)", lx: 910, ly: 238 },
+  { cx: 894, cy: 350 },
+  { cx: 820, cy: 350 },
+  { cx: 772, cy: 492, strong: true },
+  { cx: 652, cy: 492 },
+  { cx: 628, cy: 326 },
+  { cx: 718, cy: 326 },
+  { cx: 930, cy: 106 },
+  { cx: 810, cy: 106 },
 ] as const;
 
 const secondaryNodes = [
-  { cx: 84, cy: 530 },
-  { cx: 172, cy: 530 },
-  { cx: 260, cy: 530 },
-  { cx: 260, cy: 602 },
-  { cx: 352, cy: 602 },
-  { cx: 430, cy: 602 },
-  { cx: 308, cy: 470 },
+  { cx: 46, cy: 118 },
+  { cx: 150, cy: 118, strong: true },
+  { cx: 150, cy: 188 },
+  { cx: 236, cy: 188, label: "O(1)", lx: 246, ly: 168 },
+  { cx: 246, cy: 256 },
+  { cx: 720, cy: 72 },
+  { cx: 814, cy: 72, strong: true },
+  { cx: 814, cy: 132 },
+  { cx: 918, cy: 132 },
+  { cx: 980, cy: 206 },
+  { cx: -24, cy: 526 },
+  { cx: 108, cy: 526, strong: true, label: "O(n)", lx: 128, ly: 510 },
+  { cx: 108, cy: 606 },
+  { cx: 246, cy: 606 },
+  { cx: 246, cy: 548, strong: true },
+  { cx: 364, cy: 548 },
+  { cx: 240, cy: 456 },
+  { cx: 668, cy: 612 },
+  { cx: 760, cy: 552 },
+  { cx: 852, cy: 612 },
+  { cx: 968, cy: 612 },
 ] as const;
+
+const mainPulseNodes = [
+  { cx: 650, cy: 116, delay: 0.15, strong: true },
+  { cx: 758, cy: 116, delay: 1.15 },
+  { cx: 758, cy: 198, delay: 2.35, strong: true },
+  { cx: 894, cy: 246, delay: 5.2, strong: true },
+  { cx: 820, cy: 350, delay: 9.1 },
+  { cx: 772, cy: 492, delay: 12.6, strong: true },
+] as const;
+
+const branchPulseNodes = [
+  { cx: 758, cy: 198, delay: 1.8, strong: true },
+  { cx: 628, cy: 326, delay: 5.3 },
+  { cx: 718, cy: 326, delay: 8.7 },
+] as const;
+
+const lowerPulseNodes = [
+  { cx: 108, cy: 526, delay: 2, strong: true },
+  { cx: 246, cy: 606, delay: 7 },
+  { cx: 246, cy: 548, delay: 10.6, strong: true },
+] as const;
+
+function hasLabel(node: unknown): node is { label: string; lx: number; ly: number } {
+  if (!node || typeof node !== "object") return false;
+  const candidate = node as { label?: unknown; lx?: unknown; ly?: unknown };
+  return typeof candidate.label === "string" && typeof candidate.lx === "number" && typeof candidate.ly === "number";
+}
 
 function Node({
   cx,
@@ -72,18 +115,39 @@ function Node({
       <circle
         cx={cx}
         cy={cy}
-        r={strong ? 5.8 : 4.4}
+        r={strong ? 5.6 : 4.1}
         className="fill-primary"
-        opacity={strong ? 0.13 : 0.08}
+        opacity={strong ? 0.12 : 0.07}
       />
       <circle
         cx={cx}
         cy={cy}
-        r={strong ? 2.5 : 2}
+        r={strong ? 2.35 : 1.85}
         className="fill-cyan-200"
-        opacity={strong ? 0.2 : 0.12}
+        opacity={strong ? 0.18 : 0.11}
       />
     </g>
+  );
+}
+
+function ComplexityLabel({
+  x,
+  y,
+  children,
+}: {
+  x: number;
+  y: number;
+  children: string;
+}) {
+  return (
+    <text
+      x={x}
+      y={y}
+      className="fill-primary font-mono text-[12px] font-semibold tracking-[0.18em]"
+      opacity="0.11"
+    >
+      {children}
+    </text>
   );
 }
 
@@ -104,10 +168,10 @@ function PulseNode({
     <motion.circle
       cx={cx}
       cy={cy}
-      r={strong ? 8 : 6.5}
+      r={strong ? 7.6 : 6}
       className="fill-cyan-200"
       initial={false}
-      animate={{ opacity: [0, 0.13, 0], scale: [0.72, 1.22, 1.4] }}
+      animate={{ opacity: [0, 0.12, 0], scale: [0.74, 1.18, 1.36] }}
       transition={{
         duration,
         repeat: Infinity,
@@ -120,11 +184,33 @@ function PulseNode({
   );
 }
 
+function BasePath({
+  d,
+  opacity = 1,
+  width = 1,
+}: {
+  d: string;
+  opacity?: number;
+  width?: number;
+}) {
+  return (
+    <path
+      d={d}
+      fill="none"
+      stroke="url(#code-path-line)"
+      strokeWidth={width}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity={opacity}
+    />
+  );
+}
+
 function HighlightPath({
   d,
   delay = 0,
   duration = 16,
-  opacity = 0.16,
+  opacity = 0.14,
 }: {
   d: string;
   delay?: number;
@@ -136,17 +222,51 @@ function HighlightPath({
       d={d}
       fill="none"
       stroke="#67e8f9"
-      strokeWidth="1.75"
+      strokeWidth="1.65"
       strokeLinecap="round"
       strokeLinejoin="round"
       initial={false}
-      animate={{ pathLength: [0, 0.58, 1, 1], opacity: [0, opacity, opacity * 0.7, 0] }}
+      animate={{ pathLength: [0, 0.52, 1, 1], opacity: [0, opacity, opacity * 0.68, 0] }}
       transition={{
         duration,
         delay,
         repeat: Infinity,
         ease: "linear",
-        times: [0, 0.5, 0.84, 1],
+        times: [0, 0.46, 0.84, 1],
+      }}
+    />
+  );
+}
+
+function Tracer({
+  x,
+  y,
+  delay = 0,
+  duration,
+  color = "fill-cyan-200",
+  radius = 2.7,
+  opacity = 0.18,
+}: {
+  x: readonly number[];
+  y: readonly number[];
+  delay?: number;
+  duration: number;
+  color?: string;
+  radius?: number;
+  opacity?: number;
+}) {
+  return (
+    <motion.circle
+      r={radius}
+      className={color}
+      initial={false}
+      animate={{ cx: [...x], cy: [...y], opacity: [0, opacity, opacity, 0] }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "linear",
+        times: [0, 0.08, 0.88, 1],
       }}
     />
   );
@@ -175,134 +295,99 @@ export function CodePathBackground({ className }: { className?: string }) {
           </filter>
           <linearGradient id="code-path-line" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor="var(--accent-green)" stopOpacity="0.055" />
-            <stop offset="55%" stopColor="#2dd4bf" stopOpacity="0.05" />
+            <stop offset="55%" stopColor="#2dd4bf" stopOpacity="0.048" />
             <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.04" />
           </linearGradient>
         </defs>
 
-        <g filter="url(#code-path-soft-glow)" className="blur-[0.5px]">
-          <g opacity="0.7">
-            <path
-              d={MAIN_PATH}
-              fill="none"
-              stroke="url(#code-path-line)"
-              strokeWidth="1.35"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d={BRANCH_PATH}
-              fill="none"
-              stroke="url(#code-path-line)"
-              strokeWidth="1.12"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.62"
-            />
-            <path
-              d={RETURN_PATH}
-              fill="none"
-              stroke="url(#code-path-line)"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.46"
-            />
-
-            {staticNodes.map((node) => (
-              <Node key={`${node.cx}-${node.cy}`} {...node} />
+        <g filter="url(#code-path-soft-glow)" className="blur-[0.45px]">
+          <g opacity="0.64">
+            <BasePath d={NETWORKS.main} width={1.25} />
+            <BasePath d={NETWORKS.mainBranch} width={1.05} opacity={0.64} />
+            <BasePath d={NETWORKS.mainLoop} width={0.95} opacity={0.5} />
+            {mainNodes.map((node) => (
+              <g key={`${node.cx}-${node.cy}`}>
+                <Node {...node} />
+                {hasLabel(node) && (
+                  <ComplexityLabel x={node.lx} y={node.ly}>{node.label}</ComplexityLabel>
+                )}
+              </g>
             ))}
           </g>
 
-          <g opacity="0.26">
-            <path
-              d={SECONDARY_PATH}
-              fill="none"
-              stroke="url(#code-path-line)"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d={SECONDARY_BRANCH_PATH}
-              fill="none"
-              stroke="url(#code-path-line)"
-              strokeWidth="0.9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+          <g opacity="0.34">
+            <BasePath d={NETWORKS.upperLeft} width={0.95} />
+            <BasePath d={NETWORKS.upperLeftBranch} width={0.9} opacity={0.72} />
+            <BasePath d={NETWORKS.upperRight} width={0.95} opacity={0.68} />
+            <BasePath d={NETWORKS.lowerLeft} width={1} />
+            <BasePath d={NETWORKS.lowerLoop} width={0.9} opacity={0.68} />
+            <BasePath d={NETWORKS.lowerRight} width={0.9} opacity={0.55} />
             {secondaryNodes.map((node) => (
-              <Node key={`${node.cx}-${node.cy}`} {...node} />
+              <g key={`${node.cx}-${node.cy}`}>
+                <Node {...node} />
+                {hasLabel(node) && (
+                  <ComplexityLabel x={node.lx} y={node.ly}>{node.label}</ComplexityLabel>
+                )}
+              </g>
             ))}
           </g>
         </g>
 
         {!reduceMotion && (
           <g filter="url(#code-path-soft-glow)">
-            <HighlightPath d={MAIN_PATH} duration={16} opacity={0.14} />
-            <HighlightPath d={BRANCH_PATH} delay={8} duration={16} opacity={0.115} />
-            <HighlightPath d={SECONDARY_PATH} delay={5} duration={20} opacity={0.07} />
+            <HighlightPath d={NETWORKS.main} duration={17} opacity={0.145} />
+            <HighlightPath d={NETWORKS.mainBranch} delay={8.5} duration={15} opacity={0.11} />
+            <HighlightPath d={NETWORKS.lowerLeft} delay={3} duration={20} opacity={0.075} />
+            <HighlightPath d={NETWORKS.upperLeft} delay={6} duration={14} opacity={0.07} />
 
             {mainPulseNodes.map((node) => (
-              <PulseNode key={`main-${node.cx}-${node.cy}`} {...node} />
+              <PulseNode key={`main-${node.cx}-${node.cy}`} {...node} duration={17} />
             ))}
             {branchPulseNodes.map((node) => (
               <PulseNode
                 key={`branch-${node.cx}-${node.cy}`}
                 {...node}
-                delay={8 + node.delay}
+                delay={8.5 + node.delay}
+                duration={15}
               />
             ))}
+            {lowerPulseNodes.map((node) => (
+              <PulseNode key={`lower-${node.cx}-${node.cy}`} {...node} duration={20} />
+            ))}
 
-            <motion.circle
-              r="3"
-              className="fill-cyan-200"
-              initial={false}
-              animate={{
-                cx: mainParticleX,
-                cy: mainParticleY,
-                opacity: [0, 0.2, 0.2, 0],
-              }}
-              transition={{
-                duration: 16,
-                repeat: Infinity,
-                ease: "linear",
-                times: [0, 0.08, 0.88, 1],
-              }}
+            <Tracer
+              x={tracerRoutes.main.x}
+              y={tracerRoutes.main.y}
+              duration={17}
+              radius={3}
+              opacity={0.2}
             />
-            <motion.circle
-              r="2.7"
-              className="fill-primary"
-              initial={false}
-              animate={{
-                cx: branchParticleX,
-                cy: branchParticleY,
-                opacity: [0, 0.16, 0.16, 0],
-              }}
-              transition={{
-                duration: 16,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 8,
-                times: [0, 0.08, 0.78, 1],
-              }}
+            <Tracer
+              x={tracerRoutes.branch.x}
+              y={tracerRoutes.branch.y}
+              delay={8.5}
+              duration={15}
+              color="fill-primary"
+              radius={2.6}
+              opacity={0.15}
             />
-            <motion.circle
-              r="2.2"
-              className="fill-teal-200"
-              initial={false}
-              animate={{
-                cx: secondaryParticleX,
-                cy: secondaryParticleY,
-                opacity: [0, 0.09, 0.09, 0],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 5,
-                times: [0, 0.1, 0.85, 1],
-              }}
+            <Tracer
+              x={tracerRoutes.lower.x}
+              y={tracerRoutes.lower.y}
+              delay={3}
+              duration={20}
+              color="fill-teal-200"
+              radius={2.25}
+              opacity={0.1}
+            />
+            <Tracer
+              x={tracerRoutes.upper.x}
+              y={tracerRoutes.upper.y}
+              delay={6}
+              duration={14}
+              color="fill-cyan-100"
+              radius={2}
+              opacity={0.08}
             />
           </g>
         )}
