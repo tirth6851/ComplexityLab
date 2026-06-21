@@ -1,4 +1,6 @@
+﻿import { BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { DailyXp } from "@/types";
 
 const W = 560;
@@ -13,9 +15,11 @@ export function ActivityChart({ history }: { history: DailyXp[] }) {
           <CardTitle>XP Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-ink-muted">
-            Save analyses to earn XP and see your activity here.
-          </p>
+          <EmptyState
+            icon={BarChart3}
+            title="No XP activity yet"
+            description="Save analyses to earn XP and turn this panel into a 30-day activity trace."
+          />
         </CardContent>
       </Card>
     );

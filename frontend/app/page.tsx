@@ -3,13 +3,14 @@ import type { Metadata } from "next";
 import {
   ArrowRight,
   BarChart3,
-  BookOpenCheck,
-  BrainCircuit,
   Code2,
   Database,
   Gauge,
   History,
+  LockKeyhole,
   ScanLine,
+  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { HeroSectionNexus } from "@/components/ui/hero-section-nexus";
 import { SectionShell } from "@/components/marketing/section-shell";
@@ -29,21 +30,25 @@ const platformCards = [
     icon: ScanLine,
     title: "Analyzer",
     body: "Paste code, run the AI complexity analyzer, and get time and space verdicts with confidence metrics.",
+    accent: "Core workflow",
   },
   {
-    icon: BookOpenCheck,
-    title: "Lessons",
-    body: "Learn Big-O patterns through visual tracing flows and guided examples.",
-  },
-  {
-    icon: BrainCircuit,
-    title: "Quiz",
-    body: "Practice identifying complexity from loops, recursion, data structures, and optimization tradeoffs.",
+    icon: BarChart3,
+    title: "Dashboard",
+    body: "Track your analysis activity, recent work, and saved complexity patterns in one focused workspace.",
+    accent: "Workspace",
   },
   {
     icon: History,
     title: "History",
-    body: "Revisit saved analyses and snippets so your interview prep compounds over time.",
+    body: "Revisit saved analyses so your interview prep compounds over time.",
+    accent: "Saved memory",
+  },
+  {
+    icon: Code2,
+    title: "Snippets",
+    body: "Save useful code examples and return to the traces that helped you understand them.",
+    accent: "Code library",
   },
 ] as const;
 
@@ -65,6 +70,24 @@ const workflow = [
   },
 ] as const;
 
+const trustSignals = [
+  {
+    icon: ShieldCheck,
+    title: "Server-side analysis",
+    body: "The analyzer runs through protected app routes, keeping product logic out of the browser.",
+  },
+  {
+    icon: LockKeyhole,
+    title: "Private workspace",
+    body: "Clerk authentication protects saved analyses, snippets, dashboard data, and account settings.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI with guardrails",
+    body: "AI feedback is paired with structured complexity fields so results stay readable and reviewable.",
+  },
+] as const;
+
 export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -80,8 +103,8 @@ export default function Home() {
       <main id="main" className="relative z-10">
         <SectionShell
           eyebrow="ComplexityLab platform"
-          title="Everything points back to better complexity intuition"
-          description="The homepage navigation mirrors the product loop: analyze, learn, practice, review, and return with stronger instincts."
+          title="A focused loop for understanding complexity"
+          description="Analyze real code, read the reasoning behind each verdict, save useful snippets, and return to your history when you need the pattern again."
           className="pt-16"
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -90,12 +113,18 @@ export default function Home() {
               return (
                 <div
                   key={card.title}
-                  id={card.title === "Lessons" ? "lessons" : card.title === "Quiz" ? "quiz" : undefined}
-                  className="rounded-ds-xl border border-line-subtle bg-card/70 p-6 shadow-ds-lg backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/35"
+
+
+                  className="group rounded-ds-xl border border-line-subtle bg-card/70 p-6 shadow-ds-lg backdrop-blur transition-all hover:-translate-y-1 hover:border-primary/35 hover:bg-surface-panel/70 hover:shadow-glow-green-soft"
                 >
-                  <span className="flex size-11 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well">
-                    <Icon className="h-5 w-5" aria-hidden />
-                  </span>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex size-11 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well transition group-hover:shadow-glow-green-soft">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
+                      {card.accent}
+                    </span>
+                  </div>
                   <h2 className="mt-5 font-display text-xl font-semibold tracking-normal">
                     {card.title}
                   </h2>
@@ -109,9 +138,53 @@ export default function Home() {
         </SectionShell>
 
         <SectionShell
+          eyebrow="Trust and privacy"
+          title="Built like a developer workspace, not a toy demo"
+          description="ComplexityLab keeps the product surface compact while preserving real auth, persistence, dashboard history, and structured AI results."
+          className="pt-8"
+        >
+          <div className="grid overflow-hidden rounded-ds-xl border border-line-subtle bg-card/75 shadow-ds-xl lg:grid-cols-[0.85fr_1fr]">
+            <div className="border-b border-line-subtle bg-surface-panel/45 p-8 lg:border-b-0 lg:border-r">
+              <Badge variant="success">Production-minded</Badge>
+              <h2 className="mt-5 max-w-md font-display text-3xl font-semibold leading-tight tracking-normal">
+                Clear answers, saved context, and a workspace you can return to.
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-ink-secondary">
+                The strongest developer tools feel calm because they make system state obvious. ComplexityLab follows that pattern across analysis, saving, and review.
+              </p>
+            </div>
+            <div className="grid gap-3 p-5 sm:p-6">
+              {trustSignals.map((signal) => {
+                const Icon = signal.icon;
+                return (
+                  <div
+                    key={signal.title}
+                    className="rounded-ds-lg border border-line-subtle bg-surface-panel/45 p-4 shadow-inset-well"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-card text-primary">
+                        <Icon className="h-4 w-4" aria-hidden />
+                      </span>
+                      <div>
+                        <h3 className="font-display text-base font-semibold text-ink-primary">
+                          {signal.title}
+                        </h3>
+                        <p className="mt-1 text-sm leading-6 text-ink-secondary">
+                          {signal.body}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </SectionShell>
+
+        <SectionShell
           eyebrow="Visual code tracing"
           title="Move from answer memorization to execution understanding"
-          description="ComplexityLab keeps the existing analyzer, account, dashboard, and history flows intact while giving students a sharper visual model for Big-O."
+          description="The analyzer is designed to make the reason behind Big-O visible: where the loops branch, where recursion grows, and where memory changes."
           className="pt-8"
         >
           <div className="grid gap-4 lg:grid-cols-3">
@@ -142,12 +215,10 @@ export default function Home() {
             <div className="p-8 sm:p-10">
               <Badge variant="success">Start free</Badge>
               <h2 className="mt-5 font-display text-3xl font-semibold tracking-normal sm:text-4xl">
-                Start analyzing code with the workflow already in your account.
+                Start with one function. Leave with a reusable complexity trace.
               </h2>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-ink-secondary sm:text-base">
-                Authentication, saved history, dashboard data, and the AI
-                analyzer routes remain wired into the existing ComplexityLab
-                app.
+                Authentication, saved history, dashboard data, and the AI analyzer routes remain wired into the existing ComplexityLab app.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link href="/analyzer" className={buttonClassName({ size: "lg" })}>

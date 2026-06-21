@@ -10,8 +10,7 @@ import {
 } from "framer-motion";
 import {
   ArrowRight,
-  BookOpenCheck,
-  BrainCircuit,
+  Code2,
   History,
   LayoutDashboard,
   Menu,
@@ -28,6 +27,7 @@ import {
   type SVGProps,
 } from "react";
 import { Logo } from "@/components/layout/logo";
+import { CleanMotionBackground } from "@/components/ui/clean-motion-background";
 import { cn } from "@/lib/utils";
 
 const ROTATING_WORDS = [
@@ -40,10 +40,9 @@ const ROTATING_WORDS = [
 
 const NAV_ITEMS = [
   { label: "Analyzer", href: "/analyzer" },
-  { label: "Lessons", href: "#lessons" },
-  { label: "Quiz", href: "#quiz" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "History", href: "/analyses" },
+  { label: "Snippets", href: "/snippets" },
 ] as const;
 
 interface Dot {
@@ -349,13 +348,19 @@ export function HeroSectionNexus() {
             <Logo />
           </Link>
 
-          <div className="hidden items-center gap-7 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <NavLink key={item.label} href={item.href}>
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
+          <CleanMotionBackground
+            items={NAV_ITEMS.map((item) => ({
+              key: item.label,
+              label: item.label,
+              href: item.href,
+            }))}
+            mode="hover"
+            ariaLabel="Primary navigation"
+            layoutId="landing-nav-hover-highlight"
+            className="hidden items-center gap-1 md:flex"
+            itemClassName="rounded-pill px-3 py-1.5 text-sm font-medium text-ink-secondary hover:text-foreground"
+            indicatorClassName="border-primary/20 bg-gradient-to-r from-emerald-400/10 via-teal-300/10 to-cyan-300/10 shadow-[0_10px_30px_-24px_rgba(0,229,153,0.85)]"
+          />
 
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/sign-in" className="text-sm font-medium text-ink-secondary hover:text-foreground">
@@ -453,10 +458,10 @@ export function HeroSectionNexus() {
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <Link
-            href="#lessons"
+            href="/dashboard"
             className="inline-flex h-11 items-center gap-2 rounded-ds-md border border-line bg-card/55 px-5 text-sm font-semibold text-foreground backdrop-blur transition hover:border-primary/40 hover:bg-surface-raised"
           >
-            View Lessons
+            View Dashboard
           </Link>
         </motion.div>
 
@@ -468,10 +473,9 @@ export function HeroSectionNexus() {
         >
           {[
             [ScanLine, "Analyzer"],
-            [BookOpenCheck, "Lessons"],
-            [BrainCircuit, "Quiz"],
             [LayoutDashboard, "Dashboard"],
             [History, "History"],
+            [Code2, "Snippets"],
           ].map(([Icon, label]) => (
             <span
               key={label as string}
@@ -484,13 +488,6 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <MiniCodeTrace />
-
-        <div id="lessons" className="sr-only">
-          Lessons section
-        </div>
-        <div id="quiz" className="sr-only">
-          Quiz section
-        </div>
       </div>
 
       <NavIcon className="pointer-events-none absolute bottom-10 right-8 hidden h-24 w-24 text-primary/10 lg:block" />

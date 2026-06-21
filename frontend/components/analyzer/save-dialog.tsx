@@ -4,6 +4,7 @@ import * as React from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { TITLE_MAX_LENGTH } from "@/lib/limits";
 
 interface SaveDialogProps {
@@ -64,7 +65,7 @@ export function SaveDialog({
       onClose();
     } else {
       setPending(false);
-      setError(result.error ?? "Save failed — try again.");
+      setError(result.error ?? "Save failed. Try again.");
     }
   }
 
@@ -74,7 +75,7 @@ export function SaveDialog({
     spaceComplexity && `Space: ${spaceComplexity}`,
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(" / ");
 
   return (
     <Dialog
@@ -102,7 +103,7 @@ export function SaveDialog({
             onChange={(e) => setTagsRaw(e.target.value)}
             disabled={pending}
             hint="Comma-separated, up to 8"
-            placeholder="sorting, array, …"
+            placeholder="sorting, array, dp"
           />
         )}
 
@@ -125,7 +126,18 @@ export function SaveDialog({
             Cancel
           </Button>
           <Button type="submit" size="sm" disabled={!canSubmit}>
-            {pending ? "Saving…" : "Save"}
+            {pending ? (
+              <>
+                <HoloPulseLoader
+                  label="Saving"
+                  size="sm"
+                  className="w-auto [&>p]:sr-only"
+                />
+                Saving...
+              </>
+            ) : (
+              "Save"
+            )}
           </Button>
         </div>
       </form>
