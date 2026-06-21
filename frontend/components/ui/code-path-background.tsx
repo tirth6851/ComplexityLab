@@ -95,6 +95,15 @@ const lowerPulseNodes = [
   { cx: 246, cy: 548, delay: 10.6, strong: true },
 ] as const;
 
+const codeTokens = [
+  { label: "if", x: 616, y: 236, delay: 1.2, duration: 7.5 },
+  { label: "loop", x: 812, y: 92, delay: 3.8, duration: 8.2 },
+  { label: "return", x: 904, y: 386, delay: 5.4, duration: 9 },
+  { label: "O(n)", x: 132, y: 488, delay: 2.6, duration: 8.6 },
+  { label: "mid", x: 724, y: 330, delay: 6.7, duration: 7.8 },
+  { label: "n++", x: 254, y: 578, delay: 0.8, duration: 8.8 },
+] as const;
+
 function hasLabel(node: unknown): node is { label: string; lx: number; ly: number } {
   if (!node || typeof node !== "object") return false;
   const candidate = node as { label?: unknown; lx?: unknown; ly?: unknown };
@@ -144,10 +153,43 @@ function ComplexityLabel({
       x={x}
       y={y}
       className="fill-primary font-mono text-[12px] font-semibold tracking-[0.18em]"
-      opacity="0.11"
+      opacity="0.12"
     >
       {children}
     </text>
+  );
+}
+
+function CodeToken({
+  label,
+  x,
+  y,
+  delay,
+  duration,
+}: {
+  label: string;
+  x: number;
+  y: number;
+  delay: number;
+  duration: number;
+}) {
+  return (
+    <motion.text
+      x={x}
+      y={y}
+      className="fill-cyan-100 font-mono text-[11px] font-semibold tracking-[0.16em]"
+      initial={false}
+      animate={{ opacity: [0, 0.08, 0.045, 0], y: [y, y - 3, y - 5, y - 5] }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.22, 0.7, 1],
+      }}
+    >
+      {label}
+    </motion.text>
   );
 }
 
@@ -168,16 +210,16 @@ function PulseNode({
     <motion.circle
       cx={cx}
       cy={cy}
-      r={strong ? 7.6 : 6}
+      r={strong ? 8.2 : 6.4}
       className="fill-cyan-200"
       initial={false}
-      animate={{ opacity: [0, 0.12, 0], scale: [0.74, 1.18, 1.36] }}
+      animate={{ opacity: [0, 0.145, 0], scale: [0.7, 1.22, 1.42] }}
       transition={{
         duration,
         repeat: Infinity,
         ease: "easeOut",
         delay,
-        times: [0, 0.08, 0.16],
+        times: [0, 0.075, 0.18],
       }}
       style={{ transformBox: "fill-box", transformOrigin: "center" }}
     />
@@ -222,17 +264,17 @@ function HighlightPath({
       d={d}
       fill="none"
       stroke="#67e8f9"
-      strokeWidth="1.65"
+      strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
       initial={false}
-      animate={{ pathLength: [0, 0.52, 1, 1], opacity: [0, opacity, opacity * 0.68, 0] }}
+      animate={{ pathLength: [0, 0.42, 0.72, 1, 1], opacity: [0, opacity, opacity * 0.78, opacity * 0.34, 0] }}
       transition={{
         duration,
         delay,
         repeat: Infinity,
         ease: "linear",
-        times: [0, 0.46, 0.84, 1],
+        times: [0, 0.36, 0.62, 0.86, 1],
       }}
     />
   );
@@ -256,19 +298,34 @@ function Tracer({
   opacity?: number;
 }) {
   return (
-    <motion.circle
-      r={radius}
-      className={color}
-      initial={false}
-      animate={{ cx: [...x], cy: [...y], opacity: [0, opacity, opacity, 0] }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "linear",
-        times: [0, 0.08, 0.88, 1],
-      }}
-    />
+    <g>
+      <motion.circle
+        r={radius + 2.4}
+        className={color}
+        initial={false}
+        animate={{ cx: [...x], cy: [...y], opacity: [0, opacity * 0.18, opacity * 0.18, 0] }}
+        transition={{
+          duration,
+          delay,
+          repeat: Infinity,
+          ease: "linear",
+          times: [0, 0.08, 0.88, 1],
+        }}
+      />
+      <motion.circle
+        r={radius}
+        className={color}
+        initial={false}
+        animate={{ cx: [...x], cy: [...y], opacity: [0, opacity, opacity, 0] }}
+        transition={{
+          duration,
+          delay,
+          repeat: Infinity,
+          ease: "linear",
+          times: [0, 0.08, 0.88, 1],
+        }}
+      />
+    </g>
   );
 }
 
@@ -335,30 +392,34 @@ export function CodePathBackground({ className }: { className?: string }) {
 
         {!reduceMotion && (
           <g filter="url(#code-path-soft-glow)">
-            <HighlightPath d={NETWORKS.main} duration={17} opacity={0.145} />
-            <HighlightPath d={NETWORKS.mainBranch} delay={8.5} duration={15} opacity={0.11} />
-            <HighlightPath d={NETWORKS.lowerLeft} delay={3} duration={20} opacity={0.075} />
-            <HighlightPath d={NETWORKS.upperLeft} delay={6} duration={14} opacity={0.07} />
+            <HighlightPath d={NETWORKS.main} duration={16} opacity={0.18} />
+            <HighlightPath d={NETWORKS.mainBranch} delay={7.8} duration={14} opacity={0.14} />
+            <HighlightPath d={NETWORKS.lowerLeft} delay={2.4} duration={18} opacity={0.105} />
+            <HighlightPath d={NETWORKS.upperLeft} delay={5.5} duration={13} opacity={0.095} />
+
+            {codeTokens.map((token) => (
+              <CodeToken key={`${token.label}-${token.x}-${token.y}`} {...token} />
+            ))}
 
             {mainPulseNodes.map((node) => (
-              <PulseNode key={`main-${node.cx}-${node.cy}`} {...node} duration={17} />
+              <PulseNode key={`main-${node.cx}-${node.cy}`} {...node} duration={16} />
             ))}
             {branchPulseNodes.map((node) => (
               <PulseNode
                 key={`branch-${node.cx}-${node.cy}`}
                 {...node}
-                delay={8.5 + node.delay}
-                duration={15}
+                delay={7.8 + node.delay}
+                duration={14}
               />
             ))}
             {lowerPulseNodes.map((node) => (
-              <PulseNode key={`lower-${node.cx}-${node.cy}`} {...node} duration={20} />
+              <PulseNode key={`lower-${node.cx}-${node.cy}`} {...node} duration={18} />
             ))}
 
             <Tracer
               x={tracerRoutes.main.x}
               y={tracerRoutes.main.y}
-              duration={17}
+              duration={16}
               radius={3}
               opacity={0.2}
             />
@@ -366,7 +427,7 @@ export function CodePathBackground({ className }: { className?: string }) {
               x={tracerRoutes.branch.x}
               y={tracerRoutes.branch.y}
               delay={8.5}
-              duration={15}
+              duration={14}
               color="fill-primary"
               radius={2.6}
               opacity={0.15}
@@ -375,7 +436,7 @@ export function CodePathBackground({ className }: { className?: string }) {
               x={tracerRoutes.lower.x}
               y={tracerRoutes.lower.y}
               delay={3}
-              duration={20}
+              duration={18}
               color="fill-teal-200"
               radius={2.25}
               opacity={0.1}
