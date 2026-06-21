@@ -5,7 +5,7 @@
 > For sprint-level focus see `MISSION_CONTROL.md`; for technical architecture
 > see `ARCHITECTURE.md` and `PHASE2_PLAN.md`; for decisions/debt see `SECOND_BRAIN.md`.
 >
-> **Last updated: 2026-06-18 (post-F3 backend)**
+> **Last updated: 2026-06-18 (post-F4 frontend; F4 UI Polish queued)**
 
 ---
 
@@ -15,10 +15,10 @@
 |---|---|
 | **Active branch** | `feature/next-sprint-v1` |
 | **Main branch SHA** | `5829ac4` (2026-06-14, 211 tests) |
-| **Active branch health** | `typecheck ✅ · lint ✅ · build ✅ · test ✅ (41 files / 379 tests)` |
+| **Active branch health** | `typecheck ✅ · lint ✅ · build ✅ · test ✅ (42 files / 393 tests)` |
 | **Production URL** | https://complexity-lab-eight.vercel.app (auto-deploys from `main`) |
-| **Current feature** | Phase 2 F4 Backend — **complete 2026-06-18. Awaiting frontend (playground UI F3 + chat UI F4, other developer)** |
-| **Next task** | (1) Apply `20260616000300_chat.sql` to Supabase manually (after B1+B6) · (2) Frontend developer implements `/playground` UI + `/chat` UI · (3) Backend starts F5 (Community) or further improvements |
+| **Current feature** | Phase 2 F4 — **fully complete (Backend + Frontend UI) 2026-06-18. F4 Chat UI Polish queued.** |
+| **Next task** | (1) **F4 Chat UI Polish** — CSS-first visual restyle of `/chat` page (queued, not started) · (2) Apply `20260616000300_chat.sql` to Supabase (after B1+B6) · (3) Frontend dev implements `/playground` UI · (4) Backend starts F5 (Community) |
 | **DB blocker** | `supabase/migrations/20260609000000_init.sql` NOT yet applied to production project `hhnmxyyrihrpyerdmgdw`. Also: `20260616000100_progress.sql` and `20260616000200_executions.sql` pending same project. Apply in order. |
 | **Key rotation** | ✅ Done (2026-06-18) — Clerk, Supabase, Groq all rotated |
 
@@ -143,17 +143,48 @@
 ### Tests (41 files / 379 tests — 2026-06-18, post-F4 backend)
 - All prior tests + 38 new: `tests/unit/chat-prompts.test.ts` (13: prompt content, anchored context, truncation, untrusted-data instruction, `buildChatMessages` windowing) + `tests/unit/chat-registry.test.ts` (6: provider selection, env override, unknown throws) + `tests/integration/chat-route.test.ts` (18: auth, validation, daily quota, burst rate-limit, graceful degrade, not-found, new/existing conversation, pre-stream persist, finally persist + bumpUsage, SSE streaming, stream error, privacy, contextRef, empty-stream bumpUsage)
 
+### AI Chat Frontend (Phase 2 F4 — 2026-06-18)
+
+**Ownership note:** Chat UI implemented by the backend session (not the separate frontend developer). Full working UI — streaming, SSE, a11y, tests.
+
+- **`components/layout/nav.ts`** — Chat nav item: `ready: true` (was `false`) — renders as a live link.
+- **`app/(app)/chat/page.tsx`** — Server Component wrapper; `metadata.title = "Chat · ComplexityLab"`.
+- **`app/(app)/chat/loading.tsx`** — Skeleton loading UI matching chat layout.
+- **`components/chat/chat-shell.tsx`** — Full `"use client"` Chat UI. State machine: `messages`, `input`, `streaming`, `conversationId`, `error`. Hand-rolled `ReadableStream.getReader()` SSE loop. Enter-to-send / Shift+Enter-for-newline. `role="log" aria-live="polite"` message list. Empty state. `role="alert"` on error. Existing `…` placeholder shown during streaming.
+- **`tests/components/chat-shell.test.tsx`** — 14 tests covering all paths.
+
+### Tests (42 files / 393 tests — 2026-06-18, post-F4 frontend)
+- All prior tests + 14 new: `tests/components/chat-shell.test.tsx` (14: empty state, input, Shift+Enter guard, user message visible immediately, input cleared, streaming chunks concat, input re-enabled after stream, API/SSE error alerts, empty-assistant-placeholder cleanup, conversationId forwarded on second turn)
+
 ---
 
 ## In Progress
 
-**F4 Backend complete (2026-06-18). Awaiting frontend work by the other developer.**
+**F4 fully complete (Backend + Frontend, 2026-06-18). F4 Chat UI Polish is the queued next item.**
+
+### F4 Chat UI Polish (CSS-first visual restyle — QUEUED, not started)
+
+Restyle the existing `/chat` page to move toward a premium animated AI chat aesthetic. This is a UI enhancement only — no rebuild, no behavior change, no new dependencies.
+
+**Planned changes to `components/chat/chat-shell.tsx`:**
+- Animated fade-up empty state using `.animate-rise` (already in `globals.css`)
+- Elevated glassy composer container using `.premium-panel` + `shadow-glow-green` focus token
+- Auto-resize textarea (remove fixed `rows={3}`, add `onInput` height adjustment)
+- Pulsing 3-dot thinking indicator using `animate-pulse` (replaces `…` during streaming)
+
+**CRITICAL constraints (must not break tests):**
+- Keep `id="chat-input"` + `<label htmlFor="chat-input">` (test: `getByLabelText("Message")`)
+- Keep `aria-label="Send message"` on button (test: `getByLabelText("Send message")`)
+- Keep `role="log"` and `role="alert"` attributes
+- Keep `rounded-ds-lg px-3` as adjacent classes on bubble divs (test 10 queries `[class*='rounded-ds-lg px-3']`)
+- Keep empty-state text strings in DOM at render time (tests assert synchronously, no `waitFor`)
+- Do NOT use framer-motion — not validated in jsdom; only in `hero-section-nexus.tsx` which has no tests
 
 **Immediate next steps (in order):**
-1. **[Manual, external]** Apply `supabase/migrations/20260616000300_chat.sql` to project `hhnmxyyrihrpyerdmgdw` via Supabase SQL editor (also apply B1, B6 migrations first)
-2. **[Other developer]** Implement `/playground/page.tsx` + `components/playground/` UI that calls `POST /api/execute`
-3. **[Other developer]** Implement `/chat/page.tsx` + `components/chat/` UI that consumes `POST /api/chat` SSE stream
-4. **[Whenever]** Add `JUDGE0_API_KEY`, `JUDGE0_API_HOST`, and optional `CHAT_MODEL` to Vercel environment variables before F3/F4 go live
+1. **[Next session — this AI]** F4 Chat UI Polish (implement restyle above, run all gates)
+2. **[Manual, external]** Apply `supabase/migrations/20260616000300_chat.sql` to project `hhnmxyyrihrpyerdmgdw` via Supabase SQL editor (also apply B1, B6 first)
+3. **[Other developer]** Implement `/playground/page.tsx` + `components/playground/` UI that calls `POST /api/execute`
+4. **[Whenever]** Add `JUDGE0_API_KEY`, `JUDGE0_API_HOST`, and optional `CHAT_MODEL` to Vercel environment variables
 
 ---
 
@@ -175,16 +206,15 @@ Build order: **F3 → F4 → F5** (F1+F2 already shipped).
 - **ExecutionResult shape:** `{ status, statusLabel, stdout, stderr, compileOutput, timeMs, memoryKb }` — defined in `lib/execute/types.ts`
 - **Pre-deploy:** add `JUDGE0_API_KEY` + `JUDGE0_API_HOST` to Vercel env vars
 
-#### ✅ F4 — AI Chat (context-aware, streaming, persisted) · **Backend COMPLETE 2026-06-18**
+#### ✅ F4 — AI Chat (context-aware, streaming, persisted) · **FULLY COMPLETE 2026-06-18**
 
 **Backend:** `POST /api/chat`, `lib/ai/chat*.ts`, `lib/ai/prompts/chat.ts`, `lib/db/chat.ts`, migration — all done. 38 new tests. See "AI Chat Backend" in Completed Features above.
 
-**Frontend (other developer — NOT STARTED):**
-- **Page:** `/chat/page.tsx` — `ConversationList` sidebar, `MessageThread`, `Composer`; hand-rolled `ReadableStream` reader (no SDK)
-- **Components:** `components/chat/` — conversation list, message thread, composer with streaming support
-- **Wires to:** `POST /api/chat` — SSE stream: `data: {"text":"..."}` chunks → `data: {"done":true,"conversationId":"..."}` sentinel → `data: {"error":"..."}` on failure
-- **Request body:** `{ message: string, conversationId?: string, contextRef?: { type: string, refId: string } }`
-- **Pre-deploy:** Apply `20260616000300_chat.sql` to Supabase; add optional `CHAT_MODEL` to Vercel env vars
+**Frontend:** `/chat/page.tsx`, `app/(app)/chat/loading.tsx`, `components/chat/chat-shell.tsx` — all done. 14 new tests. See "AI Chat Frontend" in Completed Features above.
+
+**F4 UI Polish (queued — see "In Progress"):** CSS-first visual restyle of the existing `/chat` page. No behavior change. No new dependencies.
+
+**Pre-deploy:** Apply `20260616000300_chat.sql` to Supabase (B7); add optional `CHAT_MODEL` to Vercel env vars.
 
 #### F5 — Community (share · feed · likes · comments · moderation) · Size: XL · ~4–5 days
 - **Pages:** `/community` (feed), `/community/[id]` (post detail), `/community/moderation` (admin-gated)
@@ -215,6 +245,7 @@ Track these before any public beta launch.
 | B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner; zero manual coverage | ⬜ Pending | Test with a real Google account in production |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | ⬜ Pending | Test with two separate Google sign-ins; verify one user can't read/delete another's data |
 | B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied to `hhnmxyyrihrpyerdmgdw`; `/api/execute` quota tracking broken (execution still works, recording fails gracefully) | ⬜ Pending manual deployment | Apply after B1 migration. The route degrades gracefully (allows execution, logs warning) if table is absent. |
+| B7 | **F4 chat migration unapplied** — `supabase/migrations/20260616000300_chat.sql` not applied; `chat_conversations`, `chat_messages`, `ai_usage` tables missing; chat history not persisted between page loads (graceful degrade — route works, history lost on reload) | ⬜ Pending manual deployment | Apply after B6. Route degrades gracefully. |
 
 ---
 

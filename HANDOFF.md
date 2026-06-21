@@ -5,9 +5,10 @@
 >
 > **Status as of 2026-06-18:** MVP, beta stabilization, Phase 2 F1 (Save Flow),
 > Phase 2 F2 (Progress: XP, levels, streaks, achievements), Phase 2 F3
-> (Code Execution Backend), and Phase 2 F4 (AI Chat Backend) are complete on
-> `feature/next-sprint-v1`. Branch health check is **fully green** —
-> **379/379 tests** (41 files), typecheck ✅, lint ✅, build ✅ (17 routes).
+> (Code Execution Backend), Phase 2 F4 (AI Chat Backend), and Phase 2 F4
+> (AI Chat Frontend UI) are complete on `feature/next-sprint-v1`. Branch health
+> check is **fully green** — **393/393 tests** (42 files), typecheck ✅, lint ✅,
+> build ✅ (19 routes).
 > `main` last verified green at **211/211 tests** (commit `5829ac4`, 2026-06-14).
 >
 > **Ownership split (active):** Backend (AI Platform) is handled by this AI session.
@@ -188,17 +189,46 @@ The other developer owns: `/chat/page.tsx`, `components/chat/`.
 | `tests/integration/chat-route.test.ts` | **NEW** | 18 tests: 401 unauth, 400 validation (3), 429 daily quota, 429 burst, 404 not found, graceful degrade on quota failure, new/existing conversation, pre-stream persist, finally persist + bumpUsage, SSE streaming text+done, stream error, privacy, contextRef forwarding, empty-stream bumpUsage |
 | **Health check** | ✅ Green | 41 files / 379 tests · typecheck ✅ · lint ✅ · build ✅ (17 routes) |
 
-**Technical debt (F4):**
+**Technical debt (F4 Backend):**
 - `supabase/migrations/20260616000300_chat.sql` must be applied to `hhnmxyyrihrpyerdmgdw` (tracked as B7)
 - `CHAT_MODEL` env var should be added to Vercel env vars (optional; defaults to `llama-3.3-70b-versatile`)
-- Frontend needs `useChatStream` hook to consume SSE: iterate `ReadableStream`, decode `data:` lines, accumulate `{"text":...}` chunks, detect `{"done":true,"conversationId":...}` sentinel, handle `{"error":...}`
 
-**F4 Chat API contract (for frontend developer):**
-- Endpoint: `POST /api/chat`
-- Request: `{ message: string, conversationId?: string, contextRef?: { type: string, refId: string } }`
-- Response: `text/event-stream` SSE — `data: {"text":"..."}` (delta) → `data: {"done":true,"conversationId":"..."}` (sentinel) → `data: {"error":"..."}` (on failure)
-- Auth: Clerk session required (401 if signed out)
-- Limits: 4000-char messages, 50 messages/day, 20 messages/minute
+### Phase 2 F4 — AI Chat Frontend (2026-06-18 · branch `feature/next-sprint-v1`)
+
+Implements the `/chat` page UI that consumes the `POST /api/chat` SSE backend.
+Shipping over polish: single page, one conversation per session, streaming responses.
+
+| File | Change | Notes |
+|---|---|---|
+| `components/layout/nav.ts` | **MODIFIED** | Chat nav item: `ready: true` (was `false`) — now renders as a live link |
+| `app/(app)/chat/page.tsx` | **NEW** | Server Component wrapper; `metadata.title = "Chat · ComplexityLab"` |
+| `app/(app)/chat/loading.tsx` | **NEW** | Skeleton loading UI matching chat layout (Card + Skeleton primitives) |
+| `components/chat/chat-shell.tsx` | **NEW** | Full `"use client"` Chat UI: state machine (`messages`, `input`, `streaming`, `conversationId`, `error`); SSE `ReadableStream.getReader()` loop; Enter-to-send / Shift+Enter-for-newline; `role="log" aria-live="polite"` message list; empty state; error `role="alert"` |
+| `tests/components/chat-shell.test.tsx` | **NEW** | 14 tests: empty state, input, Shift+Enter guard, user message visible immediately, input cleared, streaming chunks concat, input re-enabled after stream, API 429/SSE error alerts, empty-assistant-placeholder cleanup, conversationId forwarded on second turn |
+| **Health check** | ✅ Green | 42 files / 393 tests · typecheck ✅ · lint ✅ · build ✅ (19 routes) |
+
+**SSE streaming pattern (for reference):**
+```typescript
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let buf = "";
+for (;;) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  buf += decoder.decode(value, { stream: true });
+  const blocks = buf.split("\n\n");
+  buf = blocks.pop() ?? "";
+  for (const block of blocks) {
+    if (!block.startsWith("data: ")) continue;
+    const event = JSON.parse(block.slice(6));
+    // event.text → append to assistant message
+    // event.done + event.conversationId → save conversationId
+    // event.error → show alert
+  }
+}
+```
+
+**B7 graceful degrade:** Chat conversations don't persist between page loads until `20260616000300_chat.sql` is applied. No errors surface to users — the route degrades gracefully.
 
 ### Phase 2 F3 — Code Execution Backend (2026-06-18 · branch `feature/next-sprint-v1`)
 
@@ -267,16 +297,17 @@ calls silently no-op — no errors surface to users.
 
 ### Immediate Code Fixes
 
-All H1–H3 items resolved 2026-06-17. Phase 2 F2 + F3 + F4 Backend completed 2026-06-18. Branch `feature/next-sprint-v1` health check **green**: 41 files / 379 tests.
+All H1–H3 items resolved 2026-06-17. Phase 2 F2 + F3 + F4 Backend + F4 Frontend completed 2026-06-18. Branch `feature/next-sprint-v1` health check **green**: 42 files / 393 tests.
 
 | # | Item | Priority | Status |
 |---|---|---|---|
 | H1 | **Fix JSX parse error in `analyzer-workbench.tsx`** | P1 | ✅ Done |
-| H2 | **Re-run health check** | P1 | ✅ Done — 41 files / 379 tests |
+| H2 | **Re-run health check** | P1 | ✅ Done — 42 files / 393 tests |
 | H3 | **Fix `results-panel.test.tsx`** | P2 | ✅ Done |
 | F2 | **Phase 2 F2 — Progress System** | Feature | ✅ Done (2026-06-18) |
 | F3 | **Phase 2 F3 — Code Execution Backend** | Feature | ✅ Done (2026-06-18) |
-| F4 | **Phase 2 F4 — AI Chat Backend** | Feature | ✅ Done (2026-06-18) |
+| F4b | **Phase 2 F4 — AI Chat Backend** | Feature | ✅ Done (2026-06-18) |
+| F4f | **Phase 2 F4 — AI Chat Frontend** | Feature | ✅ Done (2026-06-18) |
 
 ### Beta Blockers
 
@@ -287,6 +318,7 @@ All H1–H3 items resolved 2026-06-17. Phase 2 F2 + F3 + F4 Backend completed 20
 | B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership test (two Google accounts) | QA | ⬜ Pending |
 | B6 | **F3 migration unapplied** — `20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade) | Manual | ⬜ Pending — apply after B1 |
+| B7 | **F4 chat migration unapplied** — `20260616000300_chat.sql` not applied; chat history not persisted between page loads (graceful degrade) | Manual | ⬜ Pending — apply after B1 |
 
 ### Phase 2 Remaining Features
 
@@ -298,7 +330,7 @@ Full specs in `PHASE2_PLAN.md` and `docs/phase2/02-05-*.md`. These are post-beta
 | F3 — Compiler Backend | M | ✅ Done (2026-06-18) | Backend |
 | F3 — Compiler Frontend (`/playground` UI) | M | ⬜ Not started | **Frontend developer** |
 | F4 — Chat Backend | L | ✅ Done (2026-06-18) | Backend |
-| F4 — Chat Frontend (`/chat` UI) | L | ⬜ Not started | **Frontend developer** |
+| F4 — Chat Frontend (`/chat` UI) | L | ✅ Done (2026-06-18) | Backend |
 | F5 — Community (share, feed, likes, comments, moderation) | XL | ⬜ Not started | Both |
 
 ### Recommended Before Public Launch
@@ -332,8 +364,8 @@ Single source of truth for all feature status. Completed features are detailed i
 | **Phase 2 F2 — Progress (XP · levels · streaks · achievements)** | ✅ Done | On `feature/next-sprint-v1`; 379 tests green; DB migration pending B1 |
 | **Phase 2 F3 — Compiler (Backend)** | ✅ Done (backend) | `POST /api/execute`, Judge0 client, quota, 42 tests — 2026-06-18. Frontend UI pending (other developer). |
 | Phase 2 F3 — Compiler (Frontend/UI) | ⬜ Not started (other dev) | `/playground/page.tsx` + `components/playground/`. API contract: `POST /api/execute` → `{ result: ExecutionResult }`. |
-| **Phase 2 F4 — Chat (Backend)** | ✅ Done (backend) | `POST /api/chat`, ChatProvider, prompts, DB layer, quota, 38 tests — 2026-06-18. Frontend UI pending (other developer). |
-| Phase 2 F4 — Chat (Frontend/UI) | ⬜ Not started (other dev) | `/chat/page.tsx` + `components/chat/`. API contract: `POST /api/chat` → SSE stream. DB migration B7 required. |
+| **Phase 2 F4 — Chat (Backend)** | ✅ Done | `POST /api/chat`, ChatProvider, prompts, DB layer, quota, 38 tests — 2026-06-18. |
+| **Phase 2 F4 — Chat (Frontend/UI)** | ✅ Done | `/chat` page, `ChatShell` client component, SSE streaming, 14 tests — 2026-06-18. B7 migration pending for conversation persistence. |
 | Phase 2 F5 — Community | ⬜ Not started | `docs/phase2/05-community.md` |
 | Lessons / quizzes / progress persistence | 🔮 Future | Not started — see `ROADMAP.md` |
 
@@ -526,13 +558,13 @@ Set these as **Vercel environment variables** in production; Root Directory = `f
   (Google-only, dev instance) · Supabase · Groq (live, heuristic fallback) · Vitest.
   App lives in **`frontend/`**.
 - **State:** Live at https://complexity-lab-eight.vercel.app. `main` = commit `5829ac4`,
-  211 tests green. **Active branch: `feature/next-sprint-v1`** (Phase 2 F1 + F2 + F3 backend done;
-  **341/341 tests green**, typecheck ✅, lint ✅).
+  211 tests green. **Active branch: `feature/next-sprint-v1`** (Phase 2 F1 + F2 + F3 backend + F4 backend + F4 frontend all done;
+  **393/393 tests green**, typecheck ✅, lint ✅, build ✅ — 19 routes).
 - **Run:** `cd frontend && npm install && npm run dev` → http://localhost:3000.
   Verify: `npm run typecheck && npm run lint && npm run build && npm run test`.
-- **Ownership split:** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
-- **Next task (Backend):** Start Phase 2 F5 (Community) or further improvements — F4 backend is complete.
-- **Next task (Frontend dev):** Implement `/playground/page.tsx` (uses `POST /api/execute`) + `/chat/page.tsx` (uses `POST /api/chat` SSE). See F3/F4 API contracts in Active Work section above.
+- **Ownership split:** Backend (AI Platform) = this AI session. Frontend/UX = separate developer. **Note:** F4 Chat Frontend was also implemented by the backend session — `/chat/page.tsx` and `components/chat/` are done.
+- **Next task (Backend):** F4 Chat UI Polish (CSS-first visual restyle of `/chat` — queued, not started). After that: Phase 2 F5 (Community).
+- **Next task (Frontend dev):** Implement `/playground/page.tsx` (uses `POST /api/execute`). The `/chat/page.tsx` is already done. See F3 API contract in Active Work section above.
 - **DB blocker:** migration `supabase/migrations/20260609000000_init.sql` not applied
   to project `hhnmxyyrihrpyerdmgdw` — saves/dashboard error until applied. Google SSO
   is already enabled and verified.

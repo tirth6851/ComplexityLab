@@ -6,14 +6,14 @@
 
 ---
 
-## Current sprint: Phase 2 — F4 AI Chat Backend (complete, awaiting frontend)
+## Current sprint: Phase 2 — F4 Complete (Backend + Frontend) · F4 UI Polish Queued
 
 **Active branch:** `feature/next-sprint-v1` — all health gates green.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (17 routes) · test 41 files / 379 tests ✅`
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (19 routes) · test 42 files / 393 tests ✅`
 
 **Ownership split (active):** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
 
-**Now:** Phase 2 F4 backend complete. Backend next = F5 (Community) or other backlog items. Frontend developer next = `/playground` UI (F3) and `/chat` UI (F4).
+**Now:** Phase 2 F4 fully complete (backend + frontend UI). Queued for next session: **F4 Chat UI Polish** — CSS-first visual restyle of `/chat` page (no rebuild). Backend next = F5 (Community) after UI polish. Frontend developer next = `/playground` UI (F3).
 
 **F3 API contract (for frontend developer):**
 - Endpoint: `POST /api/execute`
@@ -144,7 +144,7 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 
 **Next (F3):** Frontend developer implements `/playground/page.tsx` + `components/playground/` UI; connects to `POST /api/execute`.
 
-### Shipped (2026-06-18, feature/next-sprint-v1) — Phase 2 F4: AI Chat Backend
+### Shipped (2026-06-18, feature/next-sprint-v1) — Phase 2 F4: AI Chat Backend (Backend)
 
 **Ownership note:** Backend complete. Chat UI (`/chat/page.tsx`, `components/chat/`) is for the frontend developer. **F4 migration must be applied manually before any chat data can persist.**
 
@@ -164,6 +164,27 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 - **`components/layout/nav.ts`** — Chat nav item added (MessageSquare icon, `ready: false`).
 - **Tests: 41 files / 379 tests** (+38 new tests across 3 files).
 - **Health check: 41 files / 379 tests green.** `typecheck ✅ · lint ✅ · build ✅ (17 routes) · test ✅`
+
+### Shipped (2026-06-18, feature/next-sprint-v1) — Phase 2 F4: AI Chat Frontend (UI)
+
+**Ownership note:** Chat UI implemented in this session (backend dev). Implements the `/chat` page consuming `POST /api/chat` SSE.
+
+- **`components/layout/nav.ts`** — Chat nav item: `ready: true` (was `false`) — now renders as a live link in the app shell.
+- **`app/(app)/chat/page.tsx`** — Server Component wrapper; `metadata.title = "Chat · ComplexityLab"`.
+- **`app/(app)/chat/loading.tsx`** — Skeleton loading UI matching chat layout (Card + Skeleton primitives).
+- **`components/chat/chat-shell.tsx`** — Full `"use client"` Chat UI: state machine (`messages`, `input`, `streaming`, `conversationId`, `error`); hand-rolled `ReadableStream.getReader()` SSE loop; Enter-to-send / Shift+Enter-for-newline; `role="log" aria-live="polite"` message list; empty state; `role="alert"` on error. 14 tests pass covering all behavior paths.
+- **`tests/components/chat-shell.test.tsx`** — 14 new tests: empty state, input updates, Shift+Enter guard, user message visible immediately, input cleared, streaming chunks concat, input re-enabled after stream, API 429/SSE error alerts, empty-assistant-placeholder cleanup, conversationId forwarded on second turn.
+- **Health check: 42 files / 393 tests green.** `typecheck ✅ · lint ✅ · build ✅ (19 routes) · test ✅`
+
+**B7 graceful degrade:** Chat conversations do not persist between page loads until `20260616000300_chat.sql` is applied to Supabase. No errors surface to users.
+
+**F4 UI Polish (queued — not yet started):**
+Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancement only.
+- Animated fade-up empty state using `.animate-rise` (already in `globals.css`)
+- Elevated glassy composer using `.premium-panel` + `shadow-glow-green` focus token
+- Auto-resize textarea (replace fixed `rows={3}`)
+- Pulsing 3-dot thinking indicator using `animate-pulse` (replaces `…` text during streaming)
+- **CRITICAL constraints:** keep `id="chat-input"` + `<label htmlFor="chat-input">`, `aria-label="Send message"`, `role="log"`, `role="alert"`, `[class*='rounded-ds-lg px-3']` bubble class substring (test 10 queries this), and both empty-state text strings in DOM at render time (tests assert synchronously). Do NOT use framer-motion — it is not validated in jsdom test paths (only present in `hero-section-nexus.tsx` which has no tests).
 
 ### Previously shipped (on main, 2026-06-10)
 - UX polish sprint P1–P5: analyzer onboarding, landing honesty, mobile,
@@ -186,13 +207,12 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 
 - Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
-- Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
-## Quality gates — last verified 2026-06-18 (feature/next-sprint-v1, post-F4 backend)
+## Quality gates — last verified 2026-06-18 (feature/next-sprint-v1, post-F4 frontend)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
-| `npm run build` | ✅ green (17 routes, including `/api/chat`) |
-| `npm run test` | ✅ **41 files / 379 tests** |
+| `npm run build` | ✅ green (19 routes, including `/api/chat` and `/chat`) |
+| `npm run test` | ✅ **42 files / 393 tests** |

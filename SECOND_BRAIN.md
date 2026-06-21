@@ -51,6 +51,8 @@
   changes need fresh `vercel login`; claude.ai Vercel MCP does deployments/logs
   only; claude.ai Supabase MCP is connected to an account that does NOT own
   the app's project → migrations are manual, by the user.
+- **framer-motion in jsdom (2026-06-18):** `framer-motion ^12.40.0` is installed (merged from upstream) but is ONLY used in `hero-section-nexus.tsx` which has no Vitest tests. Before using `<motion.*>` or `AnimatePresence` in any `"use client"` component that has Vitest coverage, verify it doesn't break jsdom. The safe default is CSS-first: `.animate-rise` (already in `globals.css`), `animate-pulse` + `[animation-delay:]` Tailwind arbitrary values, and token-based shadow/glow for focus states. If framer-motion is needed, add `useReducedMotion()` and confirm `AnimatePresence` without an `exit` prop causes instant unmount (no delayed DOM removal that could break test selectors queried after `waitFor`).
+- **SSE streaming in jsdom (2026-06-18):** `ReadableStream` + `TextEncoder`-based SSE helpers work cleanly in jsdom. The `makeSSEBody()` pattern (enqueue `data: {...}\n\n` blocks then `controller.close()`) is the right test helper shape. Do not use `TransformStream` or `Response.body.pipeThrough()` — jsdom support is inconsistent.
 - **Org limits (2026-06-10):** parallel subagent fan-outs can hit session
   usage limits — keep inline-audit fallback in mind for doc work.
 - **React 19 lint (2026-06-10):** `react-hooks/set-state-in-effect` forbids
@@ -80,8 +82,9 @@ sprint**, P1–P5.)*
   counted as loops; amortized costs ignored.
 - `getOrCreateProfile()` runs per DB call — 5× per dashboard render (RSC).
   `React.cache()` deduplicates within an RSC render tree but NOT in route
-  handlers. Route handlers (execute, chat) should call `getOrCreateProfile()`
-  once at the top and pass `profile.id` to subsequent DB functions.
+  handlers. Both `/api/execute` and `/api/chat` already resolve `getOrCreateProfile()`
+  once at the top and pass `profile.id` through — this is the correct pattern for
+  all new route handlers.
 - Rate limits are per warm instance, not global.
 - No CI pipeline; gates run locally. (Recommend adding before F5.)
 - 4 moderate `npm audit` advisories in dev tooling (vitest/jsdom chain).
@@ -90,6 +93,8 @@ sprint**, P1–P5.)*
   on RapidAPI free tier — confirm before deploy.
 - F3 migration (`20260616000200_executions.sql`) not yet applied to production
   (B6) — quota tracking silently degrades (graceful, execution still works).
+- F4 migration (`20260616000300_chat.sql`) not yet applied to production (B7) —
+  chat history not persisted between page loads (graceful degrade, no errors surfaced).
 
 ## Reusable patterns
 
@@ -112,10 +117,12 @@ sprint**, P1–P5.)*
 - **`SnippetItem`** — expandable row revealing code + copy + open-in-analyzer;
   bound server actions passed from the server page into the client row.
 - **Route proxy pipeline** — template for any route that proxies to an external
-  service: `auth() → rateLimit (in-memory, burst) → countXxxToday (DB, daily,
+  service or AI: `auth() → rateLimit (in-memory, burst) → countXxxToday (DB, daily,
   graceful degrade on failure) → validate body → AbortController + external call
   → recordXxx best-effort (never blocks) → logEvent (metadata only, never user
-  content) → return result`. Implemented in `/api/execute`; replicate for `/api/chat`.
+  content) → return result`. Implemented in both `/api/execute` (Judge0) and
+  `/api/chat` (Groq SSE). The SSE variant uses `ReadableStream` + `finally` block
+  for post-stream DB writes; the sync variant returns JSON directly.
 - **Best-effort side-effect** — `recordExecution`, `awardProgressForSave`, and
   future equivalents: call them, log failure, never await their result to block
   the primary response. Applied consistently across all Phase 2 features.
