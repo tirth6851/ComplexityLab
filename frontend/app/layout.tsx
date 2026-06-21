@@ -33,6 +33,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: SITE.name,
   description: SITE.description,
+  icons: {
+    icon: "/brand/icon.svg",
+    shortcut: "/brand/icon.svg",
+  },
 };
 
 /**

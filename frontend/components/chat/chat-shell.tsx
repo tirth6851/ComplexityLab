@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { SendHorizonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -151,18 +152,21 @@ export function ChatShell() {
               >
                 <div
                   className={cn(
-                    "max-w-[80%] whitespace-pre-wrap rounded-ds-lg px-3 py-2 text-sm",
+                    "max-w-[80%] rounded-ds-lg px-3 py-2 text-sm",
                     msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-line-subtle bg-surface-raised text-ink-primary",
+                      ? "bg-primary text-primary-foreground whitespace-pre-wrap"
+                      : "border border-line-subtle bg-surface-raised",
                   )}
                 >
-                  {msg.content ||
-                    (streaming && msg.role === "assistant" ? (
-                      <span className="text-ink-muted" aria-label="Loading response">
-                        …
-                      </span>
-                    ) : null)}
+                  {msg.role === "user" ? (
+                    msg.content
+                  ) : msg.content ? (
+                    <ChatMarkdown content={msg.content} />
+                  ) : streaming ? (
+                    <span className="text-ink-muted" aria-label="Loading response">
+                      …
+                    </span>
+                  ) : null}
                 </div>
               </div>
             ))}

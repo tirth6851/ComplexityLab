@@ -321,7 +321,7 @@ export function ResultsPanel({
 }: ResultsPanelProps) {
   const statusMessage =
     status === "analyzing"
-      ? "Analyzing code..."
+      ? "Analyzing code…"
       : status === "done" && analysis
         ? `Analysis complete. Time ${analysis.time.notation}. Space ${analysis.space.notation}.`
         : "";

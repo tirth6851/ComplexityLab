@@ -3,17 +3,14 @@
 > **Audience:** A senior engineer — human or a fresh Claude Code session — opening this
 > repository with zero prior conversation history.
 >
-> **Status as of 2026-06-18:** MVP, beta stabilization, Phase 2 F1 (Save Flow),
-> Phase 2 F2 (Progress: XP, levels, streaks, achievements), Phase 2 F3
-> (Code Execution Backend), Phase 2 F4 (AI Chat Backend), and Phase 2 F4
-> (AI Chat Frontend UI) are complete on `feature/next-sprint-v1`. Branch health
-> check is **fully green** — **393/393 tests** (42 files), typecheck ✅, lint ✅,
-> build ✅ (19 routes).
-> `main` last verified green at **211/211 tests** (commit `5829ac4`, 2026-06-14).
->
-> **Ownership split (active):** Backend (AI Platform) is handled by this AI session.
-> Frontend/UX is handled by a separate developer. F3 frontend (`/playground/page.tsx`,
-> `components/playground/`) is NOT yet started.
+> **Status as of 2026-06-21:** All core app pages and features shipped. Branch
+> `backup-before-refactor` is **fully green** — **441/441 tests** (45 files),
+> typecheck ✅, lint ✅, build ✅ (20 routes). Completed this session: F3 Playground
+> UI, F5 Progress UI, Chat markdown rendering, in-process RAG, 4 pre-existing bug
+> fixes, favicon 404 fix, mobile layout verified.
+> Remaining blockers are external: DB migrations B1/B6/B7 (must be applied manually
+> to Supabase project `hhnmxyyrihrpyerdmgdw`), and Clerk production upgrade before
+> public beta.
 >
 > **Live:** https://complexity-lab-eight.vercel.app — GitHub `main` auto-deploys
 > production. **A push to `main` is a deploy.**

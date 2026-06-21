@@ -26,8 +26,8 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Analyses", href: "/analyses", icon: History, ready: true },
   { label: "Snippets",    href: "/snippets",   icon: Code2,     ready: true  },
   { label: "Chat",       href: "/chat",        icon: MessageSquare, ready: true  },
-  { label: "Playground", href: "/playground", icon: Terminal,  ready: false },
-  { label: "Progress",   href: "#",           icon: TrendingUp, ready: false },
+  { label: "Playground", href: "/playground", icon: Terminal,   ready: true },
+  { label: "Progress",   href: "/progress",   icon: TrendingUp, ready: true },
   {
     label: "Settings",
     href: "/settings/profile",

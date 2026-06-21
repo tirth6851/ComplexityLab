@@ -19,6 +19,7 @@ import {
 } from "@/lib/db/chat";
 import { getChatProvider } from "@/lib/ai/chat";
 import { chatSystemPrompt, buildChatMessages } from "@/lib/ai/prompts/chat";
+import { retrieveContext } from "@/lib/ai/rag/retriever";
 
 /**
  * Allow up to 30 s for the stream to complete — chat responses can be long.
@@ -166,7 +167,8 @@ export async function POST(request: Request) {
         .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }))
     : [];
 
-  const system = chatSystemPrompt();
+  const ragContext = retrieveContext(trimmedMessage, 3);
+  const system = chatSystemPrompt({ ragContext: ragContext.length ? ragContext : undefined });
   const messages = buildChatMessages({
     system,
     history,

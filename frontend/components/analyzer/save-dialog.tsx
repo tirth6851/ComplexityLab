@@ -128,12 +128,14 @@ export function SaveDialog({
           <Button type="submit" size="sm" disabled={!canSubmit}>
             {pending ? (
               <>
-                <HoloPulseLoader
-                  label="Saving"
-                  size="sm"
-                  className="w-auto [&>p]:sr-only"
-                />
-                Saving...
+                <span aria-hidden="true">
+                  <HoloPulseLoader
+                    label="Saving"
+                    size="sm"
+                    className="w-auto [&>p]:sr-only"
+                  />
+                </span>
+                Saving…
               </>
             ) : (
               "Save"

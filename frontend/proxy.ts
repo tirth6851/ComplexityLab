@@ -12,6 +12,7 @@ export const PROTECTED_ROUTES = [
   "/analyses(.*)",
   "/snippets(.*)",
   "/playground(.*)",
+  "/progress(.*)",
   "/settings(.*)",
   "/chat(.*)",
 ] as const;

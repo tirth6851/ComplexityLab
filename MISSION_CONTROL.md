@@ -2,18 +2,16 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-06-18**
+> Last updated: **2026-06-21**
 
 ---
 
-## Current sprint: Phase 2 — F4 Complete (Backend + Frontend) · F4 UI Polish Queued
+## Current sprint: Phase 2 — All core features shipped · QA + migration blockers remain
 
-**Active branch:** `feature/next-sprint-v1` — all health gates green.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (19 routes) · test 42 files / 393 tests ✅`
+**Active branch:** `backup-before-refactor` — all health gates green.
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (20 routes) · test 45 files / 441 tests ✅`
 
-**Ownership split (active):** Backend (AI Platform) = this AI session. Frontend/UX = separate developer.
-
-**Now:** Phase 2 F4 fully complete (backend + frontend UI). Queued for next session: **F4 Chat UI Polish** — CSS-first visual restyle of `/chat` page (no rebuild). Backend next = F5 (Community) after UI polish. Frontend developer next = `/playground` UI (F3).
+**Now:** All app pages implemented and browser-verified. Remaining blockers are external (DB migrations, Clerk production upgrade).
 
 **F3 API contract (for frontend developer):**
 - Endpoint: `POST /api/execute`
@@ -165,6 +163,21 @@ The `beta-prep-audit` branch is 4 commits ahead of `main`. All gates green.
 - **Tests: 41 files / 379 tests** (+38 new tests across 3 files).
 - **Health check: 41 files / 379 tests green.** `typecheck ✅ · lint ✅ · build ✅ (17 routes) · test ✅`
 
+### Shipped (2026-06-21, backup-before-refactor) — Bug fixes, F3/F4 UI, RAG, Chat Markdown
+
+- **4 pre-existing test failures fixed (0 regressions remaining):**
+  - `results-panel.tsx`: `"Analyzing code..."` → `"Analyzing code…"` (unicode ellipsis)
+  - `results-panel.test.tsx`: corrected assertion from inaccessible `aria-hidden` FluxLabel text to actual visible `AnalyzingState` body copy
+  - `google-auth-button.tsx`: `"Redirecting to Google..."` → `"Redirecting to Google…"`
+  - `save-dialog.tsx`: wrapped `HoloPulseLoader` in `aria-hidden="true"` span; `"Saving..."` → `"Saving…"` — fixes accessible name mismatch caused by `role="status"` contributing animated dots to button label
+- **Favicon 404 fixed:** Created `public/brand/icon.svg` (dark bg + green checkmark); wired via `app/layout.tsx` metadata `icons` field
+- **F3 Playground UI shipped:** `components/playground/playground-shell.tsx` — Monaco editor, language selector, STDIN toggle, Run button, output panel with terminal icon empty state. Connected to `POST /api/execute`. Nav item `ready: true`. `tests/components/playground-shell.test.tsx` (15 tests).
+- **F5 Progress UI shipped:** `app/(app)/progress/page.tsx` + `components/progress/progress-page-client.tsx` — hero, stats cards (Level/XP/Streak), Level card with XP bar, streak calendar grid, achievements section, XP history chart (inline SVG), first-analysis CTA. Nav item `ready: true`. `tests/components/progress-page-client.test.tsx` (11 tests).
+- **Chat markdown rendering:** Created `components/chat/chat-markdown.tsx` — zero-dependency inline renderer (bold, italic, inline code, fenced code blocks with lang label, headings, lists, paragraphs). Updated `chat-shell.tsx` to use `ChatMarkdown` for assistant messages, plain text for user messages, `aria-label="Loading response"` `…` placeholder during streaming. `tests/components/chat-markdown.test.tsx` (14 tests).
+- **In-process RAG shipped:** `lib/ai/rag/knowledge-base.ts` (15 CS complexity knowledge chunks) + `lib/ai/rag/retriever.ts` (keyword-overlap retrieval with tag/title scoring). Updated `chatSystemPrompt()` to accept `ragContext`. Updated `app/api/chat/route.ts` to call `retrieveContext(trimmedMessage, 3)` before prompt. `tests/unit/rag-retriever.test.ts` (15 tests). No new dependencies.
+- **Mobile layout verified** (390 × 844): Dashboard, Playground, Progress all correct.
+- **Health check: 45 files / 441 tests green.** `typecheck ✅ · lint ✅ · build ✅ (20 routes) · test ✅`
+
 ### Shipped (2026-06-18, feature/next-sprint-v1) — Phase 2 F4: AI Chat Frontend (UI)
 
 **Ownership note:** Chat UI implemented in this session (backend dev). Implements the `/chat` page consuming `POST /api/chat` SSE.
@@ -208,11 +221,11 @@ Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancemen
 - Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
-## Quality gates — last verified 2026-06-18 (feature/next-sprint-v1, post-F4 frontend)
+## Quality gates — last verified 2026-06-21 (backup-before-refactor, post-RAG + Playground + Progress UI)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
-| `npm run build` | ✅ green (19 routes, including `/api/chat` and `/chat`) |
-| `npm run test` | ✅ **42 files / 393 tests** |
+| `npm run build` | ✅ green (20 routes, including `/playground`, `/progress`, `/api/chat`, `/chat`) |
+| `npm run test` | ✅ **45 files / 441 tests** |

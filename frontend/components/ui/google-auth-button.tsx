@@ -93,7 +93,7 @@ export function GoogleAuthButton({ mode }: { mode: "sign-in" | "sign-up" }) {
                   size="sm"
                   className="w-auto [&>p]:sr-only"
                 />
-                Redirecting to Google...
+                Redirecting to Google…
               </motion.span>
             ) : (
               <motion.span

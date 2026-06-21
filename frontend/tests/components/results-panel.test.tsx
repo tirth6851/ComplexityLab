@@ -41,7 +41,7 @@ describe("ResultsPanel", () => {
 
   it("renders the scanning state", () => {
     render(<ResultsPanel status="analyzing" analysis={null} />);
-    expect(screen.getByText("Scanning structure…")).toBeInTheDocument();
+    expect(screen.getByText("Tracing loops, branches, recursion, and allocation patterns.")).toBeInTheDocument();
   });
 
   it("renders the error state with the message", () => {
