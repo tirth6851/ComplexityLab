@@ -1,0 +1,188 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to content" [ref=e3] [cursor=pointer]:
+      - /url: "#main"
+    - generic [ref=e4]:
+      - navigation [ref=e7]:
+        - link "ComplexityLab home" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e9]:
+            - img [ref=e11]
+            - generic [ref=e14]: ComplexityLab
+        - generic [ref=e15]:
+          - link "Analyzer" [ref=e16] [cursor=pointer]:
+            - /url: /analyzer
+            - text: Analyzer
+          - link "Lessons" [ref=e17] [cursor=pointer]:
+            - /url: "#lessons"
+            - text: Lessons
+          - link "Quiz" [ref=e18] [cursor=pointer]:
+            - /url: "#quiz"
+            - text: Quiz
+          - link "Dashboard" [ref=e19] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Dashboard
+          - link "History" [ref=e20] [cursor=pointer]:
+            - /url: /analyses
+            - text: History
+        - generic [ref=e21]:
+          - link "Sign in" [ref=e22] [cursor=pointer]:
+            - /url: /sign-in
+          - link "Start Analyzing" [ref=e23] [cursor=pointer]:
+            - /url: /analyzer
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - img [ref=e26]
+          - text: AI-powered visual complexity lab
+        - heading "Master Big-O with Visual Code Tracing Code Analysis" [level=1] [ref=e279]:
+          - text: Master Big-O with
+          - text: Visual Code Tracing
+          - generic [ref=e31]:
+            - generic [ref=e32]: Code Analysis
+            - generic [ref=e280]:
+              - generic [ref=e281]: C
+              - generic [ref=e282]: o
+              - generic [ref=e283]: d
+              - generic [ref=e284]: e
+              - generic [ref=e286]: A
+              - generic [ref=e287]: "n"
+              - generic [ref=e288]: a
+              - generic [ref=e289]: l
+              - generic [ref=e290]: "y"
+              - generic [ref=e291]: s
+              - generic [ref=e292]: i
+              - generic [ref=e293]: s
+        - paragraph [ref=e44]: Analyze code, understand time and space complexity, visualize execution flow, and improve solutions with AI-powered guidance.
+        - generic [ref=e45]:
+          - link "Start Analyzing" [ref=e46] [cursor=pointer]:
+            - /url: /analyzer
+            - text: Start Analyzing
+            - img [ref=e47]
+          - link "View Lessons" [ref=e49] [cursor=pointer]:
+            - /url: "#lessons"
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - text: Analyzer
+          - generic [ref=e57]:
+            - img [ref=e58]
+            - text: Lessons
+          - generic [ref=e61]:
+            - img [ref=e62]
+            - text: Quiz
+          - generic [ref=e74]:
+            - img [ref=e75]
+            - text: Dashboard
+          - generic [ref=e80]:
+            - img [ref=e81]
+            - text: History
+        - generic [ref=e85]:
+          - generic [ref=e91]: visual trace
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e95]: "01"
+                - generic [ref=e96]: for item in collection
+              - generic [ref=e97]:
+                - generic [ref=e98]: "02"
+                - generic [ref=e99]: compare target
+              - generic [ref=e100]:
+                - generic [ref=e101]: "03"
+                - generic [ref=e102]: halve search window
+              - generic [ref=e103]:
+                - generic [ref=e104]: "04"
+                - generic [ref=e105]: return complexity
+            - generic [ref=e106]:
+              - generic [ref=e107]:
+                - generic [ref=e108]:
+                  - paragraph [ref=e109]: Time
+                  - paragraph [ref=e110]: O(log n)
+                - generic [ref=e111]:
+                  - paragraph [ref=e112]: Space
+                  - paragraph [ref=e113]: O(1)
+              - generic [ref=e114]:
+                - paragraph [ref=e115]: AI guidance
+                - paragraph [ref=e116]: The loop repeatedly halves the search area, so execution grows logarithmically while memory remains constant.
+        - generic [ref=e117]: Lessons section
+        - generic [ref=e118]: Quiz section
+      - img
+    - main [ref=e119]:
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - paragraph [ref=e122]: ComplexityLab platform
+          - heading "Everything points back to better complexity intuition" [level=2] [ref=e123]
+          - paragraph [ref=e124]: "The homepage navigation mirrors the product loop: analyze, learn, practice, review, and return with stronger instincts."
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - img [ref=e128]
+            - heading "Analyzer" [level=2] [ref=e133]
+            - paragraph [ref=e134]: Paste code, run the AI complexity analyzer, and get time and space verdicts with confidence metrics.
+          - generic [ref=e135]:
+            - img [ref=e137]
+            - heading "Lessons" [level=2] [ref=e140]
+            - paragraph [ref=e141]: Learn Big-O patterns through visual tracing flows and guided examples.
+          - generic [ref=e142]:
+            - img [ref=e144]
+            - heading "Quiz" [level=2] [ref=e156]
+            - paragraph [ref=e157]: Practice identifying complexity from loops, recursion, data structures, and optimization tradeoffs.
+          - generic [ref=e158]:
+            - img [ref=e160]
+            - heading "History" [level=2] [ref=e164]
+            - paragraph [ref=e165]: Revisit saved analyses and snippets so your interview prep compounds over time.
+      - generic [ref=e166]:
+        - generic [ref=e167]:
+          - paragraph [ref=e168]: Visual code tracing
+          - heading "Move from answer memorization to execution understanding" [level=2] [ref=e169]
+          - paragraph [ref=e170]: ComplexityLab keeps the existing analyzer, account, dashboard, and history flows intact while giving students a sharper visual model for Big-O.
+        - generic [ref=e171]:
+          - generic [ref=e172]:
+            - img [ref=e174]
+            - heading "Trace execution" [level=2] [ref=e178]
+            - paragraph [ref=e179]: Follow loops, branches, recursion, and allocation patterns in a developer-native workspace.
+          - generic [ref=e180]:
+            - img [ref=e182]
+            - heading "Read Big-O clearly" [level=2] [ref=e185]
+            - paragraph [ref=e186]: See time and space complexity side-by-side with notes explaining why the verdict was chosen.
+          - generic [ref=e187]:
+            - img [ref=e189]
+            - heading "Save understanding" [level=2] [ref=e193]
+            - paragraph [ref=e194]: Persist useful analyses with Supabase-backed history and reopen them whenever you need a refresher.
+      - generic [ref=e196]:
+        - generic [ref=e197]:
+          - generic [ref=e198]: Start free
+          - heading "Start analyzing code with the workflow already in your account." [level=2] [ref=e199]
+          - paragraph [ref=e200]: Authentication, saved history, dashboard data, and the AI analyzer routes remain wired into the existing ComplexityLab app.
+          - generic [ref=e201]:
+            - link "Start Analyzing" [ref=e202] [cursor=pointer]:
+              - /url: /analyzer
+              - text: Start Analyzing
+              - img [ref=e203]
+            - link "Dashboard" [ref=e205] [cursor=pointer]:
+              - /url: /dashboard
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - img [ref=e210]
+            - text: AI-powered code analysis
+          - generic [ref=e215]:
+            - img [ref=e217]
+            - text: Dashboard learning metrics
+          - generic [ref=e219]:
+            - img [ref=e221]
+            - text: Saved analysis history
+          - generic [ref=e225]:
+            - img [ref=e227]
+            - text: Supabase-backed persistence
+    - contentinfo [ref=e231]:
+      - generic [ref=e232]:
+        - generic [ref=e233]:
+          - img [ref=e235]
+          - generic [ref=e238]: ComplexityLab
+        - paragraph [ref=e239]: Master Big-O with visual code tracing.
+        - navigation [ref=e240]:
+          - link "Privacy" [ref=e241] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e242] [cursor=pointer]:
+            - /url: /terms
+  - button "Open Next.js Dev Tools" [ref=e248] [cursor=pointer]:
+    - img [ref=e249]
+  - alert [ref=e252]

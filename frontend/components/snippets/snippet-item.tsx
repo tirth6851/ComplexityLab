@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Bookmark, ChevronDown, Clock } from "lucide-react";
@@ -13,20 +13,15 @@ import type { Snippet } from "@/types";
 
 export interface SnippetItemProps {
   snippet: Snippet;
-  /** Bound server action deleting this snippet. */
   deleteAction: () => Promise<{ ok: boolean; error?: string }>;
 }
 
-/**
- * One snippet row. The title area toggles an inline code view with copy and
- * open-in-analyzer actions — snippets are useless if you can't see them.
- */
 export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="rounded-ds-lg border border-transparent transition-all hover:border-line hover:bg-surface-raised/70">
-      <div className="flex items-center justify-between gap-3 px-3 py-3">
+    <div className="group overflow-hidden rounded-ds-lg border border-line-subtle bg-surface-panel/30 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-raised/70 hover:shadow-ds-md">
+      <div className="flex items-center justify-between gap-4 p-4">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
@@ -34,16 +29,16 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
           aria-label={`${open ? "Hide" : "Show"} code for ${snippet.title}`}
           className="flex min-w-0 flex-1 items-center gap-3 rounded-ds-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-ds-md border border-line bg-surface-panel text-primary">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-card text-primary shadow-inset-well">
             <Bookmark className="h-4 w-4" aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium">
+            <span className="block truncate text-sm font-semibold text-ink-primary group-hover:text-primary">
               {snippet.title}
             </span>
-            <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-muted">
+            <span className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-muted">
               <span>{languageLabel(snippet.language)}</span>
-              <span aria-hidden>·</span>
+              <span aria-hidden>/</span>
               <span
                 className="inline-flex items-center gap-1"
                 title={snippet.savedAt}
@@ -65,7 +60,7 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
         <div className="flex shrink-0 items-center gap-1.5">
           {snippet.tags.length > 0 && (
             <div className="hidden gap-1.5 sm:flex">
-              {snippet.tags.map((tag) => (
+              {snippet.tags.slice(0, 3).map((tag) => (
                 <Tag key={tag}>{tag}</Tag>
               ))}
             </div>
@@ -79,18 +74,23 @@ export function SnippetItem({ snippet, deleteAction }: SnippetItemProps) {
       </div>
 
       {open && (
-        <div className="mx-3 mb-3 overflow-hidden rounded-ds-lg border border-line bg-[#050816]">
-          <div className="flex items-center justify-end gap-1.5 border-b border-line-subtle px-2 py-1">
-            <CopyButton
-              value={snippet.code}
-              label={`Copy snippet ${snippet.title}`}
-            />
-            <OpenInAnalyzerButton
-              code={snippet.code}
-              language={snippet.language}
-            />
+        <div className="mx-4 mb-4 overflow-hidden rounded-ds-lg border border-line-subtle bg-[#050816] shadow-ds-lg">
+          <div className="flex items-center justify-between gap-1.5 border-b border-line-subtle bg-surface-panel/35 px-3 py-2">
+            <span className="font-mono text-2xs uppercase tracking-label text-ink-muted">
+              saved source
+            </span>
+            <div className="flex items-center gap-1.5">
+              <CopyButton
+                value={snippet.code}
+                label={`Copy snippet ${snippet.title}`}
+              />
+              <OpenInAnalyzerButton
+                code={snippet.code}
+                language={snippet.language}
+              />
+            </div>
           </div>
-          <pre className="max-h-72 overflow-auto p-3 font-mono text-xs leading-relaxed text-ink-secondary">
+          <pre className="max-h-72 overflow-auto p-4 font-mono text-sm leading-6 text-ink-secondary">
             <code>{snippet.code}</code>
           </pre>
         </div>

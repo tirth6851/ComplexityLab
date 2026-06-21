@@ -46,13 +46,13 @@ describe("saveAnalysisAction", () => {
   });
 
   it("rejects an empty buffer without touching the database", async () => {
-    const res = await saveAnalysisAction({ code: " ", language: "javascript", analysis });
+    const res = await saveAnalysisAction({ code: " ", language: "javascript", analysis, title: "Test" });
     expect(res.ok).toBe(false);
     expect(createAnalysis).not.toHaveBeenCalled();
   });
 
   it("rejects unsupported languages", async () => {
-    const res = await saveAnalysisAction({ code, language: "cobol", analysis });
+    const res = await saveAnalysisAction({ code, language: "cobol", analysis, title: "Test" });
     expect(res.ok).toBe(false);
     expect(createAnalysis).not.toHaveBeenCalled();
   });
@@ -62,12 +62,27 @@ describe("saveAnalysisAction", () => {
       code,
       language: "javascript",
       analysis: {} as never,
+      title: "Test",
     });
     expect(res.ok).toBe(false);
     expect(createAnalysis).not.toHaveBeenCalled();
   });
 
-  it("persists with a derived title and revalidates affected routes", async () => {
+  it("rejects an empty title", async () => {
+    const res = await saveAnalysisAction({ code, language: "javascript", analysis, title: "" });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBe("A title is required.");
+    expect(createAnalysis).not.toHaveBeenCalled();
+  });
+
+  it("rejects a whitespace-only title", async () => {
+    const res = await saveAnalysisAction({ code, language: "javascript", analysis, title: "   " });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBe("A title is required.");
+    expect(createAnalysis).not.toHaveBeenCalled();
+  });
+
+  it("persists with user-provided title and revalidates affected routes", async () => {
     vi.mocked(createAnalysis).mockResolvedValue({
       ok: true,
       data: {
@@ -81,7 +96,7 @@ describe("saveAnalysisAction", () => {
       },
     });
 
-    const res = await saveAnalysisAction({ code, language: "javascript", analysis });
+    const res = await saveAnalysisAction({ code, language: "javascript", analysis, title: "binarySearch()" });
     expect(res.ok).toBe(true);
     expect(createAnalysis).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -99,7 +114,7 @@ describe("saveAnalysisAction", () => {
       ok: false,
       error: "Database not configured.",
     });
-    const res = await saveAnalysisAction({ code, language: "javascript", analysis });
+    const res = await saveAnalysisAction({ code, language: "javascript", analysis, title: "Test" });
     expect(res).toEqual({ ok: false, error: "Database not configured." });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -111,7 +126,7 @@ describe("saveSnippetAction", () => {
     vi.mocked(revalidatePath).mockReset();
   });
 
-  it("persists a snippet with a derived title", async () => {
+  it("persists a snippet with user-provided title", async () => {
     vi.mocked(createSnippet).mockResolvedValue({
       ok: true,
       data: {
@@ -124,7 +139,7 @@ describe("saveSnippetAction", () => {
       },
     });
 
-    const res = await saveSnippetAction({ code, language: "javascript" });
+    const res = await saveSnippetAction({ code, language: "javascript", title: "binarySearch()" });
     expect(res.ok).toBe(true);
     expect(createSnippet).toHaveBeenCalledWith(
       expect.objectContaining({ title: "binarySearch()" }),
@@ -133,8 +148,15 @@ describe("saveSnippetAction", () => {
   });
 
   it("rejects an empty buffer", async () => {
-    const res = await saveSnippetAction({ code: "", language: "javascript" });
+    const res = await saveSnippetAction({ code: "", language: "javascript", title: "Test" });
     expect(res.ok).toBe(false);
+    expect(createSnippet).not.toHaveBeenCalled();
+  });
+
+  it("rejects an empty title", async () => {
+    const res = await saveSnippetAction({ code, language: "javascript", title: "" });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBe("A title is required.");
     expect(createSnippet).not.toHaveBeenCalled();
   });
 });

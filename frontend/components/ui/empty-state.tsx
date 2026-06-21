@@ -1,11 +1,7 @@
-import type { LucideIcon } from "lucide-react";
+﻿import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * Consistent empty/zero-data state for readouts and lists. Keeps the "no data"
- * case on-brand instead of rendering a bare gap.
- */
 export function EmptyState({
   icon: Icon,
   title,
@@ -22,18 +18,32 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-ds-xl border border-dashed border-line bg-surface-panel/45 px-6 py-10 text-center",
+        "relative overflow-hidden rounded-ds-xl border border-dashed border-line-subtle bg-surface-panel/45 px-6 py-12 text-center shadow-inset-well",
         className,
       )}
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-ds-md border border-line bg-card text-primary">
-        <Icon className="h-5 w-5" aria-hidden />
-      </span>
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {description && (
-        <p className="max-w-xs text-xs text-muted-foreground">{description}</p>
-      )}
-      {action && <div className="mt-2">{action}</div>}
+      <div
+        aria-hidden
+        className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+      />
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-6 h-28 w-28 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+      />
+      <div className="relative mx-auto flex max-w-sm flex-col items-center gap-3">
+        <span className="flex h-12 w-12 items-center justify-center rounded-ds-lg border border-line-accent bg-card text-primary shadow-glow-green-soft">
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+        <div className="space-y-1.5">
+          <p className="font-display text-lg font-semibold leading-tight text-foreground">
+            {title}
+          </p>
+          {description && (
+            <p className="text-sm leading-6 text-ink-secondary">{description}</p>
+          )}
+        </div>
+        {action && <div className="mt-2">{action}</div>}
+      </div>
     </div>
   );
 }

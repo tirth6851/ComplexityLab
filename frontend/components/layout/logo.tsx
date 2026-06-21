@@ -15,7 +15,7 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <span
-        className="flex size-8 flex-none items-center justify-center rounded-ds-md border border-line-accent shadow-glow-green"
+        className="flex size-9 flex-none items-center justify-center rounded-ds-md border border-line-accent shadow-glow-green"
         style={{
           background: "linear-gradient(180deg, var(--ink-750), var(--ink-850))",
         }}
@@ -44,7 +44,7 @@ export function Logo({
         </svg>
       </span>
       {showWordmark && (
-        <span className="font-semibold tracking-tight text-foreground">
+        <span className="font-display text-base font-bold tracking-normal text-foreground">
           Complexity<span className="text-primary">Lab</span>
         </span>
       )}

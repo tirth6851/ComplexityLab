@@ -25,5 +25,9 @@ export function PageTitle() {
     })?.label ??
     "ComplexityLab";
 
-  return <span className="font-medium text-ink-primary">{title}</span>;
+  return (
+    <span className="font-display text-base font-semibold tracking-normal text-ink-primary">
+      {title}
+    </span>
+  );
 }

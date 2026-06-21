@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { updateProfileAction } from "@/app/(app)/settings/actions";
@@ -67,6 +68,13 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       <div className="flex items-center gap-3 pt-1">
         <Button type="submit" disabled={state === "saving"}>
           {state === "saved" && <Check className="h-4 w-4" aria-hidden />}
+          {state === "saving" && (
+            <HoloPulseLoader
+              label="Saving profile"
+              size="sm"
+              className="w-auto [&>p]:sr-only"
+            />
+          )}
           {state === "saving"
             ? "Saving…"
             : state === "saved"

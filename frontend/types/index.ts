@@ -65,3 +65,61 @@ export interface DashboardStat {
   value: string;
   hint: string;
 }
+
+/** F2 — persisted XP/level/streak row from `user_progress`. */
+export interface ProgressState {
+  xp: number;
+  level: number;
+  currentStreak: number;
+  longestStreak: number;
+  /** UTC date string "YYYY-MM-DD", or null if never saved. */
+  lastActiveOn: string | null;
+}
+
+/** F2 — one day's aggregated XP for the activity chart. */
+export interface DailyXp {
+  /** UTC date "YYYY-MM-DD". */
+  date: string;
+  xp: number;
+}
+
+/** F2 — counts used by achievement evaluation. */
+export interface ProgressStats {
+  totalAnalyses: number;
+  distinctLanguages: number;
+}
+
+/** F2 — a single unlocked achievement from `xp_events`. */
+export interface UnlockedAchievement {
+  key: string;
+  unlockedAt: string;
+}
+
+/** F4 — a chat conversation row (no message content). */
+export interface Conversation {
+  id: string;
+  profileId: string;
+  title: string;
+  contextType: string | null;
+  contextRefId: string | null;
+  contextMetadata: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** F4 — a single chat message. */
+export interface Message {
+  id: string;
+  conversationId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  tokenCount: number | null;
+  createdAt: string;
+}
+
+/** F4 — today's AI usage aggregates (from ai_usage). */
+export interface AiUsageToday {
+  messageCount: number;
+  tokensIn: number;
+  tokensOut: number;
+}

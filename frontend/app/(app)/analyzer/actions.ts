@@ -3,24 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { createAnalysis } from "@/lib/db/analyses";
 import { createSnippet } from "@/lib/db/snippets";
-import { findFunctionNames } from "@/lib/analysis/engine";
 import { isLanguageId } from "@/lib/analysis/languages";
 import { checkActionLimit } from "@/lib/action-limit";
 import { MAX_CODE_LENGTH, SAVE_RATE_LIMIT } from "@/lib/limits";
+import { logEvent } from "@/lib/log";
+import { awardProgressForSave } from "@/lib/progress/award";
 import type { CodeAnalysis } from "@/lib/ai/types";
 
 export interface SaveActionResult {
   ok: boolean;
   id?: string;
   error?: string;
-}
-
-/** "quickSort()" from the first declared function, else the first code line. */
-function deriveTitle(code: string): string {
-  const names = findFunctionNames(code);
-  if (names.length > 0) return `${names[0]}()`;
-  const firstLine = code.split("\n").find((l) => l.trim().length > 0);
-  return (firstLine?.trim() ?? "Untitled").slice(0, 60);
 }
 
 function validate(code: unknown, language: unknown): string | null {
@@ -38,6 +31,7 @@ export async function saveAnalysisAction(input: {
   code: string;
   language: string;
   analysis: CodeAnalysis;
+  title: string;
 }): Promise<SaveActionResult> {
   const limited = await checkActionLimit("save-analysis", SAVE_RATE_LIMIT);
   if (limited) return { ok: false, error: limited };
@@ -47,14 +41,24 @@ export async function saveAnalysisAction(input: {
   if (!input.analysis?.time?.notation || !input.analysis?.space?.notation) {
     return { ok: false, error: "Run an analysis before saving." };
   }
+  if (!input.title?.trim()) {
+    return { ok: false, error: "A title is required." };
+  }
 
   const res = await createAnalysis({
-    title: deriveTitle(input.code),
+    title: input.title,
     language: input.language,
     code: input.code,
     analysis: input.analysis,
   });
   if (!res.ok) return { ok: false, error: res.error };
+
+  // Best-effort progress award — never fails the save.
+  try {
+    await awardProgressForSave({ language: input.language, analysis: input.analysis });
+  } catch (e) {
+    logEvent("progress.error", { step: "award", error: String(e) });
+  }
 
   revalidatePath("/analyses");
   revalidatePath("/dashboard");
@@ -64,6 +68,7 @@ export async function saveAnalysisAction(input: {
 export async function saveSnippetAction(input: {
   code: string;
   language: string;
+  title: string;
   tags?: string[];
 }): Promise<SaveActionResult> {
   const limited = await checkActionLimit("save-snippet", SAVE_RATE_LIMIT);
@@ -71,9 +76,12 @@ export async function saveSnippetAction(input: {
 
   const invalid = validate(input.code, input.language);
   if (invalid) return { ok: false, error: invalid };
+  if (!input.title?.trim()) {
+    return { ok: false, error: "A title is required." };
+  }
 
   const res = await createSnippet({
-    title: deriveTitle(input.code),
+    title: input.title,
     language: input.language,
     code: input.code,
     tags: input.tags,

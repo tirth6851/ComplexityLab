@@ -42,20 +42,20 @@ export function QuickActions() {
         <CardTitle>Quick actions</CardTitle>
         <CardDescription>Jump straight into a task</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-3">
+      <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
             <Link
               key={action.label}
               href={action.href}
-              className="flex flex-col items-start gap-2 rounded-ds-lg border border-line bg-surface-panel/60 p-3 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group flex min-h-32 flex-col items-start gap-3 rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-4 text-left shadow-inset-well transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-raised hover:shadow-ds-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-ds-md border border-line bg-card text-primary">
+              <span className="flex h-9 w-9 items-center justify-center rounded-ds-md border border-line-accent bg-card text-primary transition-all group-hover:shadow-glow-green-soft">
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="text-sm font-medium">{action.label}</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="font-display text-base font-semibold">{action.label}</span>
+              <span className="text-sm leading-5 text-ink-secondary">
                 {action.desc}
               </span>
             </Link>

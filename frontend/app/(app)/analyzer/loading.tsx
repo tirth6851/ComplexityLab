@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
@@ -11,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AnalyzerLoading() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <Skeleton className="h-12 w-full rounded-ds-md" />
+      <HoloPulseLoader label="Preparing analyzer" size="sm" className="py-2" />
       <div className="grid items-start gap-6 xl:grid-cols-2">
         {/* ---- input side ---- */}
         <Card className="overflow-hidden">

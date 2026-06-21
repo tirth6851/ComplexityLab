@@ -25,7 +25,7 @@ export function ProgressOverview({
         <CardTitle>Progress overview</CardTitle>
         <CardDescription>Your lab activity at a glance</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         {!hasData && (
           <EmptyState
             icon={TrendingUp}
@@ -34,19 +34,19 @@ export function ProgressOverview({
           />
         )}
         {stats.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-ds-lg border border-line bg-surface-panel/70 p-3 shadow-inset-well"
+                className="trace-rail rounded-ds-lg border border-line-subtle bg-surface-panel/70 p-4 shadow-inset-well"
               >
-                <p className="font-mono text-2xl font-semibold tracking-tight text-ink-primary">
+                <p className="font-display text-3xl font-bold leading-none text-ink-primary">
                   {stat.value}
                 </p>
-                <p className="mt-1 font-mono text-2xs uppercase tracking-label text-ink-muted">
+                <p className="mt-3 font-mono text-2xs uppercase tracking-label text-primary/85">
                   {stat.label}
                 </p>
-                <p className="mt-0.5 text-[11px] text-ink-faint">{stat.hint}</p>
+                <p className="mt-1 text-xs leading-5 text-ink-muted">{stat.hint}</p>
               </div>
             ))}
           </div>

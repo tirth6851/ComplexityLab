@@ -1,9 +1,11 @@
 import {
   Code2,
   LayoutDashboard,
+  MessageSquare,
   ScanLine,
   Settings,
   History,
+  Terminal,
   TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -12,23 +14,20 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Routes that don't exist yet render as disabled "Soon" items. */
   ready: boolean;
-  /**
-   * Path prefix used for the active state when the item owns a subtree whose
-   * root differs from `href` (e.g. Settings links to /settings/profile but is
-   * active for all /settings/*).
-   */
+  /** Path prefix used for the active state when an item owns a subtree. */
   match?: string;
 }
 
-/** Shared primary navigation, consumed by both the sidebar and mobile drawer. */
+/** Workspace navigation, consumed by the sidebar and mobile drawer. */
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, ready: true },
   { label: "Analyzer", href: "/analyzer", icon: ScanLine, ready: true },
   { label: "Analyses", href: "/analyses", icon: History, ready: true },
-  { label: "Snippets", href: "/snippets", icon: Code2, ready: true },
-  { label: "Progress", href: "#", icon: TrendingUp, ready: false },
+  { label: "Snippets",    href: "/snippets",   icon: Code2,     ready: true  },
+  { label: "Chat",       href: "/chat",        icon: MessageSquare, ready: true  },
+  { label: "Playground", href: "/playground", icon: Terminal,   ready: true },
+  { label: "Progress",   href: "/progress",   icon: TrendingUp, ready: true },
   {
     label: "Settings",
     href: "/settings/profile",

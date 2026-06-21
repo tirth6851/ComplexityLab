@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 
 /**
  * OAuth landing route. Clerk completes the Google handshake here and forwards
@@ -15,8 +16,8 @@ export default function SSOCallbackPage() {
         signInFallbackRedirectUrl="/dashboard"
         signUpFallbackRedirectUrl="/dashboard"
       />
-      <main className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Completing sign-in…</p>
+      <main className="min-h-screen bg-background">
+        <HoloPulseLoader label="Completing sign-in" fullScreen />
       </main>
     </>
   );

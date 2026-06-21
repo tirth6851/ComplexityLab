@@ -28,7 +28,7 @@ export function Tag({
     <span
       onClick={onClick}
       className={cn(
-        "inline-flex h-[26px] items-center gap-1.5 whitespace-nowrap rounded-ds-sm border px-2.5 font-mono text-xs font-medium tracking-[0.01em] transition-colors duration-[120ms] ease-ds",
+        "inline-flex h-[26px] items-center gap-1.5 whitespace-nowrap rounded-ds-sm border px-2.5 font-mono text-xs font-medium tracking-normal transition-colors duration-[120ms] ease-ds",
         selected
           ? "border-line-accent bg-[var(--accent-muted)] text-[var(--green-300)]"
           : "border-line bg-surface-card text-ink-secondary",

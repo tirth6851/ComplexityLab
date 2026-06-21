@@ -56,11 +56,11 @@ describe("NavList", () => {
     );
   });
 
-  it("renders not-ready items as disabled 'Soon' entries", () => {
+  it("renders Playground and Progress as active nav links", () => {
     usePathname.mockReturnValue("/dashboard");
     render(<NavList />);
-    const progress = screen.getByText("Progress").closest("span[aria-disabled]");
-    expect(progress).not.toBeNull();
-    expect(screen.getByText("Soon")).toBeInTheDocument();
+    expect(screen.getByText("Playground").closest("a")).toHaveAttribute("href", "/playground");
+    expect(screen.getByText("Progress").closest("a")).toHaveAttribute("href", "/progress");
+    expect(screen.queryAllByText("Soon")).toHaveLength(0);
   });
 });

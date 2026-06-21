@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HoloPulseLoader } from "@/components/ui/holo-pulse-loader";
 import { useToastSafe } from "@/components/ui/toaster";
 
 export interface ConfirmDeleteButtonProps {
@@ -71,7 +72,15 @@ export function ConfirmDeleteButton({
         className,
       )}
     >
-      <Trash2 className="h-3.5 w-3.5" aria-hidden />
+      {pending ? (
+        <HoloPulseLoader
+          label="Deleting"
+          size="sm"
+          className="w-auto [&>p]:sr-only"
+        />
+      ) : (
+        <Trash2 className="h-3.5 w-3.5" aria-hidden />
+      )}
       {pending ? "…" : armed ? "Sure?" : null}
     </button>
   );

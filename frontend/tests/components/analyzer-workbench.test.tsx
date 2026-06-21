@@ -167,7 +167,7 @@ describe("AnalyzerWorkbench — analysis flow", () => {
     fireEvent.keyDown(window, { key: "Enter", ctrlKey: true, bubbles: true });
 
     await waitFor(
-      () => expect(screen.getByText("Linear time, constant space.")).toBeInTheDocument(),
+      () => expect(screen.getAllByText(MOCK_ANALYSIS.time.notation).length).toBeGreaterThan(0),
       { timeout: ANALYSIS_TIMEOUT },
     );
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -180,7 +180,7 @@ describe("AnalyzerWorkbench — analysis flow", () => {
     fireEvent.click(getAnalyzeButton());
 
     await waitFor(
-      () => expect(screen.getByText("Linear time, constant space.")).toBeInTheDocument(),
+      () => expect(screen.getAllByText(MOCK_ANALYSIS.time.notation).length).toBeGreaterThan(0),
       { timeout: ANALYSIS_TIMEOUT },
     );
     expect(screen.getByTestId("save-actions")).toBeInTheDocument();

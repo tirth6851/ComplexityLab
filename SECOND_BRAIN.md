@@ -2,7 +2,7 @@
 
 > **Project memory · knowledge layer.** Architectural decisions, lessons
 > learned, known issues, technical debt, reusable patterns. Append-mostly;
-> prune only when something becomes false. Last updated: 2026-06-10.
+> prune only when something becomes false. Last updated: 2026-06-18.
 
 ---
 
@@ -24,6 +24,11 @@
 | D12 | 2026-06-10 | Four-file project memory (manual/control/brain/rules) at repo root | Different update cadences; root-level matches existing doc convention; indexed from CLAUDE.md |
 | D13 | 2026-06-10 | "Open in analyzer" round-trips use a one-shot **sessionStorage handoff** (`lib/analyzer-handoff.ts`), not URL params | Code can be 100KB — too big for URLs; one-shot take() prevents stale replays |
 | D14 | 2026-06-10 | Hand-rolled toast system (`components/ui/toaster.tsx`), provider in the `(app)` layout | No dependency; `useToastSafe()` no-op fallback keeps shared primitives testable outside the shell |
+| D15 | 2026-06-18 | Progress awarded best-effort in `awardProgressForSave` — never throws, never fails the save | Awarding XP is a side-effect; a DB failure must not roll back the user's primary action (saving an analysis) |
+| D16 | 2026-06-18 | DB-backed daily quota + graceful degrade on quota-check failure | In-memory rate limits can't enforce per-day caps across serverless instances; if `countXxxToday()` returns `{ok:false}`, ALLOW the operation and log — never block a user on a transient DB issue |
+| D17 | 2026-06-18 | Three-layer kill switch for external code execution — AbortController (12s, route) + Judge0 `wall_time_limit` (8s, service) + Vercel `maxDuration` (15s) | Defensive-in-depth: each layer guards a different failure mode (runaway code, slow Judge0, Vercel billing); all three must coexist |
+| D18 | 2026-06-18 | AI provider infrastructure extracted to `lib/ai/groq-client.ts`; feature-specific providers (analysis, chat) import it | Avoids duplicating auth, timeout, AbortController, and error normalization across N provider files; interfaces stay per-feature (ISP) |
+| D19 | 2026-06-18 | **F4 token accounting strategy:** quota gate uses `ai_usage.message_count` (user turns only, 1 per exchange); token counts are analytics-only and recorded post-stream. Tokens read from Groq's final SSE chunk (`stream_options.include_usage: true`); fallback estimate is `chars/4`. Persisted via `bump_ai_usage` SQL function (atomic upsert — avoids read-modify-write races on concurrent requests). `CHAT_DAILY_QUOTA` is the gate; `tokens_in/out` are never gated — they feed a future usage-analytics panel. |
 
 ## Lessons learned
 
@@ -46,6 +51,8 @@
   changes need fresh `vercel login`; claude.ai Vercel MCP does deployments/logs
   only; claude.ai Supabase MCP is connected to an account that does NOT own
   the app's project → migrations are manual, by the user.
+- **framer-motion in jsdom (2026-06-18):** `framer-motion ^12.40.0` is installed (merged from upstream) but is ONLY used in `hero-section-nexus.tsx` which has no Vitest tests. Before using `<motion.*>` or `AnimatePresence` in any `"use client"` component that has Vitest coverage, verify it doesn't break jsdom. The safe default is CSS-first: `.animate-rise` (already in `globals.css`), `animate-pulse` + `[animation-delay:]` Tailwind arbitrary values, and token-based shadow/glow for focus states. If framer-motion is needed, add `useReducedMotion()` and confirm `AnimatePresence` without an `exit` prop causes instant unmount (no delayed DOM removal that could break test selectors queried after `waitFor`).
+- **SSE streaming in jsdom (2026-06-18):** `ReadableStream` + `TextEncoder`-based SSE helpers work cleanly in jsdom. The `makeSSEBody()` pattern (enqueue `data: {...}\n\n` blocks then `controller.close()`) is the right test helper shape. Do not use `TransformStream` or `Response.body.pipeThrough()` — jsdom support is inconsistent.
 - **Org limits (2026-06-10):** parallel subagent fan-outs can hit session
   usage limits — keep inline-audit fallback in mind for doc work.
 - **React 19 lint (2026-06-10):** `react-hooks/set-state-in-effect` forbids
@@ -73,12 +80,21 @@ sprint**, P1–P5.)*
 
 - Heuristic engine is regex/scan-based (no AST); Python comprehensions not
   counted as loops; amortized costs ignored.
-- `getOrCreateProfile()` runs per data call (2–3 small queries/page) —
-  memoize with React `cache()` when it matters.
+- `getOrCreateProfile()` runs per DB call — 5× per dashboard render (RSC).
+  `React.cache()` deduplicates within an RSC render tree but NOT in route
+  handlers. Both `/api/execute` and `/api/chat` already resolve `getOrCreateProfile()`
+  once at the top and pass `profile.id` through — this is the correct pattern for
+  all new route handlers.
 - Rate limits are per warm instance, not global.
-- No CI pipeline; gates run locally.
+- No CI pipeline; gates run locally. (Recommend adding before F5.)
 - 4 moderate `npm audit` advisories in dev tooling (vitest/jsdom chain).
-- Dashboard "progress" is derived, not persisted (by design until Lessons).
+- Judge0 language IDs are hardcoded — must verify against live `/languages`
+  endpoint before first deploy. `wait=true` synchronous mode assumed available
+  on RapidAPI free tier — confirm before deploy.
+- F3 migration (`20260616000200_executions.sql`) not yet applied to production
+  (B6) — quota tracking silently degrades (graceful, execution still works).
+- F4 migration (`20260616000300_chat.sql`) not yet applied to production (B7) —
+  chat history not persisted between page loads (graceful degrade, no errors surfaced).
 
 ## Reusable patterns
 
@@ -100,3 +116,13 @@ sprint**, P1–P5.)*
   `takeAnalyzerHandoff()` on mount; validated, one-shot.
 - **`SnippetItem`** — expandable row revealing code + copy + open-in-analyzer;
   bound server actions passed from the server page into the client row.
+- **Route proxy pipeline** — template for any route that proxies to an external
+  service or AI: `auth() → rateLimit (in-memory, burst) → countXxxToday (DB, daily,
+  graceful degrade on failure) → validate body → AbortController + external call
+  → recordXxx best-effort (never blocks) → logEvent (metadata only, never user
+  content) → return result`. Implemented in both `/api/execute` (Judge0) and
+  `/api/chat` (Groq SSE). The SSE variant uses `ReadableStream` + `finally` block
+  for post-stream DB writes; the sync variant returns JSON directly.
+- **Best-effort side-effect** — `recordExecution`, `awardProgressForSave`, and
+  future equivalents: call them, log failure, never await their result to block
+  the primary response. Applied consistently across all Phase 2 features.

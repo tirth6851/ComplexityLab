@@ -11,7 +11,10 @@ export const PROTECTED_ROUTES = [
   "/analyzer(.*)",
   "/analyses(.*)",
   "/snippets(.*)",
+  "/playground(.*)",
+  "/progress(.*)",
   "/settings(.*)",
+  "/chat(.*)",
 ] as const;
 
 const isProtectedRoute = createRouteMatcher([...PROTECTED_ROUTES]);

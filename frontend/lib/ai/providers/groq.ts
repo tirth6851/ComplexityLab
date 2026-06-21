@@ -8,6 +8,11 @@ import { tierFromNotation } from "@/lib/complexity";
 import { formatOps, growthValue } from "@/lib/analysis/growth";
 import { logEvent } from "@/lib/log";
 import { mockProvider } from "./mock";
+import {
+  groqComplete,
+  DEFAULT_GROQ_MODEL,
+  type GroqMessage,
+} from "../groq-client";
 
 /**
  * Groq provider — LLM-backed complexity analysis via the OpenAI-compatible
@@ -18,10 +23,6 @@ import { mockProvider } from "./mock";
  * it falls back to the deterministic heuristic engine and says so in the
  * result notes — the analyzer never breaks because the LLM did.
  */
-
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const DEFAULT_MODEL = "llama-3.3-70b-versatile";
-const TIMEOUT_MS = 20_000;
 
 const VALID_NOTATION = /^O\(.{1,24}\)$/;
 
@@ -93,7 +94,7 @@ function metricsFor(
       value: `${Math.round(confidence * 100)}%`,
       fraction: confidence,
       tier: "accent",
-      hint: `Groq · ${process.env.GROQ_MODEL ?? DEFAULT_MODEL}`,
+      hint: `Groq · ${process.env.GROQ_MODEL ?? DEFAULT_GROQ_MODEL}`,
     },
   ];
 }
@@ -169,51 +170,30 @@ export const groqProvider: AnalysisProvider = {
       return fallback(input, "missing_api_key");
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const messages: GroqMessage[] = [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: `Language: ${input.language}\n\nCode:\n${input.code}` },
+    ];
+
     try {
-      const res = await fetch(GROQ_URL, {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: process.env.GROQ_MODEL ?? DEFAULT_MODEL,
-          temperature: 0,
-          max_tokens: 800,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            {
-              role: "user",
-              content: `Language: ${input.language}\n\nCode:\n${input.code}`,
-            },
-          ],
-        }),
+      const content = await groqComplete(messages, {
+        maxTokens: 800,
+        responseFormat: { type: "json_object" },
       });
-
-      if (!res.ok) {
-        return fallback(input, `http_${res.status}`);
-      }
-
-      const data = (await res.json()) as {
-        choices?: { message?: { content?: string } }[];
-      };
-      const content = data.choices?.[0]?.message?.content;
-      if (!content) return fallback(input, "empty_completion");
 
       const parsed = parseGroqAnalysis(content);
       if (!parsed) return fallback(input, "unparseable_completion");
       return parsed;
     } catch (e) {
-      return fallback(
-        input,
-        e instanceof Error && e.name === "AbortError" ? "timeout" : "network",
-      );
-    } finally {
-      clearTimeout(timer);
+      const reason =
+        e instanceof Error && e.name === "AbortError"
+          ? "timeout"
+          : e instanceof Error && e.message.startsWith("groq_http_")
+            ? e.message.replace("groq_", "")
+            : e instanceof Error && e.message === "groq_empty_content"
+              ? "empty_completion"
+              : "network";
+      return fallback(input, reason);
     }
   },
 };
