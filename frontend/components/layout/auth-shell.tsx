@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Code2, History, ShieldCheck } from "lucide-react";
-import { AuthParticleField } from "@/components/ui/auth-particle-field";
+import { BigOBackground } from "@/components/ui/big-o-background";
 import { Logo } from "./logo";
 
 const authSignals = [
@@ -39,7 +39,7 @@ export function AuthShell({
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[-14rem] h-[34rem] w-[52rem] -translate-x-1/2 rounded-full bg-primary/12 blur-3xl"
       />
-      <AuthParticleField className="opacity-80" />
+      <BigOBackground />
 
       <motion.div
         initial={cardInitial}
