@@ -1,0 +1,68 @@
+- generic:
+  - generic [active]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - navigation [ref=e6]:
+            - button "previous" [disabled] [ref=e7]:
+              - img "previous" [ref=e8]
+            - generic [ref=e10]:
+              - generic [ref=e11]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e12]:
+              - img "next" [ref=e13]
+          - img
+        - generic [ref=e15]:
+          - link "Next.js 16.2.7 (stale) Turbopack" [ref=e16] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e17]
+            - generic "There is a newer version (16.2.9) available, upgrade recommended!" [ref=e19]: Next.js 16.2.7 (stale)
+            - generic [ref=e20]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e22]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e29]: Build Error
+              - generic [ref=e30]:
+                - button "Copy Error Info" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+                - button "No related documentation found" [disabled] [ref=e34]:
+                  - img [ref=e35]
+                - button "Attach Node.js inspector" [ref=e37] [cursor=pointer]:
+                  - img [ref=e38]
+            - generic [ref=e47]: Expected ',', got '<eof>'
+          - generic [ref=e49]:
+            - generic [ref=e51]:
+              - img [ref=e53]
+              - generic [ref=e55]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs (324:75)
+              - button "Open in editor" [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+            - generic [ref=e61]:
+              - generic [ref=e62]: Expected ',', got '<eof>'
+              - generic [ref=e63]: 322 |
+              - text: const
+              - generic [ref=e64]: shouldSubscribe = options.subscribed !==
+              - text: "false"
+              - generic [ref=e65]: ;
+              - generic [ref=e66]: 323 |
+              - text: React$1.useSyncExternalStore(React$1
+              - generic [ref=e67]: ".useCallback((onStoreChange) => {"
+              - text: ">"
+              - generic [ref=e68]: 324 |
+              - text: const
+              - generic [ref=e69]: unsubscribe = shouldSubscribe ? observer.subscribe(notifyManager.b
+              - generic [ref=e70]: "|"
+              - text: ^
+              - generic [ref=e71]: "Parsing ecmascript source code failed Import traces: #1 [Client Component Browser]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/controlComponents.js [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/controlComponents.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component] #2 [Client Component Browser]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/hooks.js [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/hooks.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component] #3 [Client Component SSR]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/controlComponents.js [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/controlComponents.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component] #4 [Client Component SSR]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/hooks.js [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/hooks.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component] #5 [Client Component Browser]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component Browser] ./node_modules/@clerk/react/dist/index.mjs [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/uiComponents.js [Client Component Browser] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/uiComponents.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component] #6 [Client Component SSR]: ./node_modules/@clerk/react/node_modules/@clerk/shared/dist/react/index.mjs [Client Component SSR] ./node_modules/@clerk/react/dist/index.mjs [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/uiComponents.js [Client Component SSR] ./node_modules/@clerk/nextjs/dist/esm/client-boundary/uiComponents.js [Server Component] ./node_modules/@clerk/nextjs/dist/esm/index.js [Server Component] ./app/layout.tsx [Server Component]"
+        - generic [ref=e72]: "1"
+        - generic [ref=e73]: "2"
+    - generic [ref=e78] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e79]:
+        - img [ref=e80]
+      - button "Open issues overlay" [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]: "0"
+          - generic [ref=e87]: "1"
+        - generic [ref=e88]: Issue
+  - alert [ref=e89]

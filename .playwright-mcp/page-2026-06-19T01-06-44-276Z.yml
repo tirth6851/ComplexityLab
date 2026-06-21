@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - generic [ref=e10]: ComplexityLab
+      - generic [ref=e11]:
+        - generic [ref=e13]:
+          - paragraph [ref=e14]: Secure workspace
+          - heading "Welcome back" [level=1] [ref=e15]
+          - paragraph [ref=e16]: Sign in to your ComplexityLab workspace
+        - button "Continue with Google" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+          - text: Continue with Google
+        - paragraph [ref=e24]:
+          - text: By continuing you agree to the
+          - link "Terms of Service" [ref=e25] [cursor=pointer]:
+            - /url: /terms
+          - text: and
+          - link "Privacy Policy" [ref=e26] [cursor=pointer]:
+            - /url: /privacy
+          - text: .
+      - paragraph [ref=e27]:
+        - text: New here?
+        - link "Create an account" [ref=e28] [cursor=pointer]:
+          - /url: /sign-up
+  - button "Open Next.js Dev Tools" [ref=e34] [cursor=pointer]:
+    - img [ref=e35]
+  - alert [ref=e38]

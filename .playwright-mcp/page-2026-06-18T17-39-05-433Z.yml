@@ -1,0 +1,171 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to content" [ref=e3] [cursor=pointer]:
+      - /url: "#main"
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e8]
+          - generic [ref=e11]: ComplexityLab
+        - navigation [ref=e12]:
+          - link "Features" [ref=e13] [cursor=pointer]:
+            - /url: "#features"
+          - link "How it works" [ref=e14] [cursor=pointer]:
+            - /url: "#how-it-works"
+          - link "Pricing" [ref=e15] [cursor=pointer]:
+            - /url: "#pricing"
+        - generic [ref=e16]:
+          - button "Toggle color theme" [ref=e17] [cursor=pointer]:
+            - img [ref=e18]
+            - generic [ref=e24]: Toggle between light and dark theme
+          - link "Sign in" [ref=e25] [cursor=pointer]:
+            - /url: /sign-in
+          - link "Start" [ref=e26] [cursor=pointer]:
+            - /url: /sign-up
+            - text: Start
+            - img [ref=e27]
+    - main [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: AI complexity analysis for real code
+          - heading "Understand the cost of algorithms." [level=1] [ref=e34]: Understand the cost of alEFGHIJKL.
+          - paragraph [ref=e35]: "ComplexityLab turns Big-O into a practical workflow: paste code, get AI feedback, compare time and space complexity, and build a searchable library of analysis history."
+          - generic [ref=e36]:
+            - link "Start analyzing" [ref=e37] [cursor=pointer]:
+              - /url: /sign-up
+              - text: Start analyzing
+              - img [ref=e38]
+            - link "See how it works" [ref=e40] [cursor=pointer]:
+              - /url: "#how-it-works"
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - img [ref=e43]
+              - text: Clerk Google auth
+            - generic [ref=e46]:
+              - img [ref=e47]
+              - text: Supabase history
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - text: Server-side analysis
+            - generic [ref=e54]:
+              - img [ref=e55]
+              - text: No credit card
+        - generic [ref=e61]:
+          - generic [ref=e67]: complexity scan
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - generic [ref=e71]: binary-search.ts
+                - generic [ref=e72]: sample
+              - code [ref=e74]: "function search(items, target) { let low = 0; let high = items.length - 1; while (low <= high) { const mid = Math.floor((low + high) / 2); if (items[mid] === target) return mid; items[mid] < target ? low = mid + 1 : high = mid - 1; } return -1; }"
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - paragraph [ref=e77]: AI feedback
+                - paragraph [ref=e78]: Halving the search window each loop produces logarithmic time. Memory stays constant because the algorithm mutates only pointers.
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - paragraph [ref=e81]: Time
+                  - paragraph [ref=e82]: O(log n)
+                - generic [ref=e83]:
+                  - paragraph [ref=e84]: Space
+                  - paragraph [ref=e85]: O(1)
+              - generic [ref=e87]:
+                - generic [ref=e88]: confidence
+                - generic [ref=e89]: 94%
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - paragraph [ref=e94]: Platform
+          - heading "The analyzer workspace your algorithms class needed" [level=2] [ref=e95]
+          - paragraph [ref=e96]: A focused product surface for learning, interview prep, and day-to-day code review.
+        - generic [ref=e97]:
+          - generic [ref=e98]:
+            - img [ref=e101]
+            - heading "AI reasoning with guardrails" [level=3] [ref=e113]
+            - paragraph [ref=e114]: Groq-powered analysis explains the complexity call, backed by deterministic heuristics when AI is unavailable.
+          - generic [ref=e115]:
+            - img [ref=e118]
+            - heading "Time and space verdicts" [level=3] [ref=e121]
+            - paragraph [ref=e122]: Readable Big-O results, confidence, metrics, and notes for the exact code you paste.
+          - generic [ref=e123]:
+            - img [ref=e126]
+            - heading "Saved history" [level=3] [ref=e130]
+            - paragraph [ref=e131]: Keep past analyses and snippets tied to your account so interview prep compounds over time.
+          - generic [ref=e132]:
+            - img [ref=e135]
+            - heading "Developer-native workspace" [level=3] [ref=e138]
+            - paragraph [ref=e139]: A Monaco-powered editor, sample algorithms, keyboard shortcuts, and result panels that feel familiar.
+      - generic [ref=e140]:
+        - generic [ref=e141]:
+          - paragraph [ref=e142]: Workflow
+          - heading "From paste to complexity verdict in seconds" [level=2] [ref=e143]
+          - paragraph [ref=e144]: No profiler setup, no scaffolding, no guesswork. Keep the loop fast and focused.
+        - list [ref=e145]:
+          - listitem [ref=e146]:
+            - generic [ref=e147]: "1"
+            - img [ref=e149]
+            - heading "Paste or load code" [level=3] [ref=e153]
+            - paragraph [ref=e154]: Start from your own function or a curated sample in TypeScript, Python, Java, Go, Rust, C++, and more.
+          - listitem [ref=e155]:
+            - generic [ref=e156]: "2"
+            - img [ref=e158]
+            - heading "Run the analyzer" [level=3] [ref=e163]
+            - paragraph [ref=e164]: The server evaluates structure, loops, recursion, allocations, and AI feedback without changing your code.
+          - listitem [ref=e165]:
+            - generic [ref=e166]: "3"
+            - img [ref=e168]
+            - heading "Save the insight" [level=3] [ref=e171]
+            - paragraph [ref=e172]: Store the full result, reopen it later, or send the source back into the analyzer for another pass.
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]: Free start
+          - heading "Premium complexity tooling without the procurement ceremony." [level=2] [ref=e177]
+          - paragraph [ref=e178]: Sign in with Google and start analyzing code immediately. Your saved analyses, snippets, and dashboard stay connected to your account.
+          - generic [ref=e179]:
+            - link "Get started free" [ref=e180] [cursor=pointer]:
+              - /url: /sign-up
+              - text: Get started free
+              - img [ref=e181]
+            - link "Sign in" [ref=e183] [cursor=pointer]:
+              - /url: /sign-in
+        - generic [ref=e185]:
+          - generic [ref=e186]:
+            - img [ref=e188]
+            - text: AI + heuristic analysis
+          - generic [ref=e191]:
+            - img [ref=e193]
+            - text: Dashboard activity metrics
+          - generic [ref=e195]:
+            - img [ref=e197]
+            - text: Saved snippets and history
+          - generic [ref=e201]:
+            - img [ref=e203]
+            - text: Authenticated private workspace
+    - contentinfo [ref=e207]:
+      - generic [ref=e208]:
+        - generic [ref=e209]:
+          - img [ref=e211]
+          - generic [ref=e214]: ComplexityLab
+        - paragraph [ref=e215]: Learn how code scales with AI-assisted complexity analysis.
+        - navigation [ref=e216]:
+          - link "Privacy" [ref=e217] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e218] [cursor=pointer]:
+            - /url: /terms
+  - alert [ref=e219]
+  - dialog "Before you enter the lab" [ref=e220]:
+    - generic [ref=e221]:
+      - generic [ref=e222]:
+        - img [ref=e224]
+        - heading "Before you enter the lab" [level=2] [ref=e226]
+      - paragraph [ref=e227]:
+        - text: ComplexityLab uses strictly functional cookies (sign-in session, theme, this choice) and processes the code you submit to produce analysis results. By continuing you accept our
+        - link "Privacy Policy" [ref=e228] [cursor=pointer]:
+          - /url: /privacy
+        - text: and
+        - link "Terms of Service" [ref=e229] [cursor=pointer]:
+          - /url: /terms
+        - text: .
+      - paragraph [ref=e230]: No ads, no cross-site tracking, no selling data. Declining will take you off the site.
+      - generic [ref=e231]:
+        - button "Accept and continue" [active] [ref=e232] [cursor=pointer]
+        - button "Decline" [ref=e233] [cursor=pointer]

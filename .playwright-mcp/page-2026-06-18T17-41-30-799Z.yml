@@ -1,0 +1,46 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - generic [ref=e10]: ComplexityLab
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Secure workspace
+          - heading "Welcome back" [level=1] [ref=e14]
+          - paragraph [ref=e15]: Sign in to your ComplexityLab workspace
+        - button "Continue with Google" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - text: Continue with Google
+        - paragraph [ref=e23]:
+          - text: By continuing you agree to the
+          - link "Terms of Service" [ref=e24] [cursor=pointer]:
+            - /url: /terms
+          - text: and
+          - link "Privacy Policy" [ref=e25] [cursor=pointer]:
+            - /url: /privacy
+          - text: .
+      - paragraph [ref=e26]:
+        - text: New here?
+        - link "Create an account" [ref=e27] [cursor=pointer]:
+          - /url: /sign-up
+  - button "Open Next.js Dev Tools" [ref=e33] [cursor=pointer]:
+    - img [ref=e34]
+  - alert [ref=e37]
+  - dialog "Before you enter the lab" [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - img [ref=e42]
+        - heading "Before you enter the lab" [level=2] [ref=e44]
+      - paragraph [ref=e45]:
+        - text: ComplexityLab uses strictly functional cookies (sign-in session, theme, this choice) and processes the code you submit to produce analysis results. By continuing you accept our
+        - link "Privacy Policy" [ref=e46] [cursor=pointer]:
+          - /url: /privacy
+        - text: and
+        - link "Terms of Service" [ref=e47] [cursor=pointer]:
+          - /url: /terms
+        - text: .
+      - paragraph [ref=e48]: No ads, no cross-site tracking, no selling data. Declining will take you off the site.
+      - generic [ref=e49]:
+        - button "Accept and continue" [active] [ref=e50] [cursor=pointer]
+        - button "Decline" [ref=e51] [cursor=pointer]
