@@ -46,7 +46,6 @@ export async function createConversation(
         title,
         context_type: context?.type ?? null,
         context_ref_id: context?.refId ?? null,
-        context_metadata: context?.metadata ?? null,
       })
       .select("*")
       .single<ConversationRow>();

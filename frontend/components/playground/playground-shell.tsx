@@ -1,13 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
+  BotMessageSquare,
   CheckCircle,
   ChevronDown,
   ChevronRight,
   Clock,
   Cpu,
   Play,
+  ScanLine,
   Terminal,
   TriangleAlert,
   XCircle,
@@ -17,6 +20,9 @@ import { Select } from "@/components/ui/select";
 import { CodeEditor } from "@/components/analyzer/code-editor";
 import { JUDGE0_LANGUAGES } from "@/lib/execute/languages";
 import type { ExecutionResult, ExecutionStatus } from "@/lib/execute/types";
+import { setAnalyzerHandoff } from "@/lib/analyzer-handoff";
+import { setChatHandoff } from "@/lib/chat-handoff";
+import { takePlaygroundHandoff } from "@/lib/playground-handoff";
 
 type RunState = "idle" | "running" | "done" | "error";
 
@@ -207,6 +213,7 @@ function ResultPanel({ result }: { result: ExecutionResult }) {
 }
 
 export function PlaygroundShell() {
+  const router = useRouter();
   const [language, setLanguage] = React.useState("python");
   const [code, setCode] = React.useState(DEFAULT_CODE.python);
   const [stdin, setStdin] = React.useState("");
@@ -215,12 +222,50 @@ export function PlaygroundShell() {
   const [result, setResult] = React.useState<ExecutionResult | null>(null);
   const [fetchError, setFetchError] = React.useState<string | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- one-shot sessionStorage consume */
+  React.useEffect(() => {
+    const handoff = takePlaygroundHandoff();
+    if (!handoff) return;
+    setLanguage(handoff.language);
+    setCode(handoff.code);
+    setResult(null);
+    setFetchError(null);
+    setRunState("idle");
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   function onLanguageChange(next: string) {
     setLanguage(next);
     setCode(DEFAULT_CODE[next] ?? "");
     setResult(null);
     setFetchError(null);
     setRunState("idle");
+  }
+
+  function sendToAnalyzer() {
+    setAnalyzerHandoff({ code, language: language as import("@/lib/analysis/languages").LanguageId });
+    router.push("/analyzer");
+  }
+
+  function sendToChat(executionResult: ExecutionResult) {
+    const outputLines: string[] = [];
+    if (executionResult.stdout?.trim()) {
+      outputLines.push(`**Output:**\n\`\`\`\n${executionResult.stdout.trim()}\n\`\`\``);
+    }
+    if (executionResult.stderr?.trim()) {
+      outputLines.push(`**Stderr:**\n\`\`\`\n${executionResult.stderr.trim()}\n\`\`\``);
+    }
+    if (executionResult.compileOutput?.trim()) {
+      outputLines.push(`**Compiler output:**\n\`\`\`\n${executionResult.compileOutput.trim()}\n\`\`\``);
+    }
+    const msg =
+      `I ran this ${language} code in the Playground:\n` +
+      `\`\`\`${language}\n${code}\n\`\`\`\n\n` +
+      `**Result:** ${executionResult.statusLabel}` +
+      (outputLines.length ? `\n\n${outputLines.join("\n\n")}` : "") +
+      `\n\nCan you help me understand this code and its output?`;
+    setChatHandoff({ initialMessage: msg });
+    router.push("/chat");
   }
 
   async function run() {
@@ -388,20 +433,38 @@ export function PlaygroundShell() {
                 <span aria-hidden>/</span>
                 <span>code never stored</span>
               </div>
-              <Button
-                onClick={requestRun}
-                disabled={empty || isRunning}
-              >
-                <Play className="h-4 w-4" aria-hidden />
-                {isRunning ? "Running…" : "Run"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={sendToAnalyzer} disabled={empty}>
+                  <ScanLine className="h-3.5 w-3.5" aria-hidden />
+                  Analyze
+                </Button>
+                <Button
+                  onClick={requestRun}
+                  disabled={empty || isRunning}
+                >
+                  <Play className="h-4 w-4" aria-hidden />
+                  {isRunning ? "Running…" : "Run"}
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className="bg-background/35 p-4 sm:p-5">
-            <p className="mb-4 font-mono text-xs uppercase tracking-label text-ink-muted">
-              Output
-            </p>
+            <div className="mb-4 flex items-center justify-between">
+              <p className="font-mono text-xs uppercase tracking-label text-ink-muted">
+                Output
+              </p>
+              {runState === "done" && result && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => sendToChat(result)}
+                >
+                  <BotMessageSquare className="h-3.5 w-3.5" aria-hidden />
+                  Send to AI Chat
+                </Button>
+              )}
+            </div>
 
             {runState === "idle" && <IdlePanel />}
             {runState === "running" && <RunningPanel />}

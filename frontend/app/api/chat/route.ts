@@ -102,28 +102,32 @@ export async function POST(request: Request) {
   }
 
   // ── 2. Resolve profile (once — threaded to all DB calls) ──────────────────
+  // Non-fatal: if DB tables are not yet provisioned, stream in stateless mode
+  // without persistence. The AI response is still delivered.
   const profileResult = await getOrCreateProfile();
+  const profileId = profileResult.ok ? profileResult.data.id : null;
   if (!profileResult.ok) {
-    return Response.json({ error: "Could not load your profile." }, { status: 500 });
+    logEvent("chat.profile_unavailable", { userId, error: profileResult.error });
   }
-  const profileId = profileResult.data.id;
 
   // ── 3. Daily quota guard (DB-backed) ──────────────────────────────────────
-  const usageResult = await getUsageToday(profileId);
-  if (!usageResult.ok) {
-    logEvent("chat.quota_check_failed", { userId, error: usageResult.error });
-    // Graceful degrade — allow and log (same pattern as F3 execute)
-  } else if (usageResult.data.messageCount >= CHAT_DAILY_QUOTA) {
-    logEvent("chat.daily_quota_reached", {
-      userId,
-      count: usageResult.data.messageCount,
-    });
-    return Response.json(
-      {
-        error: `Daily chat limit reached (${CHAT_DAILY_QUOTA} messages). Resets at midnight UTC.`,
-      },
-      { status: 429 },
-    );
+  if (profileId) {
+    const usageResult = await getUsageToday(profileId);
+    if (!usageResult.ok) {
+      logEvent("chat.quota_check_failed", { userId, error: usageResult.error });
+      // Graceful degrade — allow and log (same pattern as F3 execute)
+    } else if (usageResult.data.messageCount >= CHAT_DAILY_QUOTA) {
+      logEvent("chat.daily_quota_reached", {
+        userId,
+        count: usageResult.data.messageCount,
+      });
+      return Response.json(
+        {
+          error: `Daily chat limit reached (${CHAT_DAILY_QUOTA} messages). Resets at midnight UTC.`,
+        },
+        { status: 429 },
+      );
+    }
   }
 
   // ── 4. Per-minute burst guard (in-memory, per warm instance) ──────────────
@@ -138,29 +142,35 @@ export async function POST(request: Request) {
   }
 
   // ── 5. Get or create conversation ─────────────────────────────────────────
-  let conversationIdFinal: string;
+  // Non-fatal when profileId is null (stateless mode) or when DB tables are
+  // missing — we stream without persistence rather than returning 500.
+  let conversationIdFinal: string | null = null;
 
-  if (conversationIdStr) {
-    const convResult = await getConversation(profileId, conversationIdStr);
-    if (!convResult.ok) {
-      return Response.json({ error: "Conversation not found." }, { status: 404 });
+  if (profileId) {
+    if (conversationIdStr) {
+      const convResult = await getConversation(profileId, conversationIdStr);
+      if (!convResult.ok) {
+        return Response.json({ error: "Conversation not found." }, { status: 404 });
+      }
+      conversationIdFinal = convResult.data.id;
+    } else {
+      const title = trimmedMessage.slice(0, 80);
+      const convResult = await createConversation(profileId, title, parsedContextRef);
+      if (convResult.ok) {
+        conversationIdFinal = convResult.data.id;
+      } else {
+        logEvent("chat.conversation_create_failed", { userId, error: convResult.error });
+        // Continue in stateless mode — no history or persistence this session.
+      }
     }
-    conversationIdFinal = convResult.data.id;
-  } else {
-    const title = trimmedMessage.slice(0, 80);
-    const convResult = await createConversation(profileId, title, parsedContextRef);
-    if (!convResult.ok) {
-      return Response.json({ error: "Could not start conversation." }, { status: 500 });
-    }
-    conversationIdFinal = convResult.data.id;
   }
 
   // ── 6. Load history + build prompt ────────────────────────────────────────
-  const historyResult = await listMessages(
-    profileId,
-    conversationIdFinal,
-    CHAT_HISTORY_LIMIT,
-  );
+  const historyResult =
+    profileId && conversationIdFinal
+      ? await listMessages(profileId, conversationIdFinal, CHAT_HISTORY_LIMIT)
+      : { ok: false as const, error: "stateless mode" };
+
   const history = historyResult.ok
     ? historyResult.data
         .filter((m) => m.role === "user" || m.role === "assistant")
@@ -177,14 +187,16 @@ export async function POST(request: Request) {
   });
 
   // ── 7. Persist user message PRE-STREAM (survives client disconnect) ────────
-  const userMsgResult = await appendMessage(
-    conversationIdFinal,
-    "user",
-    trimmedMessage,
-  );
-  if (!userMsgResult.ok) {
-    logEvent("chat.persist_user_failed", { userId, error: userMsgResult.error });
-    // Non-fatal — continue streaming; the assistant turn will still be persisted
+  if (conversationIdFinal) {
+    const userMsgResult = await appendMessage(
+      conversationIdFinal,
+      "user",
+      trimmedMessage,
+    );
+    if (!userMsgResult.ok) {
+      logEvent("chat.persist_user_failed", { userId, error: userMsgResult.error });
+      // Non-fatal — continue streaming
+    }
   }
 
   // ── 8. Build input token estimate as fallback for usage accounting ─────────
@@ -217,7 +229,11 @@ export async function POST(request: Request) {
           send({ text: chunk });
         }
 
-        send({ done: true, conversationId: conversationIdToEmit });
+        const donePayload: Record<string, unknown> = { done: true };
+        if (conversationIdToEmit) {
+          donePayload.conversationId = conversationIdToEmit;
+        }
+        send(donePayload);
       } catch (e) {
         const reason = e instanceof Error ? e.message : "unknown";
         logEvent("chat.stream_error", { userId, reason });
@@ -225,7 +241,7 @@ export async function POST(request: Request) {
       } finally {
         // Best-effort: persist assistant message and bump usage.
         // Runs even if the client disconnected — the stream lifecycle is server-side.
-        if (assistantContent) {
+        if (conversationIdFinal && assistantContent) {
           const assistantTokens = tokensOut || Math.ceil(assistantContent.length / 4);
           const assistantResult = await appendMessage(
             conversationIdFinal,
@@ -241,14 +257,16 @@ export async function POST(request: Request) {
           }
         }
 
-        const usageBump = await bumpUsage(
-          profileId,
-          1, // 1 user turn
-          tokensIn || estimatedTokensIn,
-          tokensOut || Math.ceil(assistantContent.length / 4),
-        );
-        if (!usageBump.ok) {
-          logEvent("chat.bump_usage_failed", { userId, error: usageBump.error });
+        if (profileId) {
+          const usageBump = await bumpUsage(
+            profileId,
+            1, // 1 user turn
+            tokensIn || estimatedTokensIn,
+            tokensOut || Math.ceil(assistantContent.length / 4),
+          );
+          if (!usageBump.ok) {
+            logEvent("chat.bump_usage_failed", { userId, error: usageBump.error });
+          }
         }
 
         controller.close();
