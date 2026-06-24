@@ -2,18 +2,29 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-06-23**
+> Last updated: **2026-06-24**
 
 ---
 
-## Current sprint: Phase 3 — Learning Hub + sample balance shipped · Migration blockers remain
+## Current sprint: Phase 1 cost limiting shipped · Phase 2 complete · Migration blockers remain
 
 **Active branch:** `feature/phase3-product-enhancements` — PR open, not yet merged.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (24 routes) · test 48 files / 476 tests ✅`
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 486 tests ✅`
 
 **PR:** https://github.com/tirth6851/ComplexityLab/pull/new/feature/phase3-product-enhancements
 
-**Now:** Learning Hub (DSA Coach + OOP Coach) shipped. Samples balanced to 4–5 per language. Custom editor option added. Remaining blockers are still external — DB migrations and Vercel env keys.
+**Now:** Judge0 cost limiting (global cap, emergency disable, env-configurable quotas) shipped. All Phase 2 cross-page integration tasks were completed in a prior session. Remaining blockers are all user-action items: RapidAPI subscription (403 fix), and DB migrations B7/B1.
+
+### Shipped (2026-06-24, feature/phase3-product-enhancements) — Phase 1 Judge0 Cost Limiting
+
+- **`countAllExecutionsToday()`** (`lib/db/executions.ts`) — new global submission count (no profile_id filter, admin client). Used for billing-period cap across all users.
+- **`JUDGE0_GLOBAL_DAILY_CAP_DEFAULT = 900`** (`lib/limits.ts`) — reference constant (~$0.90 overage cap). Active only when `JUDGE0_GLOBAL_DAILY_CAP` env var is explicitly set.
+- **`EXECUTE_DAILY_QUOTA`** now env-configurable via `JUDGE0_USER_DAILY_QUOTA` (default 100).
+- **`/api/execute` pipeline** extended with two new pre-rate-limit steps:
+  - Emergency disable: `JUDGE0_ENABLED=false` → instant 503, no redeployment needed.
+  - Global cap: reads `JUDGE0_GLOBAL_DAILY_CAP` at request time; skips when unset (backward-compatible); fails open on DB error (B6 migration may not be applied); blocks at 503 when cap is reached.
+- **`.env.example`** — documents `JUDGE0_ENABLED`, `JUDGE0_GLOBAL_DAILY_CAP`, `JUDGE0_USER_DAILY_QUOTA`.
+- **27 new tests** (459 → 486): emergency disable on/off, global cap skip, under/at/above cap, DB failure degradation, cap=0 disabled path. All 4 gates green.
 
 ### Shipped (2026-06-23, feature/phase3-product-enhancements)
 
@@ -28,10 +39,10 @@
 
 **Next session — start here:**
 
-1. Merge PR #6 (feature/phase3-product-enhancements → main)
-2. Apply B7 migration in Supabase SQL editor:
+1. **[USER ACTION]** Fix Judge0 403: subscribe to Judge0 CE API at https://rapidapi.com/judge0-official/api/judge0-ce (Basic free plan, 500 req/day). Copy X-RapidAPI-Key → update `JUDGE0_API_KEY` in Vercel project environment variables. After update, also add `JUDGE0_GLOBAL_DAILY_CAP=900` to activate cost protection.
+2. **[USER ACTION]** Apply B7 migration in Supabase SQL editor:
    `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;`
-3. Set `JUDGE0_API_KEY` in Vercel environment variables (enables Playground execution)
+3. Merge PR (feature/phase3-product-enhancements → main) to deploy everything to production.
 4. Optional follow-ups: wire RAG context into coach prompts, add chat history UI, email opt-in scaffold
 
 **F3 API contract (for frontend developer):**
@@ -260,18 +271,18 @@ Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancemen
 | B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending |
 | B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | ⬜ Pending — apply after B1 |
 | B7 | **F4 migration schema mismatch** — `chat_conversations` table exists but is missing the `context_metadata` column. Chat still streams (stateless mode) but conversations don't persist. Fix: add the column via SQL editor: `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` | Manual | 🟡 Partial — table exists, column missing |
-| B8 | **`JUDGE0_API_KEY` missing from Vercel env** — execution works (polling fallback shipped) but requires the key to be set in Vercel project env vars. Without it every run returns "JUDGE0_API_KEY is not configured". | User | ⬜ Pending |
+| B8 | **Judge0 HTTP 403 in production** — RapidAPI account is not subscribed to Judge0 CE API. Every run returns "Execution Error". Fix: subscribe at https://rapidapi.com/judge0-official/api/judge0-ce (Basic, free 500/day), update `JUDGE0_API_KEY` in Vercel. After update, also add `JUDGE0_GLOBAL_DAILY_CAP=900` to activate cost protection. | User | ⬜ Pending |
 
 ## Strongly recommended before public launch
 
 - Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
-## Quality gates — last verified 2026-06-24 (main, post-cross-page-integration sprint)
+## Quality gates — last verified 2026-06-24 (feature/phase3-product-enhancements, post-cost-limiting)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
 | `npm run build` | ✅ green (21 routes) |
-| `npm run test` | ✅ **48 files / 459 tests** |
+| `npm run test` | ✅ **48 files / 486 tests** |
