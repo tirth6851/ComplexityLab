@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   MessageSquare,
   ScanLine,
-  Settings,
   History,
   Terminal,
   TrendingUp,
@@ -35,12 +34,5 @@ export const NAV_ITEMS: NavItem[] = [
     icon: GraduationCap,
     ready: true,
     match: "/learning",
-  },
-  {
-    label: "Settings",
-    href: "/settings/profile",
-    icon: Settings,
-    ready: true,
-    match: "/settings",
   },
 ];
