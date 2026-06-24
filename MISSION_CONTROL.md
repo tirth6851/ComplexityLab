@@ -2,16 +2,16 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-06-21**
+> Last updated: **2026-06-24**
 
 ---
 
-## Current sprint: Phase 2 — All core features shipped · QA + migration blockers remain
+## Current sprint: Phase 2 — Cross-page integration + bug fixes shipped · Migration blockers remain
 
-**Active branch:** `backup-before-refactor` — all health gates green.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (20 routes) · test 45 files / 441 tests ✅`
+**Active branch:** `main` — all health gates green.
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 459 tests ✅`
 
-**Now:** All app pages implemented and browser-verified. Remaining blockers are external (DB migrations, Clerk production upgrade).
+**Now:** All 7 loop-mode tasks complete and browser-verified. Remaining blockers are external (DB migrations, Clerk production upgrade, JUDGE0_API_KEY in Vercel env).
 
 **F3 API contract (for frontend developer):**
 - Endpoint: `POST /api/execute`
@@ -199,6 +199,30 @@ Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancemen
 - Pulsing 3-dot thinking indicator using `animate-pulse` (replaces `…` text during streaming)
 - **CRITICAL constraints:** keep `id="chat-input"` + `<label htmlFor="chat-input">`, `aria-label="Send message"`, `role="log"`, `role="alert"`, `[class*='rounded-ds-lg px-3']` bubble class substring (test 10 queries this), and both empty-state text strings in DOM at render time (tests assert synchronously). Do NOT use framer-motion — it is not validated in jsdom test paths (only present in `hero-section-nexus.tsx` which has no tests).
 
+### Shipped (2026-06-24, main) — Cross-page integration + Bug fixes
+
+**Tasks completed (LOOP MODE):**
+- **Task 1 — Playground execution polling fallback** (`lib/execute/judge0.ts`): RapidAPI free tier returns `{ token }` instead of a result when `wait=true` is unsupported. Added `isTokenOnly()` detection + `pollSubmission()` (5×1s polls until terminal status). `callJudge0()` now transparently handles both synchronous and async Judge0 responses. Confirmed: no `/api/execute` errors in Vercel runtime logs.
+- **Task 2 — Chat backend graceful degrade** (`app/api/chat/route.ts`): `getOrCreateProfile()` or `createConversation()` failure no longer returns 500. Route continues in stateless mode (Groq streams regardless of DB state). Confirmed: chat streams a full Groq response locally. Production runtime log shows the expected `conversation_create_failed` logEvent (handled, non-fatal).
+- **Task 3 — Analyzer syntax error UI** (`lib/ai/types.ts`, `lib/ai/providers/groq.ts`, `components/analyzer/results-panel.tsx`): Groq system prompt instructs model to emit `"syntaxError"` field for unparseable code. `parseGroqAnalysis` extracts it. `ResultsPanel` shows a red `role="alert"` banner + card gets red border/bg tint. Browser-verified: Groq detected "invalid function keyword and incomplete code".
+- **Task 4 — Chat with AI from Analyzer** (`components/analyzer/analyzer-workbench.tsx`, `lib/chat-handoff.ts`): New "Chat with AI" button on results panel. Sets `sessionStorage` handoff with code block + complexity results context. `ChatShell` consumes on mount. Browser-verified: pre-loaded message appears in chat textarea.
+- **Task 5 — Open in Playground from Analyzer** (`lib/playground-handoff.ts`): New "Open in Playground" button. Sets `sessionStorage` handoff. `PlaygroundShell` consumes on mount. Browser-verified: Java binary search code pre-loaded in Playground with correct language set.
+- **Task 6 — Send to AI Chat from Playground** (`components/playground/playground-shell.tsx`): "Send to AI Chat" button appears when `runState === "done" && result` (any terminal state — including errors, so users can ask AI about failures). Builds context message with code + execution output. Requires production testing (JUDGE0_API_KEY not in .env.local).
+- **Task 7 — Send to Analyzer from Playground** (`lib/analyzer-handoff.ts` reuse): "Analyze" button in Playground toolbar. Sets analyzer handoff and navigates to `/analyzer`. Browser-verified: code appears pre-loaded, language preserved, sample selector shows "Load a sample..." (not a sample).
+- **Task 8 — Progress section** — NOT TOUCHED.
+
+**Additional fixes this session:**
+- **DB schema fix** (`lib/db/chat.ts`, `lib/db/mappers.ts`, `types/index.ts`): `context_metadata` column absent from live `chat_conversations` table. Removed from INSERT payload; made optional in `ConversationRow` and `Conversation` types. Production `PGRST204` error eliminated.
+- **Task 6 gate** widened: "Send to AI Chat" now shows for any finished run (not just `accepted`), so users can ask AI about compile/runtime errors too.
+
+**New tests (18 added, 441 → 459):**
+- `tests/unit/chat-handoff.test.ts` (5 tests): round-trip, one-shot clear, null on empty, invalid payload rejection, storage error swallowing
+- `tests/unit/playground-handoff.test.ts` (6 tests): same pattern + all 7 language IDs
+- `tests/unit/judge0-polling.test.ts` (6 tests): direct response path, token-only → poll → accepted, poll retry on In Queue, missing key, non-2xx, exhausted polls
+- `tests/unit/groq-provider.test.ts` (+3 tests): `syntaxError` field set, omitted when absent, truncated to 200 chars
+
+**Playwright verified:** Analyzer analysis, Open in Playground (code pre-load), Analyze from Playground (code handoff), Chat with AI (pre-loaded message), Chat streaming (Groq response), Syntax error red banner.
+
 ### Previously shipped (on main, 2026-06-10)
 - UX polish sprint P1–P5: analyzer onboarding, landing honesty, mobile,
   toast system, round-trips (open-in-analyzer from analyses + snippets).
@@ -214,18 +238,19 @@ Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancemen
 | B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
 | B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending |
 | B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | ⬜ Pending — apply after B1 |
-| B7 | **F4 migration unapplied** — `supabase/migrations/20260616000300_chat.sql` not applied; chat conversations/messages/usage cannot be persisted (graceful degrade — route still works but history is lost) | Manual | ⬜ Pending — apply after B6 |
+| B7 | **F4 migration schema mismatch** — `chat_conversations` table exists but is missing the `context_metadata` column. Chat still streams (stateless mode) but conversations don't persist. Fix: add the column via SQL editor: `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` | Manual | 🟡 Partial — table exists, column missing |
+| B8 | **`JUDGE0_API_KEY` missing from Vercel env** — execution works (polling fallback shipped) but requires the key to be set in Vercel project env vars. Without it every run returns "JUDGE0_API_KEY is not configured". | User | ⬜ Pending |
 
 ## Strongly recommended before public launch
 
 - Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
 - Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
 
-## Quality gates — last verified 2026-06-21 (backup-before-refactor, post-RAG + Playground + Progress UI)
+## Quality gates — last verified 2026-06-24 (main, post-cross-page-integration sprint)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
-| `npm run build` | ✅ green (20 routes, including `/playground`, `/progress`, `/api/chat`, `/chat`) |
-| `npm run test` | ✅ **45 files / 441 tests** |
+| `npm run build` | ✅ green (21 routes) |
+| `npm run test` | ✅ **48 files / 459 tests** |

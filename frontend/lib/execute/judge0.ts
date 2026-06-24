@@ -3,16 +3,13 @@
  *
  * Responsibilities:
  *   buildJudge0Request — assemble the submission payload with resource limits
- *   callJudge0         — POST to the Judge0 submissions endpoint (wait=true)
+ *   callJudge0         — POST to the Judge0 submissions endpoint (wait=true),
+ *                        with automatic polling fallback when wait=true is
+ *                        not supported by the subscription tier.
  *   normalizeResult    — map Judge0 response → ExecutionResult (our domain type)
  *
  * Privacy: this module never logs or persists code, stdin, or stdout.
  * Callers must enforce the same contract.
- *
- * Fallback note: if the RapidAPI free tier does not support wait=true, the
- * endpoint returns a token and you must poll GET /submissions/{token}?base64_encoded=true
- * with backoff (≤ 5 polls × 1 s). That path is NOT implemented here — verify
- * wait=true is available before first deploy and add polling only if needed.
  */
 
 import type { ExecutionResult, ExecutionStatus } from "./types";
@@ -109,8 +106,89 @@ export function normalizeResult(raw: Judge0Response): ExecutionResult {
   };
 }
 
+// ─── Polling fallback (when wait=true is unsupported by the tier) ────────────
+
+/** Shape returned when the free tier ignores wait=true and queues the job. */
+interface TokenOnlyResponse {
+  token: string;
+}
+
+function isTokenOnly(raw: unknown): raw is TokenOnlyResponse {
+  return (
+    raw !== null &&
+    typeof raw === "object" &&
+    "token" in (raw as object) &&
+    typeof (raw as Record<string, unknown>).token === "string" &&
+    !("status" in (raw as object))
+  );
+}
+
+function sleepWithSignal(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(new DOMException("Aborted", "AbortError"));
+      },
+      { once: true },
+    );
+  });
+}
+
+const MAX_POLLS = 5;
+const POLL_DELAY_MS = 1_000;
+
+async function pollSubmission(
+  token: string,
+  apiKey: string,
+  apiHost: string,
+  signal?: AbortSignal,
+): Promise<Judge0Response> {
+  for (let attempt = 0; attempt < MAX_POLLS; attempt++) {
+    if (attempt > 0) {
+      await sleepWithSignal(POLL_DELAY_MS, signal);
+    }
+
+    const url = `https://${apiHost}/submissions/${encodeURIComponent(token)}?base64_encoded=true`;
+    const res = await fetch(url, {
+      headers: {
+        "X-RapidAPI-Key":  apiKey,
+        "X-RapidAPI-Host": apiHost,
+      },
+      cache: "no-store",
+      signal,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Judge0 poll returned HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const data = await res.json() as Judge0Response;
+    const id = data.status?.id ?? -1;
+    // 1 = In Queue, 2 = Processing — keep polling until a terminal status.
+    if (id !== 1 && id !== 2) {
+      return data;
+    }
+  }
+
+  throw new Error(`Judge0 submission did not complete after ${MAX_POLLS} polls.`);
+}
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+
 /**
- * Submits code to Judge0 CE and waits for the result (wait=true).
+ * Submits code to Judge0 CE and returns the result.
+ *
+ * Requests wait=true for an immediate result. When the subscription tier does
+ * not support synchronous execution the endpoint returns { token } instead of
+ * a full result; this function transparently polls until the job completes.
+ *
  * Throws on network failure or non-2xx HTTP response — callers must handle.
  *
  * @param signal - AbortSignal from the caller's AbortController timeout.
@@ -144,5 +222,13 @@ export async function callJudge0(
     throw new Error(`Judge0 returned HTTP ${response.status}: ${response.statusText}`);
   }
 
-  return response.json() as Promise<Judge0Response>;
+  const data = await response.json() as unknown;
+
+  // If the tier doesn't support wait=true, we get { token } with no status.
+  // Poll until the result is ready.
+  if (isTokenOnly(data)) {
+    return pollSubmission(data.token, apiKey, apiHost, signal);
+  }
+
+  return data as Judge0Response;
 }

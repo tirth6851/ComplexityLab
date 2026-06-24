@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SendHorizonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
+import { takeChatHandoff } from "@/lib/chat-handoff";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -19,6 +20,14 @@ export function ChatShell() {
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Consume a one-shot handoff from the Analyzer or Playground.
+  /* eslint-disable react-hooks/set-state-in-effect -- one-shot sessionStorage consume */
+  useEffect(() => {
+    const handoff = takeChatHandoff();
+    if (handoff) setInput(handoff.initialMessage);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const submit = useCallback(async () => {
     const message = input.trim();

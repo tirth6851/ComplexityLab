@@ -204,6 +204,18 @@ function ResultState({
 
   return (
     <div className="space-y-6">
+      {analysis.syntaxError && (
+        <div
+          className="flex items-start gap-3 rounded-ds-md border border-destructive/50 bg-[var(--danger-bg)] px-4 py-3 text-destructive"
+          role="alert"
+        >
+          <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+          <div>
+            <p className="font-semibold">Syntax error detected</p>
+            <p className="mt-0.5 text-sm opacity-80">{analysis.syntaxError}</p>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-label text-primary">
@@ -330,8 +342,16 @@ export function ResultsPanel({
       ? `Analysis failed. ${error ?? "Something went wrong while analyzing."}`
       : "";
 
+  const hasSyntaxError = status === "done" && !!analysis?.syntaxError;
+
   return (
-    <Card className="min-h-[600px] p-4 sm:p-6" glow={status === "done"}>
+    <Card
+      className={cn(
+        "min-h-[600px] p-4 sm:p-6",
+        hasSyntaxError && "border-destructive/40 bg-[var(--danger-bg)]/20",
+      )}
+      glow={status === "done" && !hasSyntaxError}
+    >
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {statusMessage}
       </div>

@@ -41,7 +41,8 @@ Rules:
 - Prefer the standard classes: O(1), O(log n), O(n), O(n log n), O(n²), O(n³), O(2ⁿ), O(n!). Use unicode superscripts (², ⁿ) as shown.
 - "space" means auxiliary space, excluding the input itself.
 - "confidence" is your certainty from 0 to 1.
-- Analyze the dominant cost path; mention amortized behavior in notes if relevant.`;
+- Analyze the dominant cost path; mention amortized behavior in notes if relevant.
+- If and ONLY IF the code has an obvious syntax error that would prevent it from being parsed or compiled (e.g. mismatched braces, invalid tokens, truncated code), add: "syntaxError": "brief one-line description". Do not add this field for valid or stylistically unusual code.`;
 
 interface GroqJson {
   time?: { notation?: unknown; reason?: unknown };
@@ -49,6 +50,7 @@ interface GroqJson {
   verdict?: unknown;
   notes?: unknown;
   confidence?: unknown;
+  syntaxError?: unknown;
 }
 
 function asNotation(value: unknown): string | null {
@@ -126,6 +128,8 @@ export function parseGroqAnalysis(raw: string): CodeAnalysis | null {
     .filter((n): n is string => n !== null)
     .slice(0, 6);
 
+  const syntaxError = asSentence(json.syntaxError, 200) ?? undefined;
+
   return {
     time: {
       notation: time,
@@ -143,6 +147,7 @@ export function parseGroqAnalysis(raw: string): CodeAnalysis | null {
     metrics: metricsFor(time, space, confidence),
     confidence,
     provider: "groq",
+    ...(syntaxError !== undefined ? { syntaxError } : {}),
   };
 }
 

@@ -53,4 +53,10 @@ export interface CodeAnalysis {
   confidence: number;
   /** Provider id that produced this result (e.g. "mock", "groq"). */
   provider: string;
+  /**
+   * Set only when the AI detects an obvious syntax error that would prevent
+   * the code from running. The heuristic engine never sets this field.
+   * Optional so persisted analyses without this field remain valid.
+   */
+  syntaxError?: string;
 }

@@ -102,7 +102,7 @@ export interface Conversation {
   title: string;
   contextType: string | null;
   contextRefId: string | null;
-  contextMetadata: Record<string, unknown> | null;
+  contextMetadata?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }

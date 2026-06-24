@@ -66,6 +66,38 @@ describe("parseGroqAnalysis", () => {
     );
     expect(hot?.confidence).toBe(0.99);
   });
+
+  it("sets syntaxError when the model detects one", () => {
+    const parsed = parseGroqAnalysis(
+      JSON.stringify({
+        time: { notation: "O(n)", reason: "." },
+        space: { notation: "O(1)", reason: "." },
+        verdict: "O(n) time.",
+        notes: [],
+        confidence: 0.5,
+        syntaxError: "Mismatched braces on line 3",
+      }),
+    );
+    expect(parsed?.syntaxError).toBe("Mismatched braces on line 3");
+  });
+
+  it("omits syntaxError from result when not present in JSON", () => {
+    const parsed = parseGroqAnalysis(GOOD_JSON);
+    expect(parsed).not.toBeNull();
+    expect("syntaxError" in (parsed ?? {})).toBe(false);
+  });
+
+  it("truncates syntaxError to 200 characters", () => {
+    const longError = "x".repeat(300);
+    const parsed = parseGroqAnalysis(
+      JSON.stringify({
+        time: { notation: "O(n)" },
+        space: { notation: "O(1)" },
+        syntaxError: longError,
+      }),
+    );
+    expect(parsed?.syntaxError).toHaveLength(200);
+  });
 });
 
 describe("groqProvider.analyze", () => {

@@ -5,7 +5,7 @@
 > For sprint-level focus see `MISSION_CONTROL.md`; for technical architecture
 > see `ARCHITECTURE.md` and `PHASE2_PLAN.md`; for decisions/debt see `SECOND_BRAIN.md`.
 >
-> **Last updated: 2026-06-18 (post-F4 frontend; F4 UI Polish queued)**
+> **Last updated: 2026-06-24 (post-cross-page-integration sprint)**
 
 ---
 
@@ -13,13 +13,12 @@
 
 | Field | Value |
 |---|---|
-| **Active branch** | `feature/next-sprint-v1` |
-| **Main branch SHA** | `5829ac4` (2026-06-14, 211 tests) |
-| **Active branch health** | `typecheck ✅ · lint ✅ · build ✅ · test ✅ (42 files / 393 tests)` |
+| **Active branch** | `main` |
+| **Health** | `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test ✅ (48 files / 459 tests)` |
 | **Production URL** | https://complexity-lab-eight.vercel.app (auto-deploys from `main`) |
-| **Current feature** | Phase 2 F4 — **fully complete (Backend + Frontend UI) 2026-06-18. F4 Chat UI Polish queued.** |
-| **Next task** | (1) **F4 Chat UI Polish** — CSS-first visual restyle of `/chat` page (queued, not started) · (2) Apply `20260616000300_chat.sql` to Supabase (after B1+B6) · (3) Frontend dev implements `/playground` UI · (4) Backend starts F5 (Community) |
-| **DB blocker** | `supabase/migrations/20260609000000_init.sql` NOT yet applied to production project `hhnmxyyrihrpyerdmgdw`. Also: `20260616000100_progress.sql` and `20260616000200_executions.sql` pending same project. Apply in order. |
+| **Current feature** | Cross-page integration sprint complete (2026-06-24). Next: F4 Chat UI Polish, F5 Community. |
+| **Next task** | (1) Apply `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` in Supabase SQL editor · (2) Set `JUDGE0_API_KEY` in Vercel env vars · (3) F4 Chat UI Polish · (4) F5 Community |
+| **DB blocker** | `chat_conversations` table exists but is missing `context_metadata` column. Apply SQL above. All other migrations pending for project `hhnmxyyrihrpyerdmgdw`. |
 | **Key rotation** | ✅ Done (2026-06-18) — Clerk, Supabase, Groq all rotated |
 
 ---
@@ -77,6 +76,17 @@
 - **`lib/progress/award.ts`** — `awardProgressForSave` orchestrator; best-effort, never throws, never fails the save
 - **Dashboard widgets** — `LevelCard`, `StreakCard`, `AchievementGrid`, `ActivityChart` (all Server Components, inline SVG, no new deps)
 - **Dashboard integration** — progress fetched in parallel, graceful empty state
+
+### Cross-page Integration (2026-06-24)
+- **Judge0 polling fallback** (`lib/execute/judge0.ts`) — `isTokenOnly()` detects token-only responses from free-tier RapidAPI; `pollSubmission()` polls up to 5×1s until terminal status. `callJudge0()` transparently handles both sync and async Judge0 responses.
+- **Chat backend graceful degrade** (`app/api/chat/route.ts`) — profile failure and conversation creation failure are non-fatal; route streams in stateless mode. Production `context_metadata` column error handled; removed from INSERT, made optional in types.
+- **Analyzer syntax error UI** (`lib/ai/types.ts`, `lib/ai/providers/groq.ts`, `components/analyzer/results-panel.tsx`) — Groq emits `"syntaxError"` field for unparseable code. `ResultsPanel` shows red `role="alert"` banner + card gets red border/tint when `analysis.syntaxError` is truthy.
+- **Handoff system** — three new `sessionStorage` one-shot handoff modules: `lib/chat-handoff.ts` (code + analysis context → Chat), `lib/playground-handoff.ts` (code + language → Playground). All follow the existing `lib/analyzer-handoff.ts` pattern.
+- **Analyzer → Playground** ("Open in Playground" button): `setPlaygroundHandoff` + `router.push('/playground')`. `PlaygroundShell` consumes on mount.
+- **Analyzer → Chat** ("Chat with AI" button): builds context message with code block + time/space/verdict. `setChatHandoff` + `router.push('/chat')`. `ChatShell` consumes on mount.
+- **Playground → Analyzer** ("Analyze" button in toolbar): `setAnalyzerHandoff` + `router.push('/analyzer')`. Already-existing `AnalyzerWorkbench` consumes.
+- **Playground → Chat** ("Send to AI Chat" button after run completes): appears for any terminal run state (accepted, error, compile_error, runtime_error) — users most want to ask AI about failures. Builds context with code + status + output.
+- **Tests: 48 files / 459 tests** (+18 new: chat-handoff, playground-handoff, judge0-polling, groq syntaxError paths).
 
 ### App Flows & UX
 - **Dashboard** — real data: recent analyses, saved snippets, derived stats (counts, weekly activity, day streak, language mix)

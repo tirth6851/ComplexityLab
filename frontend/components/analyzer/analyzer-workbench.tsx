@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { FileCode2, LockKeyhole, ScanLine, Upload, WandSparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { BotMessageSquare, FileCode2, LockKeyhole, Play, ScanLine, Upload, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { CodeEditor } from "./code-editor";
@@ -15,6 +16,8 @@ import {
 import { LANGUAGES, type LanguageId } from "@/lib/analysis/languages";
 import { SAMPLES } from "@/lib/analysis/samples";
 import { takeAnalyzerHandoff } from "@/lib/analyzer-handoff";
+import { setChatHandoff } from "@/lib/chat-handoff";
+import { setPlaygroundHandoff } from "@/lib/playground-handoff";
 import type { CodeAnalysis } from "@/lib/ai/types";
 
 const MIN_SCAN_MS = 650;
@@ -26,6 +29,7 @@ export interface AnalyzerWorkbenchProps {
 export function AnalyzerWorkbench({
   initialLanguage = "typescript",
 }: AnalyzerWorkbenchProps) {
+  const router = useRouter();
   const [language, setLanguage] = React.useState<LanguageId>(initialLanguage);
   const [sampleId, setSampleId] = React.useState<string>(
     SAMPLES[initialLanguage][0].id,
@@ -195,6 +199,26 @@ export function AnalyzerWorkbench({
   function requestAnalyze() {
     if (empty || status === "analyzing") return;
     void analyze();
+  }
+
+  function openInPlayground() {
+    if (!analyzed) return;
+    setPlaygroundHandoff({ code: analyzed.code, language: analyzed.language });
+    router.push("/playground");
+  }
+
+  function chatWithAI() {
+    if (!analyzed || !analysis) return;
+    const msg =
+      `I just analyzed this ${analyzed.language} code:\n` +
+      `\`\`\`${analyzed.language}\n${analyzed.code}\n\`\`\`\n\n` +
+      `**Complexity results:**\n` +
+      `- Time: ${analysis.time.notation} — ${analysis.time.reason}\n` +
+      `- Space: ${analysis.space.notation} — ${analysis.space.reason}\n` +
+      `- Verdict: ${analysis.verdict}\n\n` +
+      `Can you help me understand these results and how I might optimize this code?`;
+    setChatHandoff({ initialMessage: msg });
+    router.push("/chat");
   }
 
   const analyzeRef = React.useRef(requestAnalyze);
@@ -370,12 +394,22 @@ export function AnalyzerWorkbench({
               }
               actions={
                 analysis && analyzed ? (
-                  <SaveActions
-                    key={resultVersion}
-                    analysis={analysis}
-                    code={analyzed.code}
-                    language={analyzed.language}
-                  />
+                  <>
+                    <SaveActions
+                      key={resultVersion}
+                      analysis={analysis}
+                      code={analyzed.code}
+                      language={analyzed.language}
+                    />
+                    <Button variant="outline" size="sm" onClick={openInPlayground}>
+                      <Play className="h-3.5 w-3.5" aria-hidden />
+                      Open in Playground
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={chatWithAI}>
+                      <BotMessageSquare className="h-3.5 w-3.5" aria-hidden />
+                      Chat with AI
+                    </Button>
+                  </>
                 ) : undefined
               }
             />

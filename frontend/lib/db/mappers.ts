@@ -98,7 +98,7 @@ export interface ConversationRow {
   title: string;
   context_type: string | null;
   context_ref_id: string | null;
-  context_metadata: Record<string, unknown> | null;
+  context_metadata?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
