@@ -31,12 +31,12 @@ export const EXECUTE_RATE_LIMIT = { limit: 10, windowMs: 60_000 } as const;
 /**
  * Per-user daily execution ceiling — DB-backed because in-memory cannot
  * enforce cross-instance daily caps on serverless. Resets at UTC midnight.
- * Override with JUDGE0_USER_DAILY_QUOTA env var.
+ * Override with JUDGE0_USER_DAILY_QUOTA env var (positive integer).
+ * Falls back to 100 if the env var is absent, empty, or non-numeric.
  */
-export const EXECUTE_DAILY_QUOTA = parseInt(
-  process.env.JUDGE0_USER_DAILY_QUOTA ?? "100",
-  10,
-);
+const _rawUserQuota = parseInt(process.env.JUDGE0_USER_DAILY_QUOTA ?? "", 10);
+export const EXECUTE_DAILY_QUOTA =
+  Number.isFinite(_rawUserQuota) && _rawUserQuota > 0 ? _rawUserQuota : 100;
 
 /**
  * Default global daily hard cap for Judge0 submissions across ALL users.
