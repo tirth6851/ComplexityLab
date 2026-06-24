@@ -1,5 +1,6 @@
 import {
   Code2,
+  GraduationCap,
   LayoutDashboard,
   MessageSquare,
   ScanLine,
@@ -28,6 +29,13 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Chat",       href: "/chat",        icon: MessageSquare, ready: true  },
   { label: "Playground", href: "/playground", icon: Terminal,   ready: true },
   { label: "Progress",   href: "/progress",   icon: TrendingUp, ready: true },
+  {
+    label: "Learning Hub",
+    href: "/learning",
+    icon: GraduationCap,
+    ready: true,
+    match: "/learning",
+  },
   {
     label: "Settings",
     href: "/settings/profile",
