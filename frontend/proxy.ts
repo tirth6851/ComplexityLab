@@ -15,6 +15,7 @@ export const PROTECTED_ROUTES = [
   "/progress(.*)",
   "/settings(.*)",
   "/chat(.*)",
+  "/learning(.*)",
 ] as const;
 
 const isProtectedRoute = createRouteMatcher([...PROTECTED_ROUTES]);

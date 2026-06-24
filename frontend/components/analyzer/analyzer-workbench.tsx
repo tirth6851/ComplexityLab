@@ -65,11 +65,18 @@ export function AnalyzerWorkbench({
 
   function onLanguageChange(next: LanguageId) {
     setLanguage(next);
-    setSampleId("");
+    // Keep current sample selection if it was custom; otherwise reset to first sample of new language
+    if (sampleId !== "__custom__") {
+      setSampleId("");
+    }
   }
 
   function onSampleChange(id: string) {
     setSampleId(id);
+    if (id === "__custom__") {
+      setCode("");
+      return;
+    }
     const sample = samples.find((s) => s.id === id);
     if (sample) setCode(sample.code);
   }
@@ -310,6 +317,7 @@ export function AnalyzerWorkbench({
                   <option value="" disabled>
                     Load a sample...
                   </option>
+                  <option value="__custom__">✏️ Custom (blank)</option>
                   {samples.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -348,7 +356,9 @@ export function AnalyzerWorkbench({
               <div className="flex items-center gap-2">
                 {empty && (
                   <span className="text-xs text-ink-faint" aria-live="polite">
-                    Paste code to analyze
+                    {sampleId === "__custom__"
+                      ? "Type or paste your code above"
+                      : "Load a sample or paste code to analyze"}
                   </span>
                 )}
                 <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised">

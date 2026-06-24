@@ -21,10 +21,8 @@ describe("analyzeCode — structure", () => {
   });
 
   it("returns a complete result shape", () => {
-    const r = analyzeCode({
-      code: SAMPLES.typescript[2].code,
-      language: "typescript",
-    });
+    const bubble = SAMPLES.typescript.find((s) => s.id === "ts-bubble-sort")!;
+    const r = analyzeCode({ code: bubble.code, language: "typescript" });
     expect(r.time.tier).toBe("poor"); // bubble sort O(n²)
     expect(r.space.notation).toBeTruthy();
     expect(r.verdict).toContain("O(n²)");

@@ -20,6 +20,7 @@ import {
 import { getChatProvider } from "@/lib/ai/chat";
 import { chatSystemPrompt, buildChatMessages } from "@/lib/ai/prompts/chat";
 import { retrieveContext } from "@/lib/ai/rag/retriever";
+import { COACH_PROMPTS, isCoachType } from "@/lib/ai/prompts/coaches";
 
 /**
  * Allow up to 30 s for the stream to complete — chat responses can be long.
@@ -65,11 +66,15 @@ export async function POST(request: Request) {
     message,
     conversationId,
     contextRef,
+    coachType: rawCoachType,
   } = (body ?? {}) as {
     message?: unknown;
     conversationId?: unknown;
     contextRef?: unknown;
+    coachType?: unknown;
   };
+
+  const coachType = isCoachType(rawCoachType) ? rawCoachType : null;
 
   if (typeof message !== "string" || message.trim().length === 0) {
     return Response.json({ error: "Provide a message." }, { status: 400 });
@@ -178,7 +183,10 @@ export async function POST(request: Request) {
     : [];
 
   const ragContext = retrieveContext(trimmedMessage, 3);
-  const system = chatSystemPrompt({ ragContext: ragContext.length ? ragContext : undefined });
+  // Coach mode: use a specialized system prompt instead of the default tutor prompt.
+  const system = coachType
+    ? COACH_PROMPTS[coachType]
+    : chatSystemPrompt({ ragContext: ragContext.length ? ragContext : undefined });
   const messages = buildChatMessages({
     system,
     history,
