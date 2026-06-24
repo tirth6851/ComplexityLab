@@ -28,9 +28,27 @@ export const DELETE_RATE_LIMIT = { limit: 60, windowMs: 60_000 } as const;
 /** Per-user execution burst (in-memory, per warm instance). */
 export const EXECUTE_RATE_LIMIT = { limit: 10, windowMs: 60_000 } as const;
 
-/** Per-user daily execution ceiling — DB-backed because in-memory cannot
- *  enforce cross-instance daily caps on serverless. Resets at UTC midnight. */
-export const EXECUTE_DAILY_QUOTA = 100;
+/**
+ * Per-user daily execution ceiling — DB-backed because in-memory cannot
+ * enforce cross-instance daily caps on serverless. Resets at UTC midnight.
+ * Override with JUDGE0_USER_DAILY_QUOTA env var.
+ */
+export const EXECUTE_DAILY_QUOTA = parseInt(
+  process.env.JUDGE0_USER_DAILY_QUOTA ?? "100",
+  10,
+);
+
+/**
+ * Default global daily hard cap for Judge0 submissions across ALL users.
+ * This is a reference constant; the route reads JUDGE0_GLOBAL_DAILY_CAP
+ * at request time so it can be toggled without redeployment.
+ *
+ * 900 = safety buffer below ~$1 in paid overage (RapidAPI charges ~$0.001/submission
+ * after 500 free daily requests). Leaves a 100-submission buffer to absorb TOCTOU
+ * race windows across concurrent serverless invocations.
+ * Only enforced when JUDGE0_GLOBAL_DAILY_CAP is explicitly set in env.
+ */
+export const JUDGE0_GLOBAL_DAILY_CAP_DEFAULT = 900;
 
 /** Hard cap on a single chat message (chars). */
 export const MAX_CHAT_MESSAGE_LENGTH = 4_000;

@@ -42,6 +42,35 @@ export async function countExecutionsToday(): Promise<DbResult<number>> {
 }
 
 /**
+ * Counts all code executions run today (UTC) across every user.
+ * Used for the global cost-protection cap in /api/execute.
+ *
+ * No profile_id filter — counts all submissions globally so the route can
+ * enforce a billing-period hard cap across all users.
+ *
+ * Returns { ok: false } on any DB error — the route logs and degrades
+ * gracefully when the DB is unavailable or the migration is not yet applied.
+ */
+export async function countAllExecutionsToday(): Promise<DbResult<number>> {
+  try {
+    const db = getAdminClient();
+
+    const startOfDayUtc = new Date();
+    startOfDayUtc.setUTCHours(0, 0, 0, 0);
+
+    const res = await db
+      .from("code_executions")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", startOfDayUtc.toISOString());
+
+    if (res.error) throw res.error;
+    return { ok: true, data: res.count ?? 0 };
+  } catch (e) {
+    return dbError(e, "Could not check global execution quota.");
+  }
+}
+
+/**
  * Persists execution metadata after a run. Stores only metadata — code,
  * stdin, stdout, and stderr are NEVER recorded here (privacy parity with
  * the analyses table).

@@ -11,11 +11,13 @@ import {
 const mockAuth = vi.fn();
 vi.mock("@clerk/nextjs/server", () => ({ auth: () => mockAuth() }));
 
-const mockCountExecutionsToday = vi.fn();
-const mockRecordExecution      = vi.fn();
+const mockCountExecutionsToday    = vi.fn();
+const mockCountAllExecutionsToday = vi.fn();
+const mockRecordExecution         = vi.fn();
 vi.mock("@/lib/db/executions", () => ({
-  countExecutionsToday: () => mockCountExecutionsToday(),
-  recordExecution:      (r: unknown) => mockRecordExecution(r),
+  countExecutionsToday:    () => mockCountExecutionsToday(),
+  countAllExecutionsToday: () => mockCountAllExecutionsToday(),
+  recordExecution:         (r: unknown) => mockRecordExecution(r),
 }));
 
 // Stub global fetch to intercept Judge0 HTTP calls
@@ -74,9 +76,11 @@ describe("POST /api/execute", () => {
     mockAuth.mockReset();
     mockAuth.mockResolvedValue({ userId: "user_test_exec_123" });
 
-    // DB: quota not reached, record succeeds
+    // DB: quota not reached, record succeeds, global count zero
     mockCountExecutionsToday.mockReset();
     mockCountExecutionsToday.mockResolvedValue({ ok: true, data: 0 });
+    mockCountAllExecutionsToday.mockReset();
+    mockCountAllExecutionsToday.mockResolvedValue({ ok: true, data: 0 });
     mockRecordExecution.mockReset();
     mockRecordExecution.mockResolvedValue({ ok: true, data: null });
 
@@ -89,11 +93,17 @@ describe("POST /api/execute", () => {
 
     // Provide a fake API key so callJudge0 doesn't throw before fetch
     process.env.JUDGE0_API_KEY = "test-key-execute";
+
+    // Clear any lingering kill-switch env vars so tests are isolated
+    delete process.env.JUDGE0_GLOBAL_DAILY_CAP;
+    delete process.env.JUDGE0_ENABLED;
   });
 
   afterAll(() => {
     vi.unstubAllGlobals();
     delete process.env.JUDGE0_API_KEY;
+    delete process.env.JUDGE0_GLOBAL_DAILY_CAP;
+    delete process.env.JUDGE0_ENABLED;
   });
 
   // ── Configuration guard ─────────────────────────────────────────────────────
@@ -333,5 +343,75 @@ describe("POST /api/execute", () => {
     expect(allLogged).not.toContain(STDOUT_SENTINEL);
 
     logSpy.mockRestore();
+  });
+
+  // ── Emergency disable ───────────────────────────────────────────────────────
+
+  it("returns 503 when JUDGE0_ENABLED is set to false", async () => {
+    process.env.JUDGE0_ENABLED = "false";
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(503);
+    const body = await res.json() as { error: string };
+    expect(body.error).toMatch(/disabled|temporarily/i);
+  });
+
+  it("allows execution when JUDGE0_ENABLED is omitted (default on)", async () => {
+    delete process.env.JUDGE0_ENABLED;
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(200);
+  });
+
+  // ── Global daily cap ────────────────────────────────────────────────────────
+
+  it("skips global cap check when JUDGE0_GLOBAL_DAILY_CAP is not set", async () => {
+    delete process.env.JUDGE0_GLOBAL_DAILY_CAP;
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(200);
+    expect(mockCountAllExecutionsToday).not.toHaveBeenCalled();
+  });
+
+  it("allows execution when global count is under the cap", async () => {
+    process.env.JUDGE0_GLOBAL_DAILY_CAP = "900";
+    mockCountAllExecutionsToday.mockResolvedValue({ ok: true, data: 899 });
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 503 when global cap is exactly reached", async () => {
+    process.env.JUDGE0_GLOBAL_DAILY_CAP = "900";
+    mockCountAllExecutionsToday.mockResolvedValue({ ok: true, data: 900 });
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(503);
+    const body = await res.json() as { error: string };
+    expect(body.error).toMatch(/temporarily unavailable|try again/i);
+  });
+
+  it("returns 503 when global count exceeds cap", async () => {
+    process.env.JUDGE0_GLOBAL_DAILY_CAP = "900";
+    mockCountAllExecutionsToday.mockResolvedValue({ ok: true, data: 1200 });
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(503);
+  });
+
+  it("allows execution when global cap DB check fails (graceful degradation)", async () => {
+    process.env.JUDGE0_GLOBAL_DAILY_CAP = "900";
+    mockCountAllExecutionsToday.mockResolvedValue({
+      ok:    false,
+      error: "relation code_executions does not exist",
+    });
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    // Fail-open: DB unavailable means we cannot confirm cap was reached — allow
+    expect(res.status).toBe(200);
+    const body = await res.json() as { result: { status: string } };
+    expect(body.result.status).toBe("accepted");
+  });
+
+  it("ignores global cap when JUDGE0_GLOBAL_DAILY_CAP is 0 (disabled)", async () => {
+    process.env.JUDGE0_GLOBAL_DAILY_CAP = "0";
+    mockCountAllExecutionsToday.mockResolvedValue({ ok: true, data: 99999 });
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    // cap=0 means disabled — no check should run
+    expect(res.status).toBe(200);
+    expect(mockCountAllExecutionsToday).not.toHaveBeenCalled();
   });
 });
