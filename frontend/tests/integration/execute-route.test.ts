@@ -96,6 +96,18 @@ describe("POST /api/execute", () => {
     delete process.env.JUDGE0_API_KEY;
   });
 
+  // ── Configuration guard ─────────────────────────────────────────────────────
+
+  it("returns 503 when JUDGE0_API_KEY is not configured", async () => {
+    delete process.env.JUDGE0_API_KEY;
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(503);
+    const body = await res.json() as { error: string };
+    expect(body.error).toMatch(/not available/i);
+    // Restore so subsequent tests in this suite still have the key
+    process.env.JUDGE0_API_KEY = "test-key-execute";
+  });
+
   // ── Authentication ──────────────────────────────────────────────────────────
 
   it("returns 401 when user is not signed in", async () => {
@@ -255,6 +267,22 @@ describe("POST /api/execute", () => {
     };
     expect(body.result.status).toBe("error");
     expect(body.result.statusLabel).toMatch(/unavailable/i);
+  });
+
+  it("returns 200 with timed-out statusLabel when the abort signal fires", async () => {
+    // fetch throws an Error whose name is "AbortError" when the AbortSignal fires
+    const abortErr = new Error("This operation was aborted");
+    abortErr.name = "AbortError";
+    mockFetch.mockRejectedValue(abortErr);
+
+    const res = await POST(makeRequest({ code: "print(1)", language: "python" }));
+    expect(res.status).toBe(200);
+
+    const body = await res.json() as {
+      result: { status: string; statusLabel: string };
+    };
+    expect(body.result.status).toBe("error");
+    expect(body.result.statusLabel).toMatch(/timed out/i);
   });
 
   it("returns 200 with error result when Judge0 returns non-2xx HTTP", async () => {
