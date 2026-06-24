@@ -8,23 +8,26 @@
 
 ## Current sprint: Phase 1 cost limiting shipped · Phase 2 complete · Migration blockers remain
 
-**Active branch:** `feature/phase3-product-enhancements` — PR open, not yet merged.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 486 tests ✅`
+**Active branch:** `feature/phase3-product-enhancements` — PR open (rebased onto main 2026-06-24).
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 490 tests ✅`
 
-**PR:** https://github.com/tirth6851/ComplexityLab/pull/new/feature/phase3-product-enhancements
+**PR:** https://github.com/tirth6851/ComplexityLab/pulls (update description via web UI — gh CLI unauthenticated)
 
-**Now:** Judge0 cost limiting (global cap, emergency disable, env-configurable quotas) shipped. All Phase 2 cross-page integration tasks were completed in a prior session. Remaining blockers are all user-action items: RapidAPI subscription (403 fix), and DB migrations B7/B1.
+**Now:** Branch rebased onto main (3 upstream commits merged: duplicate nav removal, progress XP for snippet/execution, analyzer error state). All gates green at 490 tests. Judge0 cost limiting + Phase 2 cross-page integration all intact. Remaining blockers are user-action items: RapidAPI subscription (403 fix) and DB migrations B7/B1.
 
 ### Shipped (2026-06-24, feature/phase3-product-enhancements) — Phase 1 Judge0 Cost Limiting
 
 - **`countAllExecutionsToday()`** (`lib/db/executions.ts`) — new global submission count (no profile_id filter, admin client). Used for billing-period cap across all users.
 - **`JUDGE0_GLOBAL_DAILY_CAP_DEFAULT = 900`** (`lib/limits.ts`) — reference constant (~$0.90 overage cap). Active only when `JUDGE0_GLOBAL_DAILY_CAP` env var is explicitly set.
 - **`EXECUTE_DAILY_QUOTA`** now env-configurable via `JUDGE0_USER_DAILY_QUOTA` (default 100).
-- **`/api/execute` pipeline** extended with two new pre-rate-limit steps:
+- **`/api/execute` pipeline** extended with three new pre-rate-limit steps:
+  - Config guard: 503 when `JUDGE0_API_KEY` is not set (fail-fast before consuming rate tokens).
   - Emergency disable: `JUDGE0_ENABLED=false` → instant 503, no redeployment needed.
   - Global cap: reads `JUDGE0_GLOBAL_DAILY_CAP` at request time; skips when unset (backward-compatible); fails open on DB error (B6 migration may not be applied); blocks at 503 when cap is reached.
+- **Timeout label fix**: `AbortError` from the 12 s timeout now returns `"Execution timed out"` instead of the generic `"Execution service unavailable"`.
 - **`.env.example`** — documents `JUDGE0_ENABLED`, `JUDGE0_GLOBAL_DAILY_CAP`, `JUDGE0_USER_DAILY_QUOTA`.
-- **27 new tests** (459 → 486): emergency disable on/off, global cap skip, under/at/above cap, DB failure degradation, cap=0 disabled path. All 4 gates green.
+- **NaN guard fix**: both `JUDGE0_USER_DAILY_QUOTA` and `JUDGE0_GLOBAL_DAILY_CAP` now use `Number.isFinite()` check — a non-numeric env value no longer silently bypasses limits.
+- **31 new tests** (459 → 490 total with upstream additions): config guard, abort timeout label, emergency disable on/off, global cap skip/under/at/above, DB failure degradation, cap=0 disabled path.
 
 ### Shipped (2026-06-23, feature/phase3-product-enhancements)
 
