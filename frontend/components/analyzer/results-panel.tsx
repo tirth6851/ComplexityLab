@@ -211,8 +211,9 @@ function ResultState({
         >
           <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           <div>
-            <p className="font-semibold">Syntax error detected</p>
-            <p className="mt-0.5 text-sm opacity-80">{analysis.syntaxError}</p>
+            <p className="font-semibold">Analysis failed</p>
+            <p className="mt-0.5 text-sm font-medium opacity-90">Syntax error detected</p>
+            <p className="mt-1 text-sm opacity-80">{analysis.syntaxError}</p>
           </div>
         </div>
       )}
@@ -331,18 +332,19 @@ export function ResultsPanel({
   idleAction,
   analysisProgress = 0,
 }: ResultsPanelProps) {
+  const hasSyntaxError = status === "done" && !!analysis?.syntaxError;
   const statusMessage =
     status === "analyzing"
       ? "Analyzing code…"
-      : status === "done" && analysis
+      : status === "done" && analysis && !hasSyntaxError
         ? `Analysis complete. Time ${analysis.time.notation}. Space ${analysis.space.notation}.`
         : "";
   const alertMessage =
     status === "error"
       ? `Analysis failed. ${error ?? "Something went wrong while analyzing."}`
-      : "";
-
-  const hasSyntaxError = status === "done" && !!analysis?.syntaxError;
+      : hasSyntaxError
+        ? `Analysis failed. Syntax error detected. ${analysis?.syntaxError}`
+        : "";
 
   return (
     <Card
@@ -369,3 +371,4 @@ export function ResultsPanel({
     </Card>
   );
 }
+

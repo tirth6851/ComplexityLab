@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ResultsPanel } from "@/components/analyzer/results-panel";
 import { analyzeCode } from "@/lib/analysis/engine";
 import { SAMPLES } from "@/lib/analysis/samples";
 
 const analysis = analyzeCode({
-  code: SAMPLES.typescript[0].code, // binary search → O(log n)
+  code: SAMPLES.typescript[0].code, // binary search â†’ O(log n)
   language: "typescript",
 });
 
@@ -59,12 +59,12 @@ describe("ResultsPanel", () => {
     expect(screen.getByText("TIME")).toBeInTheDocument();
     expect(screen.getAllByText("O(log n)").length).toBeGreaterThan(0);
 
-    // growth timeline (svg with accessible label) — shown in time tab
+    // growth timeline (svg with accessible label) â€” shown in time tab
     expect(
       screen.getByRole("img", { name: /growth curves/i }),
     ).toBeInTheDocument();
 
-    // reasoning section heading — shown in time tab
+    // reasoning section heading â€” shown in time tab
     expect(screen.getByText("Reasoning")).toBeInTheDocument();
   });
 
@@ -79,6 +79,23 @@ describe("ResultsPanel", () => {
     expect(
       screen.getByRole("button", { name: "Save analysis" }),
     ).toBeInTheDocument();
+  });
+
+  it("presents syntax errors as a failed analysis while keeping returned details", () => {
+    render(
+      <ResultsPanel
+        status="done"
+        analysis={{
+          ...analysis,
+          syntaxError: "Unexpected token near line 4",
+        }}
+      />,
+    );
+
+    expect(screen.getAllByText("Analysis failed").length).toBeGreaterThan(0);
+    expect(screen.getByText("Syntax error detected")).toBeInTheDocument();
+    expect(screen.getByText("Unexpected token near line 4")).toBeInTheDocument();
+    expect(screen.getAllByText(analysis.time.notation).length).toBeGreaterThan(0);
   });
 });
 
@@ -115,3 +132,5 @@ describe("ResultsPanel screen-reader announcements", () => {
     expect(screen.getByRole("alert").textContent).toBe("");
   });
 });
+
+

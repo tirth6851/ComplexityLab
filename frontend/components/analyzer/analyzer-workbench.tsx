@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -13,11 +13,12 @@ import {
   ActivityToast,
   type ActivityToastItem,
 } from "@/components/ui/activity-toast";
-import { LANGUAGES, type LanguageId } from "@/lib/analysis/languages";
+import { LANGUAGES, languageLabel, type LanguageId } from "@/lib/analysis/languages";
 import { SAMPLES } from "@/lib/analysis/samples";
 import { takeAnalyzerHandoff } from "@/lib/analyzer-handoff";
 import { setChatHandoff } from "@/lib/chat-handoff";
 import { setPlaygroundHandoff } from "@/lib/playground-handoff";
+import { isExecutable } from "@/lib/execute/languages";
 import type { CodeAnalysis } from "@/lib/ai/types";
 
 const MIN_SCAN_MS = 650;
@@ -209,24 +210,37 @@ export function AnalyzerWorkbench({
   }
 
   function openInPlayground() {
-    if (!analyzed) return;
+    if (!analyzed || !isExecutable(analyzed.language)) return;
     setPlaygroundHandoff({ code: analyzed.code, language: analyzed.language });
     router.push("/playground");
   }
 
   function chatWithAI() {
     if (!analyzed || !analysis) return;
+    const notes = analysis.notes.length > 0
+      ? analysis.notes.map((note) => `- ${note}`).join("\n")
+      : "- No additional optimization notes or warnings were returned.";
+    const syntaxLine = analysis.syntaxError
+      ? `\nSyntax Error: ${analysis.syntaxError}\n`
+      : "";
     const msg =
-      `I just analyzed this ${analyzed.language} code:\n` +
-      `\`\`\`${analyzed.language}\n${analyzed.code}\n\`\`\`\n\n` +
-      `**Complexity results:**\n` +
-      `- Time: ${analysis.time.notation} — ${analysis.time.reason}\n` +
-      `- Space: ${analysis.space.notation} — ${analysis.space.reason}\n` +
-      `- Verdict: ${analysis.verdict}\n\n` +
-      `Can you help me understand these results and how I might optimize this code?`;
+      `I just analyzed code in ComplexityLab. Please explain the result and suggest safe improvements.\n\n` +
+      `Language: ${analyzed.language}\n` +
+      `Time Complexity: ${analysis.time.notation} - ${analysis.time.reason}\n` +
+      `Space Complexity: ${analysis.space.notation} - ${analysis.space.reason}\n` +
+      `Verdict: ${analysis.verdict}\n` +
+      `Confidence: ${Math.round(analysis.confidence * 100)}%\n` +
+      syntaxLine +
+      `\nOptimization notes / warnings:\n${notes}\n\n` +
+      `Source code:\n` +
+      `\`\`\`${analyzed.language}\n${analyzed.code}\n\`\`\``;
     setChatHandoff({ initialMessage: msg });
     router.push("/chat");
   }
+  const playgroundSupported = analyzed ? isExecutable(analyzed.language) : true;
+  const playgroundUnsupportedMessage = analyzed && !playgroundSupported
+    ? `${languageLabel(analyzed.language)} is not supported in Playground yet.`
+    : null;
 
   const analyzeRef = React.useRef(requestAnalyze);
   React.useEffect(() => {
@@ -317,7 +331,7 @@ export function AnalyzerWorkbench({
                   <option value="" disabled>
                     Load a sample...
                   </option>
-                  <option value="__custom__">✏️ Custom (blank)</option>
+                  <option value="__custom__">âœï¸ Custom (blank)</option>
                   {samples.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -411,10 +425,21 @@ export function AnalyzerWorkbench({
                       code={analyzed.code}
                       language={analyzed.language}
                     />
-                    <Button variant="outline" size="sm" onClick={openInPlayground}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={openInPlayground}
+                      disabled={!playgroundSupported}
+                      title={playgroundUnsupportedMessage ?? undefined}
+                    >
                       <Play className="h-3.5 w-3.5" aria-hidden />
                       Open in Playground
                     </Button>
+                    {playgroundUnsupportedMessage && (
+                      <span className="basis-full text-xs text-destructive" role="status">
+                        {playgroundUnsupportedMessage}
+                      </span>
+                    )}
                     <Button variant="outline" size="sm" onClick={chatWithAI}>
                       <BotMessageSquare className="h-3.5 w-3.5" aria-hidden />
                       Chat with AI
@@ -435,3 +460,5 @@ export function AnalyzerWorkbench({
     </div>
   );
 }
+
+
