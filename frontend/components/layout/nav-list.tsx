@@ -21,8 +21,8 @@ export function NavList({
   return (
     <nav
       className={cn(
-        "flex-1 space-y-2 p-4 transition-[padding] duration-200 ease-ds",
-        collapsed && "space-y-1.5 px-2.5",
+        "flex-1 space-y-1.5 px-3 py-3.5 transition-[padding] duration-200 ease-ds",
+        collapsed && "space-y-1 px-2.5",
       )}
       aria-label="Workspace"
     >
@@ -66,7 +66,7 @@ export function NavList({
             title={collapsed ? item.label : undefined}
             className={cn(
               "group relative flex items-center rounded-ds-lg border text-[15px] font-semibold leading-none transition-all duration-150 ease-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              collapsed ? "h-[46px] justify-center px-0" : "h-[52px] gap-3.5 px-3.5",
+              collapsed ? "h-[42px] justify-center px-0" : "h-[46px] gap-3.5 px-3.5",
               active
                 ? "border-primary/30 bg-[var(--accent-muted)] text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_12px_28px_-24px_rgba(0,229,153,0.85)]"
                 : "border-transparent text-ink-secondary hover:border-line-subtle hover:bg-surface-raised/70 hover:text-ink-primary",
@@ -86,7 +86,7 @@ export function NavList({
             title={collapsed ? item.label : undefined}
             className={cn(
               "flex cursor-default items-center rounded-ds-lg border border-transparent text-[15px] font-semibold text-ink-muted/70",
-              collapsed ? "h-[46px] justify-center px-0" : "h-[52px] gap-3.5 px-3.5",
+              collapsed ? "h-[42px] justify-center px-0" : "h-[46px] gap-3.5 px-3.5",
             )}
           >
             {inner}

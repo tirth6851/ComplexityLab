@@ -6,7 +6,7 @@ import { logEvent } from "@/lib/log";
 import { evaluateNewAchievements } from "./evaluate";
 
 /**
- * Award XP for saving an analysis — best-effort, never throws.
+ * Award XP for saving an analysis â€” best-effort, never throws.
  * The save succeeds even if progress fails (progress is a bonus, not a gate).
  */
 export async function awardProgressForSave(input: {
@@ -50,5 +50,34 @@ export async function awardProgressForSave(input: {
     } else {
       logEvent("progress.achievement_unlocked", { key });
     }
+  }
+}
+
+/** Award a small XP bonus for saving reusable code. Best-effort only. */
+export async function awardProgressForSnippet(input: {
+  language: string;
+}): Promise<void> {
+  const result = await awardProgress({
+    type: "snippet",
+    amount: 5,
+    meta: { language: input.language },
+  });
+  if (!result.ok) {
+    logEvent("progress.error", { step: "snippet", error: result.error });
+  }
+}
+
+/** Award a small XP bonus for running code in the playground. Best-effort only. */
+export async function awardProgressForExecution(input: {
+  language: string;
+  status: string;
+}): Promise<void> {
+  const result = await awardProgress({
+    type: "execution",
+    amount: input.status === "accepted" ? 3 : 1,
+    meta: { language: input.language, status: input.status },
+  });
+  if (!result.ok) {
+    logEvent("progress.error", { step: "execution", error: result.error });
   }
 }

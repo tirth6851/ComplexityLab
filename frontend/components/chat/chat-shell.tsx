@@ -146,7 +146,7 @@ export function ChatShell() {
               Ask anything about algorithms and complexity
             </p>
             <p className="text-xs text-ink-muted">
-              Powered by Groq · 50 messages/day
+              AI tutor - 50 messages/day
             </p>
           </div>
         ) : (
@@ -173,7 +173,7 @@ export function ChatShell() {
                     <ChatMarkdown content={msg.content} />
                   ) : streaming ? (
                     <span className="text-ink-muted" aria-label="Loading response">
-                      …
+                      â€¦
                     </span>
                   ) : null}
                 </div>
@@ -207,7 +207,7 @@ export function ChatShell() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask about an algorithm or complexity class… (Enter to send, Shift+Enter for newline)"
+          placeholder="Ask about an algorithm or complexity classâ€¦ (Enter to send, Shift+Enter for newline)"
           disabled={streaming}
           rows={3}
           className="flex-1 resize-none rounded-ds-md border border-line-subtle bg-surface-inset px-3 py-2 text-sm text-ink-primary shadow-inset-well outline-none placeholder:text-ink-faint focus:border-primary/60 focus:shadow-glow-green disabled:opacity-45"

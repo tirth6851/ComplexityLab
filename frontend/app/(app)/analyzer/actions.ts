@@ -7,7 +7,7 @@ import { isLanguageId } from "@/lib/analysis/languages";
 import { checkActionLimit } from "@/lib/action-limit";
 import { MAX_CODE_LENGTH, SAVE_RATE_LIMIT } from "@/lib/limits";
 import { logEvent } from "@/lib/log";
-import { awardProgressForSave } from "@/lib/progress/award";
+import { awardProgressForSave, awardProgressForSnippet } from "@/lib/progress/award";
 import type { CodeAnalysis } from "@/lib/ai/types";
 
 export interface SaveActionResult {
@@ -18,7 +18,7 @@ export interface SaveActionResult {
 
 function validate(code: unknown, language: unknown): string | null {
   if (typeof code !== "string" || code.trim().length === 0) {
-    return "Nothing to save — the code buffer is empty.";
+    return "Nothing to save â€” the code buffer is empty.";
   }
   if (code.length > MAX_CODE_LENGTH) return "Code is too large to save.";
   if (typeof language !== "string" || !isLanguageId(language)) {
@@ -53,7 +53,7 @@ export async function saveAnalysisAction(input: {
   });
   if (!res.ok) return { ok: false, error: res.error };
 
-  // Best-effort progress award — never fails the save.
+  // Best-effort progress award â€” never fails the save.
   try {
     await awardProgressForSave({ language: input.language, analysis: input.analysis });
   } catch (e) {
@@ -87,6 +87,13 @@ export async function saveSnippetAction(input: {
     tags: input.tags,
   });
   if (!res.ok) return { ok: false, error: res.error };
+
+  // Best-effort progress award - never fails the save.
+  try {
+    await awardProgressForSnippet({ language: input.language });
+  } catch (e) {
+    logEvent("progress.error", { step: "snippet-award", error: String(e) });
+  }
 
   revalidatePath("/snippets");
   revalidatePath("/dashboard");

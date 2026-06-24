@@ -11,6 +11,7 @@ import {
 import { isExecutable, JUDGE0_LANGUAGES } from "@/lib/execute/languages";
 import { callJudge0, normalizeResult } from "@/lib/execute/judge0";
 import { countExecutionsToday, recordExecution } from "@/lib/db/executions";
+import { awardProgressForExecution } from "@/lib/progress/award";
 import type { ExecutionResult } from "@/lib/execute/types";
 
 /**
@@ -20,15 +21,15 @@ import type { ExecutionResult } from "@/lib/execute/types";
 export const maxDuration = 15;
 
 /**
- * POST /api/execute — proxy user code to Judge0 CE and return the result.
+ * POST /api/execute â€” proxy user code to Judge0 CE and return the result.
  *
  * Pipeline:
- *   1. auth()                     → 401 if signed out
- *   2. rateLimit (in-memory)      → 429 if > 10/min (burst guard)
- *   3. countExecutionsToday (DB)  → 429 if daily quota reached
- *   4. validate body              → 400/413 on bad input
- *   5. callJudge0 (12 s timeout)  → 200 { result } on success or service error
- *   6. recordExecution (DB)       → best-effort metadata insert (never blocks response)
+ *   1. auth()                     â†’ 401 if signed out
+ *   2. rateLimit (in-memory)      â†’ 429 if > 10/min (burst guard)
+ *   3. countExecutionsToday (DB)  â†’ 429 if daily quota reached
+ *   4. validate body              â†’ 400/413 on bad input
+ *   5. callJudge0 (12 s timeout)  â†’ 200 { result } on success or service error
+ *   6. recordExecution (DB)       â†’ best-effort metadata insert (never blocks response)
  *
  * Privacy: code, stdin, and stdout are NEVER logged or persisted. Only
  * execution metadata (language, status, timing) is recorded.
@@ -39,18 +40,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in to run code." }, { status: 401 });
   }
 
-  // ── 1. Per-minute burst guard (in-memory, per warm instance) ──────────────
+  // â”€â”€ 1. Per-minute burst guard (in-memory, per warm instance) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const limit = rateLimit(`execute:${userId}`, EXECUTE_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("execute.rate_limited", { userId, retryAfterSec });
     return NextResponse.json(
-      { error: `Too many executions — try again in ${retryAfterSec}s.` },
+      { error: `Too many executions â€” try again in ${retryAfterSec}s.` },
       { status: 429, headers: { "Retry-After": `${retryAfterSec}` } },
     );
   }
 
-  // ── 2. Daily quota guard (DB-backed) ──────────────────────────────────────
+  // â”€â”€ 2. Daily quota guard (DB-backed) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // In-memory limits cannot enforce per-day caps across serverless instances.
   // On quota-check failure we degrade gracefully: allow the execution and log.
   const quotaResult = await countExecutionsToday();
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── 3. Parse and validate request body ────────────────────────────────────
+  // â”€â”€ 3. Parse and validate request body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let body: unknown;
   try {
     body = await request.json();
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
   const languageId = JUDGE0_LANGUAGES[language]!;
   const startedAt = Date.now();
 
-  // ── 4. Call Judge0 with a hard 12 s abort timeout ─────────────────────────
+  // â”€â”€ 4. Call Judge0 with a hard 12 s abort timeout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12_000);
 
@@ -128,7 +129,7 @@ export async function POST(request: Request) {
       ms: Date.now() - startedAt,
       reason: isAbort ? "timeout" : (e instanceof Error ? e.message : "unknown"),
     });
-    // No local execution fallback — return a clean error state (same ethos as Groq fallback)
+    // No local execution fallback â€” return a clean error state (same ethos as Groq fallback)
     return NextResponse.json({
       result: {
         status:        "error",
@@ -144,7 +145,7 @@ export async function POST(request: Request) {
     clearTimeout(timeoutId);
   }
 
-  // ── 5. Record metadata (best-effort — never blocks the response) ───────────
+  // â”€â”€ 5. Record metadata (best-effort â€” never blocks the response) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const recordResult = await recordExecution({
     language,
     status:   result.status,
@@ -153,6 +154,12 @@ export async function POST(request: Request) {
   });
   if (!recordResult.ok) {
     logEvent("execute.record_failed", { userId, error: recordResult.error });
+  }
+
+  try {
+    await awardProgressForExecution({ language, status: result.status });
+  } catch (e) {
+    logEvent("progress.error", { step: "execution-award", error: String(e) });
   }
 
   logEvent("execute.complete", {

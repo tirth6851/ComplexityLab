@@ -15,7 +15,7 @@ import {
 } from "./mappers";
 
 /**
- * Chat data layer — all functions take a resolved `profileId` so the route
+ * Chat data layer â€” all functions take a resolved `profileId` so the route
  * can call `getOrCreateProfile()` once and thread the id through, avoiding
  * redundant profile lookups per request.
  *
@@ -23,7 +23,7 @@ import {
  * included in `logEvent` calls or metrics.
  */
 
-// ── Conversations ─────────────────────────────────────────────────────────────
+// â”€â”€ Conversations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface ConversationContext {
   type: string;
@@ -46,6 +46,7 @@ export async function createConversation(
         title,
         context_type: context?.type ?? null,
         context_ref_id: context?.refId ?? null,
+        context_metadata: context?.metadata ?? null,
       })
       .select("*")
       .single<ConversationRow>();
@@ -77,7 +78,7 @@ export async function getConversation(
   }
 }
 
-// ── Messages ──────────────────────────────────────────────────────────────────
+// â”€â”€ Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function listMessages(
   profileId: string,
@@ -138,7 +139,7 @@ export async function appendMessage(
   }
 }
 
-// ── Usage / Quota ─────────────────────────────────────────────────────────────
+// â”€â”€ Usage / Quota â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getUsageToday(
   profileId: string,

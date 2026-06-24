@@ -22,17 +22,21 @@ vi.mock("next/link", () => ({
 import { NavList } from "@/components/layout/nav-list";
 
 describe("NavList", () => {
-  it("renders every primary destination", () => {
+  it("renders every workspace destination", () => {
     render(<NavList />);
     for (const label of [
       "Dashboard",
       "Analyzer",
       "Analyses",
       "Snippets",
-      "Settings",
+      "Chat",
+      "Playground",
+      "Progress",
+      "Learning Hub",
     ]) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
+    expect(screen.queryByText("Settings")).not.toBeInTheDocument();
   });
 
   it("marks the current route with aria-current", () => {
@@ -47,13 +51,11 @@ describe("NavList", () => {
     );
   });
 
-  it("treats settings sub-pages as the Settings section", () => {
+  it("does not render Settings in the workspace nav", () => {
     usePathname.mockReturnValue("/settings/account");
     render(<NavList />);
-    expect(screen.getByText("Settings").closest("a")).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(screen.queryByText("Settings")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { current: "page" })).not.toBeInTheDocument();
   });
 
   it("renders Playground and Progress as active nav links", () => {
