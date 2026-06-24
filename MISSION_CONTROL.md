@@ -2,16 +2,37 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-06-24**
+> Last updated: **2026-06-23**
 
 ---
 
-## Current sprint: Phase 2 — Cross-page integration + bug fixes shipped · Migration blockers remain
+## Current sprint: Phase 3 — Learning Hub + sample balance shipped · Migration blockers remain
 
-**Active branch:** `main` — all health gates green.
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 459 tests ✅`
+**Active branch:** `feature/phase3-product-enhancements` — PR open, not yet merged.
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (24 routes) · test 48 files / 476 tests ✅`
 
-**Now:** All 7 loop-mode tasks complete and browser-verified. Remaining blockers are external (DB migrations, Clerk production upgrade, JUDGE0_API_KEY in Vercel env).
+**PR:** https://github.com/tirth6851/ComplexityLab/pull/new/feature/phase3-product-enhancements
+
+**Now:** Learning Hub (DSA Coach + OOP Coach) shipped. Samples balanced to 4–5 per language. Custom editor option added. Remaining blockers are still external — DB migrations and Vercel env keys.
+
+### Shipped (2026-06-23, feature/phase3-product-enhancements)
+
+- **Balanced analyzer samples** — all 7 languages now have 4–5 samples covering O(log n)→O(n)→O(n log n)→O(n²)→O(2ⁿ). Engine test fixed (was hardcoded to index [2], now uses `.find()` by ID).
+- **Custom (blank) option** — "✏️ Custom (blank)" added to sample dropdown; clears editor, adapts empty-state hint text.
+- **Learning Hub** at `/learning` — card grid with DSA Coach + OOP Coach as active links; Git/CLI/SQL coaches as "coming soon" roadmap cards.
+- **DSA Coach** at `/learning/dsa` — Groq chat with specialized DSA system prompt; 6 starter prompts (sliding window, brute-force improvement, DP tutorial, pattern detection, BFS vs DFS, next topic).
+- **OOP Coach** at `/learning/oop` — Groq chat with specialized OOP system prompt; 6 starter prompts (encapsulation, composition vs inheritance, class design review, SOLID, polymorphism, common mistakes).
+- **`coachType` param** added to `/api/chat` — selects DSA or OOP system prompt when present; fully backwards-compatible (optional field).
+- **README rewritten** — now accurately reflects all current features, stack, architecture, and env vars.
+- **Security audit** — no leaked secrets found in git history or source; `.env.local` correctly gitignored; `.claude/settings.json` tracked but contains only infra IDs (not keys).
+
+**Next session — start here:**
+
+1. Merge PR #6 (feature/phase3-product-enhancements → main)
+2. Apply B7 migration in Supabase SQL editor:
+   `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;`
+3. Set `JUDGE0_API_KEY` in Vercel environment variables (enables Playground execution)
+4. Optional follow-ups: wire RAG context into coach prompts, add chat history UI, email opt-in scaffold
 
 **F3 API contract (for frontend developer):**
 - Endpoint: `POST /api/execute`
