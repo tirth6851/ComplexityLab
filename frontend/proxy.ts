@@ -4,7 +4,12 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  * Route protection (Next.js 16 "proxy" convention — replaces middleware.ts).
  * Everything is public by default; routes matched below require an authenticated
  * Clerk session. `auth.protect()` redirects signed-out users to the sign-in URL.
+ *
+ * "Public by default" means any new route you add is automatically public until
+ * you list it here. If you add an authenticated page, add its pattern to
+ * PROTECTED_ROUTES or it will be accessible without signing in.
  */
+
 /** Route patterns that require an authenticated session (exported for tests). */
 export const PROTECTED_ROUTES = [
   "/dashboard(.*)",

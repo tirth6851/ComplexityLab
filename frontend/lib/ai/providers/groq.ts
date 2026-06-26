@@ -101,7 +101,12 @@ function metricsFor(
   ];
 }
 
-/** Strip accidental code fences and parse the model's JSON. */
+/**
+ * Strip accidental code fences and parse the model's JSON response.
+ * Exported so it can be unit-tested independently of the HTTP call.
+ * Returns null (triggering fallback) if the model returns malformed JSON
+ * or an unrecognized Big-O notation — we never surface a corrupt result.
+ */
 export function parseGroqAnalysis(raw: string): CodeAnalysis | null {
   const cleaned = raw
     .trim()
@@ -151,6 +156,12 @@ export function parseGroqAnalysis(raw: string): CodeAnalysis | null {
   };
 }
 
+/**
+ * Run the deterministic heuristic engine and annotate its result with a note
+ * explaining why the AI provider wasn't used. The `reason` is logged server-side
+ * for observability but never surfaced in the UI — users see a real result, not
+ * an error message.
+ */
 async function fallback(
   input: AnalyzeCodeInput,
   reason: string,

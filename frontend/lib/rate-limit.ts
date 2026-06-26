@@ -1,11 +1,17 @@
 /**
  * Sliding-window rate limiter, in-memory.
  *
- * Scope note: state lives in the serverless instance's memory, so limits are
- * enforced per warm instance, not globally. That still stops bursts and abuse
- * loops from a single client. For strict global limits move the window to a
- * shared store (Upstash Redis / Vercel KV) behind this same function
- * signature — call sites won't change.
+ * Scope note: state lives in the serverless function's memory, so limits are
+ * enforced per warm instance, not globally across all Vercel instances. This
+ * still stops sudden bursts from a single client (the common abuse pattern),
+ * but a determined user with multiple clients could hit N instances in parallel.
+ *
+ * For strict global enforcement (e.g. paid-tier quotas), move the window to a
+ * shared store (Upstash Redis / Vercel KV) behind this same function signature
+ * — all call sites pass through here, so nothing else would need to change.
+ *
+ * Judge0 daily quotas (lib/db/executions.ts) use DB-backed counts precisely
+ * because in-memory cannot enforce cross-instance daily caps.
  */
 
 export interface RateLimitOptions {

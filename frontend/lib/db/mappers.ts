@@ -4,9 +4,19 @@ import type { CodeAnalysis } from "@/lib/ai/types";
 /**
  * Supabase row shapes and row → domain mappers. Pure functions (no client,
  * no server-only import) so they are unit-testable in isolation.
+ *
+ * This is the anti-corruption layer between the database schema (snake_case,
+ * raw JSON columns) and the app's domain types (camelCase, typed objects).
+ * The rest of the app never talks directly to raw row shapes — it always
+ * receives the mapped domain type, which insulates the UI from DB column renames.
  */
 
-/** Minimal shape check — avoids crashing ResultsPanel on corrupt/legacy rows. */
+/**
+ * Runtime guard for the `result` JSON column, which is untyped in Supabase.
+ * Old analyses saved before the current CodeAnalysis shape was finalized may
+ * be missing fields, so we validate before handing the data to the UI rather
+ * than trusting a cast.
+ */
 function isCodeAnalysis(v: unknown): v is CodeAnalysis {
   if (typeof v !== "object" || v === null) return false;
   const r = v as Record<string, unknown>;

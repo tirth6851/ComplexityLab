@@ -6,13 +6,23 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * Privileged Supabase client (service role). SERVER-ONLY — the `server-only`
  * import makes any client-bundle leak a build error.
  *
- * The service role bypasses RLS, so every query made with this client MUST be
- * scoped by the signed-in Clerk user (see lib/db/profiles|analyses|snippets).
+ * The service role bypasses Postgres Row Level Security (RLS). This is
+ * intentional: Clerk manages auth, not Supabase, so RLS can't scope by Clerk
+ * user. The responsibility falls on our code: every query in lib/db/* MUST
+ * filter by `profile_id` (the internal user id). Adding a new DB function
+ * without that filter would expose all users' data to each other.
+ *
+ * The bridge from Clerk → profile_id is getOrCreateProfile() in lib/db/profiles.ts.
+ * Call it first in every DB function; its return value scopes all subsequent queries.
  */
 
 let cached: SupabaseClient | null = null;
 
-/** True when the env carries enough config to reach the database. */
+/**
+ * True when the env carries enough config to reach the database.
+ * Pages that call DB functions check this via DbResult — they render an honest
+ * empty/error state rather than crashing when the DB is not provisioned.
+ */
 export function isDbConfigured(): boolean {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&

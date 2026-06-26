@@ -8,7 +8,16 @@ import { ANALYZE_RATE_LIMIT, MAX_CODE_LENGTH } from "@/lib/limits";
 
 /**
  * POST /api/analyze — run a complexity analysis through the active provider.
- * Auth-required; rate-limited per user; validates input before the provider.
+ *
+ * Pipeline:
+ *   1. auth()          → 401 if signed out
+ *   2. rateLimit()     → 429 if too many requests (in-memory, per warm instance)
+ *   3. validate body   → 400/413 on bad input (check before provider to avoid wasted LLM calls)
+ *   4. getAnalysisProvider() → picks Groq or heuristic mock based on env
+ *   5. provider.analyze()   → returns CodeAnalysis; Groq falls back to mock on failure
+ *   6. returns { analysis } — the result shape is identical regardless of which provider ran
+ *
+ * Note: submitted code is never logged (only metadata: language, length, timing).
  */
 export async function POST(request: Request) {
   const { userId } = await auth();

@@ -7,6 +7,12 @@ import { rateLimit, type RateLimitOptions } from "./rate-limit";
 /**
  * Per-user rate-limit guard for Server Actions. Returns a user-facing error
  * string when the caller is over the limit (or signed out), else null.
+ *
+ * WHY this exists separately from the route-handler rateLimit() calls:
+ * Server Actions are invoked over a special Next.js internal endpoint and
+ * bypass proxy.ts's route matching — they never hit a Route Handler. Without
+ * this guard, a user could spam save/delete actions without any throttle.
+ * Always call this as the very first line of any Server Action.
  */
 export async function checkActionLimit(
   action: string,

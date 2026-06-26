@@ -1,4 +1,9 @@
-/** Static achievement catalog. Unlocks live in xp_events (type='achievement'). */
+/**
+ * Static achievement catalog — definitions only; no unlock logic here.
+ * Predicates (the conditions that trigger each unlock) live in lib/progress/evaluate.ts.
+ * Actual unlock events are written to xp_events (type='achievement') in lib/db/progress.ts.
+ * A DB-level unique index on (profile_id, key) makes unlocks idempotent.
+ */
 export const ACHIEVEMENTS = [
   { key: "first_analysis", name: "First Steps",     xp: 25,  hint: "Save your first analysis" },
   { key: "ten_analyses",   name: "Getting Warm",    xp: 50,  hint: "Save 10 analyses" },
