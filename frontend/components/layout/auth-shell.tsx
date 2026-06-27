@@ -45,7 +45,7 @@ export function AuthShell({
         initial={cardInitial}
         animate={cardAnimate}
         transition={{ duration: reduceMotion ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative grid w-full max-w-5xl overflow-hidden rounded-ds-xl border border-line-subtle bg-card/78 shadow-ds-xl backdrop-blur-xl lg:grid-cols-[1fr_0.9fr]"
+        className="relative z-10 grid w-full max-w-5xl overflow-hidden rounded-ds-xl border border-line-subtle bg-card/78 shadow-ds-xl backdrop-blur-xl lg:grid-cols-[1fr_0.9fr]"
       >
         <div
           aria-hidden

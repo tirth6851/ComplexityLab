@@ -103,7 +103,93 @@ const codeTokens = [
   { label: "mid", x: 724, y: 330, delay: 6.7, duration: 7.8 },
   { label: "n++", x: 254, y: 578, delay: 0.8, duration: 8.8 },
 ] as const;
+const floatingLabels = [
+  { label: "O(1)", left: 7, top: 16, size: 44, opacity: 0.07, delay: 0.2, duration: 28 },
+  { label: "Binary Search", left: 70, top: 12, size: 22, opacity: 0.065, delay: 2.4, duration: 34 },
+  { label: "if", left: 18, top: 32, size: 20, opacity: 0.055, delay: 3.2, duration: 24 },
+  { label: "O(log n)", left: 82, top: 28, size: 34, opacity: 0.07, delay: 1.1, duration: 32 },
+  { label: "Merge Sort", left: 5, top: 50, size: 24, opacity: 0.06, delay: 5.8, duration: 36 },
+  { label: "return", left: 78, top: 52, size: 18, opacity: 0.055, delay: 4.5, duration: 26 },
+  { label: "O(n)", left: 14, top: 76, size: 42, opacity: 0.07, delay: 6.7, duration: 31 },
+  { label: "DFS", left: 88, top: 73, size: 26, opacity: 0.06, delay: 7.5, duration: 29 },
+  { label: "BFS", left: 60, top: 82, size: 22, opacity: 0.055, delay: 2.9, duration: 35 },
+  { label: "while", left: 30, top: 12, size: 19, opacity: 0.05, delay: 8.2, duration: 27 },
+  { label: "O(n log n)", left: 74, top: 88, size: 30, opacity: 0.065, delay: 9.4, duration: 38 },
+  { label: "Quick Sort", left: 2, top: 88, size: 21, opacity: 0.055, delay: 10.1, duration: 33 },
+  { label: "mid", left: 92, top: 42, size: 17, opacity: 0.05, delay: 11.2, duration: 25 },
+  { label: "pivot", left: 9, top: 62, size: 18, opacity: 0.05, delay: 12.4, duration: 30 },
+  { label: "Trie", left: 52, top: 15, size: 20, opacity: 0.052, delay: 13.1, duration: 32 },
+  { label: "Heap", left: 64, top: 38, size: 21, opacity: 0.052, delay: 14.3, duration: 28 },
+  { label: "DP", left: 40, top: 86, size: 24, opacity: 0.058, delay: 15.1, duration: 34 },
+  { label: "Greedy", left: 27, top: 68, size: 19, opacity: 0.052, delay: 16.5, duration: 31 },
+  { label: "HashMap", left: 84, top: 8, size: 20, opacity: 0.052, delay: 17.3, duration: 36 },
+  { label: "for", left: 47, top: 55, size: 17, opacity: 0.05, delay: 18.2, duration: 24 },
+  { label: "else", left: 58, top: 68, size: 18, opacity: 0.05, delay: 19.4, duration: 29 },
+  { label: "const", left: 36, top: 24, size: 18, opacity: 0.052, delay: 20.1, duration: 27 },
+  { label: "class", left: 67, top: 61, size: 18, opacity: 0.05, delay: 21.2, duration: 30 },
+  { label: "async", left: 22, top: 90, size: 18, opacity: 0.05, delay: 22.6, duration: 28 },
+  { label: "await", left: 94, top: 61, size: 18, opacity: 0.05, delay: 23.8, duration: 33 },
+  { label: "left", left: 11, top: 39, size: 17, opacity: 0.048, delay: 24.4, duration: 26 },
+  { label: "right", left: 89, top: 35, size: 17, opacity: 0.048, delay: 25.7, duration: 26 },
+  { label: "n++", left: 42, top: 8, size: 17, opacity: 0.052, delay: 26.2, duration: 25 },
+  { label: "i++", left: 73, top: 70, size: 17, opacity: 0.05, delay: 27.4, duration: 25 },
+  { label: "O(n²)", left: 4, top: 27, size: 32, opacity: 0.06, delay: 28.1, duration: 37 },
+  { label: "O(2ⁿ)", left: 86, top: 82, size: 34, opacity: 0.06, delay: 29.5, duration: 39 },
+] as const;
 
+function FloatingLabel({
+  label,
+  left,
+  top,
+  size,
+  opacity,
+  delay,
+  duration,
+  reduceMotion,
+}: {
+  label: string;
+  left: number;
+  top: number;
+  size: number;
+  opacity: number;
+  delay: number;
+  duration: number;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.span
+      className="absolute select-none font-mono font-semibold tracking-[0.08em] text-[#0f766e] blur-[2px]"
+      style={{
+        left: `${left}%`,
+        top: `${top}%`,
+        fontSize: `${size}px`,
+        opacity: reduceMotion ? opacity : 0,
+      }}
+      initial={false}
+      animate={
+        reduceMotion
+          ? { opacity }
+          : {
+              opacity: [0, opacity, opacity * 0.68, 0],
+              y: [0, -8, -18, -24],
+            }
+      }
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : {
+              duration,
+              delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+              times: [0, 0.2, 0.72, 1],
+            }
+      }
+    >
+      {label}
+    </motion.span>
+  );
+}
 function hasLabel(node: unknown): node is { label: string; lx: number; ly: number } {
   if (!node || typeof node !== "object") return false;
   const candidate = node as { label?: unknown; lx?: unknown; ly?: unknown };
@@ -339,10 +425,19 @@ export function CodePathBackground({ className }: { className?: string }) {
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
+      <div className="absolute inset-0 z-[1] overflow-hidden">
+        {floatingLabels.map((item, index) => (
+          <FloatingLabel
+            key={`${item.label}-${index}`}
+            {...item}
+            reduceMotion={!!reduceMotion}
+          />
+        ))}
+      </div>
       <svg
         viewBox="0 0 1000 700"
         preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full text-primary"
+        className="absolute inset-0 z-0 h-full w-full text-primary"
       >
         <defs>
           <filter id="code-path-soft-glow" x="-50%" y="-50%" width="200%" height="200%">
