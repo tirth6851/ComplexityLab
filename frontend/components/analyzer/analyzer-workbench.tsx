@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -258,12 +258,12 @@ export function AnalyzerWorkbench({
   }, []);
 
   return (
-    <div className="mx-auto max-w-[1540px] space-y-8">
+    <div className="mx-auto w-full max-w-[1540px] min-w-0 space-y-6 sm:space-y-8">
       <IntroStrip />
 
-      <section className="overflow-hidden rounded-ds-xl border border-line-subtle bg-gradient-to-br from-card via-card to-surface-panel/70 shadow-ds-xl">
-        <div className="flex flex-col gap-5 border-b border-line-subtle bg-surface-panel/45 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
+      <section className="min-w-0 overflow-hidden rounded-ds-xl border border-line-subtle bg-gradient-to-br from-card via-card to-surface-panel/70 shadow-ds-xl">
+        <div className="flex min-w-0 flex-col gap-5 border-b border-line-subtle bg-surface-panel/45 p-4 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl min-w-0">
             <p className="font-mono text-2xs uppercase tracking-label text-primary">
               Analyzer workspace
             </p>
@@ -274,7 +274,7 @@ export function AnalyzerWorkbench({
               Paste code, upload a source file, or start from a sample. The editor stays focused while the results panel explains complexity, confidence, and optimization clues.
             </p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3 lg:w-[420px]">
+          <div className="grid w-full gap-2 sm:grid-cols-3 lg:w-[420px]">
             {[
               [WandSparkles, "AI feedback"],
               [LockKeyhole, "Server-side"],
@@ -293,9 +293,9 @@ export function AnalyzerWorkbench({
           </div>
         </div>
 
-        <div className="grid items-start gap-0 xl:grid-cols-[minmax(0,1.08fr)_minmax(430px,0.92fr)]">
-          <div className="border-line-subtle xl:border-r">
-            <div className="flex flex-wrap items-center gap-3 border-b border-line-subtle bg-card/50 p-4 sm:p-5">
+        <div className="grid min-w-0 items-start gap-0 xl:grid-cols-[minmax(0,1.08fr)_minmax(430px,0.92fr)]">
+          <div className="min-w-0 border-line-subtle xl:border-r">
+            <div className="flex min-w-0 flex-col gap-3 border-b border-line-subtle bg-card/50 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:p-5">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <span className="hidden size-10 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-card text-primary shadow-glow-green-soft sm:flex">
                   <FileCode2 className="h-5 w-5" aria-hidden />
@@ -309,7 +309,7 @@ export function AnalyzerWorkbench({
                   </p>
                 </div>
               </div>
-              <div className="w-36">
+              <div className="w-full sm:w-36">
                 <Select
                   label="Language"
                   value={language}
@@ -322,7 +322,7 @@ export function AnalyzerWorkbench({
                   ))}
                 </Select>
               </div>
-              <div className="w-52 max-w-full flex-1 sm:flex-none">
+              <div className="w-full max-w-full flex-1 sm:w-52 sm:flex-none">
                 <Select
                   label="Sample"
                   value={sampleId}
@@ -341,7 +341,7 @@ export function AnalyzerWorkbench({
               </div>
             </div>
 
-            <div className="relative bg-[#050816] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+            <div className="relative min-w-0 overflow-hidden bg-[#050816] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
               <CodeEditor
                 value={code}
                 onChange={setCode}
@@ -359,7 +359,7 @@ export function AnalyzerWorkbench({
               )}
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-line-subtle bg-surface-panel/45 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-col gap-3 border-t border-line-subtle bg-surface-panel/45 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-label text-ink-faint">
                 <span>{code.length.toLocaleString()} chars</span>
                 <span aria-hidden>/</span>
@@ -367,7 +367,7 @@ export function AnalyzerWorkbench({
                 <span aria-hidden>/</span>
                 <span>code never logged</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                 {empty && (
                   <span className="text-xs text-ink-faint" aria-live="polite">
                     {sampleId === "__custom__"
@@ -375,7 +375,7 @@ export function AnalyzerWorkbench({
                       : "Load a sample or paste code to analyze"}
                   </span>
                 )}
-                <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised">
+                <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised sm:w-auto">
                   <Upload className="h-3.5 w-3.5" aria-hidden />
                   Upload
                   <input
@@ -389,6 +389,7 @@ export function AnalyzerWorkbench({
                   />
                 </label>
                 <Button
+                  className="w-full sm:w-auto"
                   onClick={requestAnalyze}
                   disabled={empty || status === "analyzing"}
                 >
@@ -399,7 +400,7 @@ export function AnalyzerWorkbench({
             </div>
           </div>
 
-          <div className="bg-background/35 p-4 sm:p-5">
+          <div className="min-w-0 bg-background/35 p-3 sm:p-5">
             <ResultsPanel
               status={status}
               analysis={analysis}
@@ -460,5 +461,3 @@ export function AnalyzerWorkbench({
     </div>
   );
 }
-
-

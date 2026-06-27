@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, type ReactNode } from "react";
 import {
@@ -82,7 +82,7 @@ function AnalyzingState({ progress }: { progress: number }) {
       </div>
       <Skeleton className="h-[84px] w-full" />
       <Skeleton className="h-[84px] w-full" />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-[112px]" />
         ))}
@@ -175,7 +175,7 @@ function TabPanel({
         <p className="cx-label mb-2">AI verdict</p>
         <p className="text-sm leading-6 text-ink-secondary">{analysis.verdict}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-ds-lg border border-line-subtle bg-surface-panel/60 p-4 shadow-inset-well">
           <p className="text-xs text-ink-muted">Provider</p>
           <p className="mt-2 font-mono text-sm text-ink-primary">
@@ -203,7 +203,7 @@ function ResultState({
   const [active, setActive] = useState<ResultTab>("time");
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {analysis.syntaxError && (
         <div
           className="flex items-start gap-3 rounded-ds-md border border-destructive/50 bg-[var(--danger-bg)] px-4 py-3 text-destructive"
@@ -226,7 +226,7 @@ function ResultState({
             Complexity breakdown
           </h2>
         </div>
-        {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+        {actions && <div className="flex w-full flex-wrap gap-2 sm:w-auto">{actions}</div>}
       </div>
 
       <div className="rounded-ds-xl border border-line-subtle bg-surface-panel/35 p-3 shadow-inset-well">
@@ -295,7 +295,7 @@ function ResultState({
         itemRole="tab"
         ariaLabel="Analysis result sections"
         layoutId="analysis-result-tab-highlight"
-        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+        className="grid min-w-0 grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4"
         itemClassName={(_, state) =>
           cn(
             "flex min-h-20 flex-col items-start justify-between rounded-ds-lg border p-3 text-left text-xs",
@@ -349,7 +349,7 @@ export function ResultsPanel({
   return (
     <Card
       className={cn(
-        "min-h-[600px] p-4 sm:p-6",
+        "min-h-[600px] min-w-0 overflow-hidden p-3 sm:p-6",
         hasSyntaxError && "border-destructive/40 bg-[var(--danger-bg)]/20",
       )}
       glow={status === "done" && !hasSyntaxError}
@@ -371,4 +371,3 @@ export function ResultsPanel({
     </Card>
   );
 }
-

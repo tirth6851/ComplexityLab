@@ -15,6 +15,16 @@ export function MobileNav() {
 
   useEffect(() => {
     if (!open) return;
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (mediaQuery.matches) setOpen(false);
+    };
+    closeOnDesktop();
+    mediaQuery.addEventListener("change", closeOnDesktop);
+    return () => mediaQuery.removeEventListener("change", closeOnDesktop);
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
     const drawer = drawerRef.current;
     const trigger = triggerRef.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
@@ -71,7 +81,7 @@ export function MobileNav() {
       {open && (
         <div
           ref={drawerRef}
-          className="fixed inset-0 z-50"
+          className="fixed inset-0 z-[70] lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Navigation"
@@ -80,9 +90,9 @@ export function MobileNav() {
             type="button"
             aria-label="Close navigation menu"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-background/75 backdrop-blur-sm"
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
           />
-          <div className="absolute inset-y-0 left-0 flex w-80 max-w-[86%] animate-rise flex-col border-r border-line bg-card/95 shadow-ds-xl backdrop-blur-xl">
+          <div className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-2rem))] animate-rise flex-col overflow-y-auto border-r border-line bg-card/95 shadow-ds-xl backdrop-blur-xl">
             <div className="flex h-16 items-center justify-between border-b border-line px-4">
               <Logo />
               <button
