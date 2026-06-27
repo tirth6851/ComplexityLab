@@ -97,14 +97,14 @@ export default function LearningHubPage() {
           const Icon = coach.icon;
           const card = (
             <div
-              className={`flex h-full flex-col rounded-ds-xl border border-line-subtle bg-surface-panel/60 p-6 shadow-ds-sm transition-all duration-200 ${
+              className={`flex h-full flex-col rounded-ds-xl border border-[#1E293B] bg-[#0B1120] p-6 shadow-none transition-all duration-200 ${
                 coach.ready
-                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/5 hover:shadow-ds-md group-focus-visible:border-primary/35 group-focus-visible:bg-primary/5 group-focus-visible:shadow-ds-md"
+                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-glow-green-soft group-focus-visible:border-primary/40 group-focus-visible:bg-primary/5 group-focus-visible:shadow-glow-green-soft"
                   : "cursor-default opacity-60"
               }`}
             >
               <div className="mb-4 flex items-start justify-between">
-                <div className="rounded-ds-lg border border-line-subtle bg-surface-raised/70 p-2.5 text-ink-muted transition-colors duration-200 group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary group-focus-visible:border-primary/30 group-focus-visible:bg-primary/10 group-focus-visible:text-primary">
+                <div className="rounded-ds-lg border border-[#1E293B] bg-[#0B1220] p-2.5 text-ink-muted shadow-none transition-all duration-200 group-hover:border-primary/35 group-hover:bg-primary/10 group-hover:text-primary group-hover:shadow-glow-green-soft group-focus-visible:border-primary/35 group-focus-visible:bg-primary/10 group-focus-visible:text-primary group-focus-visible:shadow-glow-green-soft">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 {!coach.ready && (
