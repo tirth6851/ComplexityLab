@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT_EMAIL = "tirth2093@gmail.com";
+const TEAM_CONTACT_EMAIL = "tkpatel10902@gmail.com";
 
 export default function PrivacyPage() {
   return (
@@ -15,11 +16,22 @@ export default function PrivacyPage() {
         <p>
           ComplexityLab (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is an interactive
           web application for learning algorithms and computational
-          complexity. Contact for anything privacy-related:{" "}
-          <a className="text-primary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>
-            {CONTACT_EMAIL}
-          </a>
-          .
+          complexity. For any privacy-related questions, requests, or
+          concerns, you can contact the ComplexityLab team at:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <a className="text-primary hover:underline" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
+            </a>
+          </li>
+          <li>
+            <a className="text-primary hover:underline" href={`mailto:${TEAM_CONTACT_EMAIL}`}>
+              {TEAM_CONTACT_EMAIL}
+            </a>
+          </li>
+        </ul>
+        <p>
         </p>
       </LegalSection>
 
