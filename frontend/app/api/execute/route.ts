@@ -21,6 +21,7 @@ import type { ExecutionResult } from "@/lib/execute/types";
 export const maxDuration = 15;
 
 /**
+<<<<<<< Updated upstream
  * POST /api/execute — proxy user code to Judge0 CE and return the result.
  *
  * Pipeline:
@@ -34,6 +35,17 @@ export const maxDuration = 15;
  *   8. callJudge0 (12 s timeout)       → 200 { result } on success or service error
  *   9. recordExecution (DB)            → best-effort metadata insert (never blocks response)
  *  10. awardProgressForExecution       → best-effort XP award (never blocks response)
+=======
+ * POST /api/execute - proxy user code to Judge0 CE and return the result.
+ *
+ * Pipeline:
+ *   1. auth()                     -> 401 if signed out
+ *   2. rateLimit (in-memory)      -> 429 if > 10/min (burst guard)
+ *   3. countExecutionsToday (DB)  -> 429 if daily quota reached
+ *   4. validate body              -> 400/413 on bad input
+ *   5. callJudge0 (12 s timeout)  -> 200 { result } on success or service error
+ *   6. recordExecution (DB)       -> best-effort metadata insert (never blocks response)
+>>>>>>> Stashed changes
  *
  * Privacy: code, stdin, and stdout are NEVER logged or persisted. Only
  * execution metadata (language, status, timing) is recorded.
@@ -44,6 +56,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in to run code." }, { status: 401 });
   }
 
+<<<<<<< Updated upstream
   // ── Configuration guard ────────────────────────────────────────────────────
   // Fail fast before consuming rate-limit tokens when the service is not set up.
   if (!process.env.JUDGE0_API_KEY) {
@@ -95,17 +108,28 @@ export async function POST(request: Request) {
   }
 
   // ── 1. Per-minute burst guard (in-memory, per warm instance) ──────────────
+=======
+  // -- 1. Per-minute burst guard (in-memory, per warm instance) --------------
+>>>>>>> Stashed changes
   const limit = rateLimit(`execute:${userId}`, EXECUTE_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("execute.rate_limited", { userId, retryAfterSec });
     return NextResponse.json(
+<<<<<<< Updated upstream
       { error: `Too many executions — try again in ${retryAfterSec}s.` },
+=======
+      { error: `Too many executions - try again in ${retryAfterSec}s.` },
+>>>>>>> Stashed changes
       { status: 429, headers: { "Retry-After": `${retryAfterSec}` } },
     );
   }
 
+<<<<<<< Updated upstream
   // ── 2. Daily quota guard (DB-backed) ──────────────────────────────────────
+=======
+  // -- 2. Daily quota guard (DB-backed) --------------------------------------
+>>>>>>> Stashed changes
   // In-memory limits cannot enforce per-day caps across serverless instances.
   // On quota-check failure we degrade gracefully: allow the execution and log.
   const quotaResult = await countExecutionsToday();
@@ -121,7 +145,11 @@ export async function POST(request: Request) {
     );
   }
 
+<<<<<<< Updated upstream
   // ── 3. Parse and validate request body ────────────────────────────────────
+=======
+  // -- 3. Parse and validate request body ------------------------------------
+>>>>>>> Stashed changes
   let body: unknown;
   try {
     body = await request.json();
@@ -164,7 +192,11 @@ export async function POST(request: Request) {
   const languageId = JUDGE0_LANGUAGES[language]!;
   const startedAt = Date.now();
 
+<<<<<<< Updated upstream
   // ── 4. Call Judge0 with a hard 12 s abort timeout ─────────────────────────
+=======
+  // -- 4. Call Judge0 with a hard 12 s abort timeout -------------------------
+>>>>>>> Stashed changes
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12_000);
 
@@ -183,7 +215,11 @@ export async function POST(request: Request) {
       ms: Date.now() - startedAt,
       reason: isAbort ? "timeout" : (e instanceof Error ? e.message : "unknown"),
     });
+<<<<<<< Updated upstream
     // No local execution fallback — return a clean error state (same ethos as Groq fallback)
+=======
+    // No local execution fallback - return a clean error state (same ethos as Groq fallback)
+>>>>>>> Stashed changes
     return NextResponse.json({
       result: {
         status:        "error",
@@ -199,7 +235,11 @@ export async function POST(request: Request) {
     clearTimeout(timeoutId);
   }
 
+<<<<<<< Updated upstream
   // ── 5. Record metadata (best-effort — never blocks the response) ───────────
+=======
+  // -- 5. Record metadata (best-effort - never blocks the response) -----------
+>>>>>>> Stashed changes
   const recordResult = await recordExecution({
     language,
     status:   result.status,

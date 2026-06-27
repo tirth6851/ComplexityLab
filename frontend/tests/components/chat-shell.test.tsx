@@ -227,6 +227,28 @@ describe("ChatShell", () => {
     });
   });
 
+  it("removes the empty assistant placeholder when the SSE stream only emits an error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        sseResponse([
+          { error: "The AI encountered an error. Please try again." },
+        ]),
+      ),
+    );
+
+    render(<ChatShell />);
+    typeAndSend("Hello");
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Hello")).toBeInTheDocument();
+    const bubbles = document.querySelectorAll("[class*='rounded-ds-lg px-3']");
+    expect(bubbles.length).toBe(1);
+  });
+
   it("removes the empty assistant placeholder on fetch failure", async () => {
     vi.stubGlobal(
       "fetch",

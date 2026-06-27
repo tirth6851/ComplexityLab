@@ -18,7 +18,7 @@ export interface SaveActionResult {
 
 function validate(code: unknown, language: unknown): string | null {
   if (typeof code !== "string" || code.trim().length === 0) {
-    return "Nothing to save â€” the code buffer is empty.";
+    return "Nothing to save - the code buffer is empty.";
   }
   if (code.length > MAX_CODE_LENGTH) return "Code is too large to save.";
   if (typeof language !== "string" || !isLanguageId(language)) {
@@ -53,7 +53,7 @@ export async function saveAnalysisAction(input: {
   });
   if (!res.ok) return { ok: false, error: res.error };
 
-  // Best-effort progress award â€” never fails the save.
+  // Best-effort progress award - never fails the save.
   try {
     await awardProgressForSave({ language: input.language, analysis: input.analysis });
   } catch (e) {
