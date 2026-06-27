@@ -181,3 +181,18 @@ describe("CLI coach prompts", () => {
     expect(prompt).toContain("explain what commands do");
   });
 });
+
+
+describe("SQL coach prompts", () => {
+  it("accepts sql as a supported coach type", () => {
+    expect(isCoachType("sql")).toBe(true);
+    expect(COACH_PROMPTS.sql).toContain("SQL");
+  });
+
+  it("keeps the SQL Coach safe around destructive queries", () => {
+    const prompt = COACH_PROMPTS.sql.toLowerCase();
+    expect(prompt).toContain("drop");
+    expect(prompt).toContain("delete without where");
+    expect(prompt).toContain("explain what each query does");
+  });
+});

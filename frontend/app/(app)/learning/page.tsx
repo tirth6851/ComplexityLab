@@ -68,14 +68,14 @@ const COACHES: CoachCard[] = [
     accent: "text-info border-info/20 bg-info/5",
   },
   {
-    href: "#",
+    href: "/learning/sql",
     icon: Database,
     label: "SQL Coach",
     tagline: "Database & Query Design",
     description:
-      "Coming soon — query optimization, indexing strategies, and schema design principles.",
-    ready: false,
-    accent: "text-ink-muted border-line-subtle bg-surface-panel/50",
+      "Query optimization, indexing strategies, and schema design principles.",
+    ready: true,
+    accent: "text-primary border-primary/20 bg-primary/5",
   },
 ];
 

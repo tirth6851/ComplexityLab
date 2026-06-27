@@ -298,6 +298,24 @@ describe("POST /api/chat", () => {
     expect(messages[0].content).toContain("rm -rf");
   });
 
+  it("uses the SQL Coach system prompt when coachType is sql", async () => {
+    const res = await POST(makeRequest({
+      message: "How do I optimize this JOIN query?",
+      coachType: "sql",
+    }));
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(mockStreamFn).toHaveBeenCalledOnce();
+    const messages = mockStreamFn.mock.calls[0][0] as Array<{
+      role: string;
+      content: string;
+    }>;
+    expect(messages[0].role).toBe("system");
+    expect(messages[0].content).toContain("SQL, PostgreSQL, and Supabase database coach");
+    expect(messages[0].content).toContain("DELETE without WHERE");
+  });
+
   it("emits an error SSE event when the provider throws", async () => {
     mockStreamFn.mockImplementation(async function* () {
       throw new Error("ECONNREFUSED");
