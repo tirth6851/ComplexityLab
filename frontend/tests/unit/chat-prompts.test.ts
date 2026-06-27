@@ -166,3 +166,18 @@ describe("coach prompts", () => {
     expect(prompt).toContain("explain what commands do");
   });
 });
+
+
+describe("CLI coach prompts", () => {
+  it("accepts cli as a supported coach type", () => {
+    expect(isCoachType("cli")).toBe(true);
+    expect(COACH_PROMPTS.cli).toContain("CLI");
+  });
+
+  it("keeps the CLI Coach safe around destructive commands", () => {
+    const prompt = COACH_PROMPTS.cli.toLowerCase();
+    expect(prompt).toContain("rm -rf");
+    expect(prompt).toContain("sudo");
+    expect(prompt).toContain("explain what commands do");
+  });
+});

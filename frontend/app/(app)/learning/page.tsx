@@ -58,14 +58,14 @@ const COACHES: CoachCard[] = [
     accent: "text-success border-success/20 bg-success/5",
   },
   {
-    href: "#",
+    href: "/learning/cli",
     icon: Terminal,
     label: "CLI Coach",
     tagline: "Command Line Fundamentals",
     description:
-      "Coming soon — shell scripting, file management, process control, and productivity tips.",
-    ready: false,
-    accent: "text-ink-muted border-line-subtle bg-surface-panel/50",
+      "Shell scripting, file management, process control, and productivity tips.",
+    ready: true,
+    accent: "text-info border-info/20 bg-info/5",
   },
   {
     href: "#",

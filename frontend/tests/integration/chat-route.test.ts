@@ -280,6 +280,24 @@ describe("POST /api/chat", () => {
     expect(messages[0].content).toContain("reset --hard");
   });
 
+  it("uses the CLI Coach system prompt when coachType is cli", async () => {
+    const res = await POST(makeRequest({
+      message: "How do I find files from the terminal?",
+      coachType: "cli",
+    }));
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(mockStreamFn).toHaveBeenCalledOnce();
+    const messages = mockStreamFn.mock.calls[0][0] as Array<{
+      role: string;
+      content: string;
+    }>;
+    expect(messages[0].role).toBe("system");
+    expect(messages[0].content).toContain("CLI and terminal workflow coach");
+    expect(messages[0].content).toContain("rm -rf");
+  });
+
   it("emits an error SSE event when the provider throws", async () => {
     mockStreamFn.mockImplementation(async function* () {
       throw new Error("ECONNREFUSED");
