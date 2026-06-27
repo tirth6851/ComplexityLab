@@ -48,14 +48,14 @@ const COACHES: CoachCard[] = [
     accent: "text-info border-info/20 bg-info/5",
   },
   {
-    href: "#",
+    href: "/learning/git",
     icon: GitBranch,
     label: "Git Coach",
     tagline: "Version Control",
     description:
-      "Coming soon — branching strategies, rebasing, and collaborative workflows.",
-    ready: false,
-    accent: "text-ink-muted border-line-subtle bg-surface-panel/50",
+      "Learn safe Git workflows, resolve merge conflicts, understand rebase, and navigate GitHub collaboration step by step.",
+    ready: true,
+    accent: "text-success border-success/20 bg-success/5",
   },
   {
     href: "#",

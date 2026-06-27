@@ -4,6 +4,7 @@ import {
   buildChatMessages,
 } from "@/lib/ai/prompts/chat";
 import type { AnchoredAnalysisContext } from "@/lib/ai/prompts/chat";
+import { COACH_PROMPTS, isCoachType } from "@/lib/ai/prompts/coaches";
 
 // ── chatSystemPrompt ─────────────────────────────────────────────────────────
 
@@ -148,5 +149,20 @@ describe("buildChatMessages", () => {
       historyLimit: 12,
     });
     expect(msgs).toHaveLength(4);
+  });
+});
+
+
+describe("coach prompts", () => {
+  it("accepts git as a supported coach type", () => {
+    expect(isCoachType("git")).toBe(true);
+    expect(COACH_PROMPTS.git).toContain("Git");
+  });
+
+  it("keeps the Git Coach safe around destructive commands", () => {
+    const prompt = COACH_PROMPTS.git.toLowerCase();
+    expect(prompt).toContain("reset --hard");
+    expect(prompt).toContain("force push");
+    expect(prompt).toContain("explain what commands do");
   });
 });

@@ -262,6 +262,24 @@ describe("POST /api/chat", () => {
     expect(doneEvent!.conversationId).toBe(TEST_CONVERSATION.id);
   });
 
+  it("uses the Git Coach system prompt when coachType is git", async () => {
+    const res = await POST(makeRequest({
+      message: "How do I fix a merge conflict?",
+      coachType: "git",
+    }));
+    await res.text();
+
+    expect(res.status).toBe(200);
+    expect(mockStreamFn).toHaveBeenCalledOnce();
+    const messages = mockStreamFn.mock.calls[0][0] as Array<{
+      role: string;
+      content: string;
+    }>;
+    expect(messages[0].role).toBe("system");
+    expect(messages[0].content).toContain("Git and GitHub workflow coach");
+    expect(messages[0].content).toContain("reset --hard");
+  });
+
   it("emits an error SSE event when the provider throws", async () => {
     mockStreamFn.mockImplementation(async function* () {
       throw new Error("ECONNREFUSED");
