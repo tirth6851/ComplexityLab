@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./logo";
 import { NavList } from "./nav-list";
@@ -23,6 +24,7 @@ export function MobileNav() {
     mediaQuery.addEventListener("change", closeOnDesktop);
     return () => mediaQuery.removeEventListener("change", closeOnDesktop);
   }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const drawer = drawerRef.current;
@@ -65,23 +67,11 @@ export function MobileNav() {
     };
   }, [open]);
 
-  return (
-    <div className="lg:hidden">
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open navigation menu"
-        aria-expanded={open}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-ds-md border border-line bg-card text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      >
-        <Menu className="h-5 w-5" aria-hidden />
-      </button>
-
-      {open && (
+  const drawer = open
+    ? createPortal(
         <div
           ref={drawerRef}
-          className="fixed inset-0 z-[70] lg:hidden"
+          className="fixed inset-0 z-[100] lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Navigation"
@@ -90,9 +80,9 @@ export function MobileNav() {
             type="button"
             aria-label="Close navigation menu"
             onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            className="absolute inset-0 z-0 bg-background/85 backdrop-blur-sm"
           />
-          <div className="absolute inset-y-0 left-0 flex w-[min(20rem,calc(100vw-2rem))] animate-rise flex-col overflow-y-auto border-r border-line bg-card/95 shadow-ds-xl backdrop-blur-xl">
+          <div className="absolute inset-y-0 left-0 z-10 flex w-[min(20rem,calc(100vw-2rem))] animate-rise flex-col overflow-y-auto border-r border-line bg-card/95 shadow-ds-xl backdrop-blur-xl">
             <div className="flex h-16 items-center justify-between border-b border-line px-4">
               <Logo />
               <button
@@ -114,8 +104,24 @@ export function MobileNav() {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div className="lg:hidden">
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation menu"
+        aria-expanded={open}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-ds-md border border-line bg-card text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        <Menu className="h-5 w-5" aria-hidden />
+      </button>
+      {drawer}
     </div>
   );
 }
