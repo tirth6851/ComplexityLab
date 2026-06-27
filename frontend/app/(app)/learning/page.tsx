@@ -23,7 +23,6 @@ interface CoachCard {
   tagline: string;
   description: string;
   ready: boolean;
-  accent: string;
 }
 
 const COACHES: CoachCard[] = [
@@ -35,7 +34,6 @@ const COACHES: CoachCard[] = [
     description:
       "Detect patterns in your code, understand complexity trade-offs, and get guided hints toward better approaches.",
     ready: true,
-    accent: "text-primary border-primary/20 bg-primary/5",
   },
   {
     href: "/learning/oop",
@@ -45,7 +43,6 @@ const COACHES: CoachCard[] = [
     description:
       "Explore encapsulation, inheritance, composition, and abstraction with AI feedback on your class designs.",
     ready: true,
-    accent: "text-info border-info/20 bg-info/5",
   },
   {
     href: "/learning/git",
@@ -55,7 +52,6 @@ const COACHES: CoachCard[] = [
     description:
       "Learn safe Git workflows, resolve merge conflicts, understand rebase, and navigate GitHub collaboration step by step.",
     ready: true,
-    accent: "text-success border-success/20 bg-success/5",
   },
   {
     href: "/learning/cli",
@@ -65,7 +61,6 @@ const COACHES: CoachCard[] = [
     description:
       "Shell scripting, file management, process control, and productivity tips.",
     ready: true,
-    accent: "text-info border-info/20 bg-info/5",
   },
   {
     href: "/learning/sql",
@@ -75,7 +70,6 @@ const COACHES: CoachCard[] = [
     description:
       "Query optimization, indexing strategies, and schema design principles.",
     ready: true,
-    accent: "text-primary border-primary/20 bg-primary/5",
   },
 ];
 
@@ -103,14 +97,14 @@ export default function LearningHubPage() {
           const Icon = coach.icon;
           const card = (
             <div
-              className={`group flex h-full flex-col rounded-ds-xl border p-6 shadow-ds-sm transition-all duration-200 ${
+              className={`flex h-full flex-col rounded-ds-xl border border-line-subtle bg-surface-panel/60 p-6 shadow-ds-sm transition-all duration-200 ${
                 coach.ready
-                  ? "cursor-pointer hover:shadow-ds-md hover:-translate-y-0.5"
+                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/5 hover:shadow-ds-md group-focus-visible:border-primary/35 group-focus-visible:bg-primary/5 group-focus-visible:shadow-ds-md"
                   : "cursor-default opacity-60"
-              } ${coach.accent}`}
+              }`}
             >
               <div className="mb-4 flex items-start justify-between">
-                <div className={`rounded-ds-lg border p-2.5 ${coach.accent}`}>
+                <div className="rounded-ds-lg border border-line-subtle bg-surface-raised/70 p-2.5 text-ink-muted transition-colors duration-200 group-hover:border-primary/30 group-hover:bg-primary/10 group-hover:text-primary group-focus-visible:border-primary/30 group-focus-visible:bg-primary/10 group-focus-visible:text-primary">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 {!coach.ready && (
@@ -129,7 +123,7 @@ export default function LearningHubPage() {
                 {coach.description}
               </p>
               {coach.ready && (
-                <div className="mt-5 flex items-center gap-1.5 font-mono text-xs font-medium text-primary">
+                <div className="mt-5 flex items-center gap-1.5 font-mono text-xs font-medium text-ink-muted transition-colors duration-200 group-hover:text-primary group-focus-visible:text-primary">
                   <BookOpen className="h-3.5 w-3.5" aria-hidden />
                   Open coach
                 </div>
@@ -138,7 +132,11 @@ export default function LearningHubPage() {
           );
 
           return coach.ready ? (
-            <Link key={coach.label} href={coach.href} className="flex">
+            <Link
+              key={coach.label}
+              href={coach.href}
+              className="group flex focus:outline-none"
+            >
               {card}
             </Link>
           ) : (
