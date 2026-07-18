@@ -18,12 +18,15 @@ export function LegalPage({
         <Link href="/" aria-label="ComplexityLab home">
           <Logo />
         </Link>
-        <nav className="flex gap-4 text-sm text-muted-foreground">
+        <nav aria-label="Site links" className="flex gap-4 text-sm text-muted-foreground">
           <Link href="/privacy" className="hover:text-foreground">
             Privacy
           </Link>
           <Link href="/terms" className="hover:text-foreground">
             Terms
+          </Link>
+          <Link href="/about" className="hover:text-foreground">
+            About
           </Link>
         </nav>
       </header>

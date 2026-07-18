@@ -261,12 +261,15 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-ink-muted sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <Logo />
           <p>Master Big-O with visual code tracing.</p>
-          <nav className="flex gap-4">
+          <nav aria-label="Legal links" className="flex gap-4">
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
             <Link href="/terms" className="hover:text-foreground">
               Terms
+            </Link>
+            <Link href="/about" className="hover:text-foreground">
+              About
             </Link>
           </nav>
         </div>
