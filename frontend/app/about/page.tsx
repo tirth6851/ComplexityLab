@@ -25,26 +25,6 @@ const TECH_STACK = [
   "Vercel",
 ] as const;
 
-const CONTRIBUTORS: {
-  name: string;
-  role: string;
-  description: string;
-  placeholder?: true;
-}[] = [
-  {
-    name: "Tirth Patel",
-    role: "Software Engineer",
-    description:
-      "Focused on full-stack development, AI-powered developer tools, and user experience.",
-  },
-  {
-    name: "Contributor",
-    role: "Add Role",
-    description:
-      "Update this card with the contributor's name, role, and bio in frontend/app/about/page.tsx.",
-    placeholder: true,
-  },
-];
 
 export default function AboutPage() {
   return (
@@ -133,54 +113,38 @@ export default function AboutPage() {
               The team
             </h2>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {CONTRIBUTORS.map((person) => (
-              <div
-                key={person.name}
-                className={
-                  person.placeholder
-                    ? "rounded-ds-xl border border-dashed border-line-subtle bg-card/40 p-7 shadow-ds-sm"
-                    : "rounded-ds-xl border border-line-subtle bg-card/70 p-7 shadow-ds-lg"
-                }
+          <div className="rounded-ds-xl border border-line-subtle bg-card/70 p-7 shadow-ds-lg">
+            <div className="flex items-start gap-4">
+              <span
+                aria-hidden
+                className="flex size-12 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well"
               >
-                {person.placeholder && (
-                  <span className="mb-4 inline-block rounded-ds-sm bg-muted px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-muted">
-                    Placeholder — update in about/page.tsx
-                  </span>
-                )}
-                <div className="flex items-start gap-4">
-                  <span
-                    aria-hidden
-                    className="flex size-12 shrink-0 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well"
-                  >
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="8" r="4" />
-                      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                    </svg>
-                  </span>
-                  <div>
-                    <h3 className="font-display text-lg font-semibold tracking-normal text-ink-primary">
-                      {person.name}
-                    </h3>
-                    <p className="mt-0.5 font-mono text-xs uppercase tracking-[0.15em] text-primary">
-                      {person.role}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-ink-secondary">
-                      {person.description}
-                    </p>
-                  </div>
-                </div>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+              </span>
+              <div>
+                <h3 className="font-display text-lg font-semibold tracking-normal text-ink-primary">
+                  Tirth Patel
+                </h3>
+                <p className="mt-0.5 font-mono text-xs uppercase tracking-[0.15em] text-primary">
+                  Full Stack Developer
+                </p>
+                <p className="mt-3 text-sm leading-6 text-ink-secondary">
+                  Focused on full-stack development, AI-powered developer tools, and user experience.
+                </p>
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
