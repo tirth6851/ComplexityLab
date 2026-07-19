@@ -10,7 +10,15 @@ export type {
   AnalysisMetric,
 } from "./types";
 
-/** Implemented providers. Unlisted ids are scaffolded but not yet built. */
+/**
+ * Implemented providers. Unlisted ids are declared in PROVIDER_IDS but not yet built.
+ *
+ * To add a new LLM vendor:
+ *   1. Create `lib/ai/providers/<name>.ts` implementing `AnalysisProvider`
+ *   2. Add its id to PROVIDER_IDS in `lib/ai/provider.ts`
+ *   3. Register it here
+ *   Nothing in the route handler, UI, or DB layer needs to change.
+ */
 const REGISTRY: Partial<Record<ProviderId, AnalysisProvider>> = {
   mock: mockProvider,
   groq: groqProvider,

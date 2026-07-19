@@ -6,6 +6,11 @@
  *
  * Both MUST mirror `public.level_from_xp` in the Supabase migration exactly.
  * A parity unit test sweeps both to confirm they agree.
+ *
+ * WHY duplicate the formula in both TypeScript and SQL? The DB function lets
+ * Supabase queries compute the level without a round-trip to the app server.
+ * The TS version lets the UI compute level/progress client-side from cached XP.
+ * They must stay in sync — if you change one, change the other and update the test.
  */
 
 export function xpForLevel(level: number): number {

@@ -46,6 +46,11 @@ function rank(n: Notation): number {
   return NOTATION_RANK.indexOf(n);
 }
 
+/**
+ * Returns the most expensive notation among candidates.
+ * Time complexity is always the dominant term — O(n²) loops plus a O(n log n)
+ * sort is still O(n²) overall, so we take the worst-case signal, not the sum.
+ */
 function maxNotation(...candidates: Notation[]): Notation {
   return candidates.reduce((a, b) => (rank(b) > rank(a) ? b : a), "O(1)");
 }
@@ -121,7 +126,14 @@ function scanBraceLoops(code: string): LoopScan {
   };
 }
 
-/** Loop nesting for Python via indentation tracking. */
+/**
+ * Loop nesting for Python via indentation tracking.
+ *
+ * Known limitation: `depthAt` always returns 0 for Python because indentation
+ * doesn't map cleanly to character indices. As a result, functional iteration
+ * depth detection (functionalIterationDepth) has no effect on Python code —
+ * chained .map/.filter calls are not counted as loop nesting.
+ */
 function scanIndentLoops(code: string): LoopScan {
   const lines = code.split("\n");
   const stack: number[] = [];

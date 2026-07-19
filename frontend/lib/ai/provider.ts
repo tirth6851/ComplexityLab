@@ -6,6 +6,12 @@ import type { AnalyzeCodeInput, CodeAnalysis } from "./types";
  * Adding a new LLM vendor = one file in `lib/ai/providers/` implementing
  * `AnalysisProvider`, plus a registry entry in `lib/ai/index.ts`. Nothing
  * else in the app changes.
+ *
+ * WHY an interface + registry instead of direct imports? The route handler,
+ * the UI, and the persistence layer all speak CodeAnalysis — they don't care
+ * whether Groq, GPT-4, or a local heuristic produced it. The interface is the
+ * contract that lets us swap the backend with an env-var change instead of a
+ * code change. This is the Strategy pattern.
  */
 
 export const PROVIDER_IDS = [

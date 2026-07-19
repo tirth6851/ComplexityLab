@@ -8,8 +8,22 @@ import { mapProfile, type ProfileRow } from "./mappers";
 /**
  * Profile access. Every entry point resolves the signed-in Clerk user itself,
  * so callers can never query another user's data by mistake.
+ *
+ * WHY a separate "profile" table at all? Clerk owns identity (login, sessions,
+ * OAuth). Supabase owns app data. getOrCreateProfile() is the bridge — it maps
+ * a Clerk userId (external) to an internal profile row (our DB). That internal
+ * id is what all other tables (analyses, snippets, xp_events) foreign-key on,
+ * which keeps Clerk's internal ids out of our schema.
  */
 
+/**
+ * Resolves the signed-in user's internal profile, creating it on first visit.
+ *
+ * Handles a race condition: on a user's very first request, two concurrent
+ * requests (e.g. two tabs opening simultaneously) could both try to INSERT the
+ * profile. The insert that loses gets a unique-constraint error; we catch it,
+ * re-read the winner's row, and return that instead of propagating the error.
+ */
 export async function getOrCreateProfile(): Promise<DbResult<Profile>> {
   const { userId } = await auth();
   if (!userId) return { ok: false, error: "Not signed in." };

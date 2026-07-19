@@ -8,7 +8,14 @@ import { dbError, getAdminClient, type DbResult } from "./admin";
 import { mapAnalysis, mapAnalysisDetail, type AnalysisRow } from "./mappers";
 import { getOrCreateProfile } from "./profiles";
 
-/** Analyses, always scoped to the signed-in user's profile. */
+/**
+ * Analyses, always scoped to the signed-in user's profile.
+ *
+ * Every function here starts with getOrCreateProfile() and then filters
+ * every query by profile_id. This is the ownership enforcement layer —
+ * the Supabase admin client bypasses RLS, so this manual scoping is what
+ * prevents one user from reading or deleting another's analyses.
+ */
 
 export async function listAnalyses(
   limit = 50,

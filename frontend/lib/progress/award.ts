@@ -1,5 +1,17 @@
 import "server-only";
 
+/**
+ * Best-effort progress awards — XP, streaks, and achievements.
+ *
+ * "Best-effort" is a deliberate pattern here: every public function in this
+ * module is called from a Server Action after the main operation (save, snippet,
+ * execution) has already succeeded. If progress fails for any reason, the error
+ * is logged but never propagated — the user's save is not rolled back.
+ *
+ * This means progress is a bonus, not a gate. Users never lose their work
+ * because the XP system had a transient DB error.
+ */
+
 import type { CodeAnalysis } from "@/lib/ai/types";
 import { awardProgress, getProgressStats } from "@/lib/db/progress";
 import { logEvent } from "@/lib/log";
