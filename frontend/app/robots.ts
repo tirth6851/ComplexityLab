@@ -7,7 +7,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/dashboard/", "/analyzer/", "/analyses/", "/snippets/", "/settings/", "/sso-callback"],
+      disallow: [
+        "/api/",
+        "/sso-callback",
+        "/dashboard/",
+        "/analyzer/",
+        "/analyses/",
+        "/snippets/",
+        "/settings/",
+        "/progress/",
+        "/chat/",
+        "/learning/",
+        "/playground/",
+      ],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
   };
