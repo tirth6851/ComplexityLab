@@ -209,6 +209,18 @@ export default function HowToAnalyzeTimeComplexityGuide() {
           as more algorithm breakdowns (dynamic programming) are published.
         </p>
         <p>
+          Once you&rsquo;re comfortable deriving Big-O, learn how it relates to Big-Omega and
+          Big-Theta in{" "}
+          <Link href="/guides/big-o-vs-big-theta-vs-big-omega" className="text-primary hover:underline">
+            Big-O vs. Big-Theta vs. Big-Omega
+          </Link>
+          , or see quick answers to common questions in the{" "}
+          <Link href="/faq" className="text-primary hover:underline">
+            FAQ
+          </Link>
+          .
+        </p>
+        <p>
           <Link href="/complexity-cheatsheet" className="text-primary hover:underline">
             ← Back to the Big-O Cheat Sheet
           </Link>

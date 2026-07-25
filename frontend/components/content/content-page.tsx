@@ -27,6 +27,9 @@ export function ContentPage({
           <Link href="/guides/how-to-analyze-time-complexity" className="hover:text-foreground">
             Guide
           </Link>
+          <Link href="/faq" className="hover:text-foreground">
+            FAQ
+          </Link>
           <Link href="/about" className="hover:text-foreground">
             About
           </Link>

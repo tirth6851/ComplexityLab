@@ -12,6 +12,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/algorithms/merge-sort", changeFrequency: "monthly", priority: 0.7 },
     { path: "/algorithms/quicksort", changeFrequency: "monthly", priority: 0.7 },
     { path: "/guides/space-complexity-explained", changeFrequency: "monthly", priority: 0.8 },
+    { path: "/guides/big-o-vs-big-theta-vs-big-omega", changeFrequency: "monthly", priority: 0.8 },
+    { path: "/faq", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/changelog", changeFrequency: "weekly", priority: 0.4 },
     { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
     { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   ];

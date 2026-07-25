@@ -274,6 +274,12 @@ export default function Home() {
             <Link href="/guides/how-to-analyze-time-complexity" className="hover:text-foreground">
               Guide
             </Link>
+            <Link href="/faq" className="hover:text-foreground">
+              FAQ
+            </Link>
+            <Link href="/changelog" className="hover:text-foreground">
+              Changelog
+            </Link>
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
