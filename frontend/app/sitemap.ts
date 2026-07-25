@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://complexitylab.top";
+const BASE_URL = "https://www.complexitylab.top";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [

@@ -31,7 +31,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://complexitylab.top"),
+  metadataBase: new URL("https://www.complexitylab.top"),
   title: {
     default: SITE.name,
     template: `%s | ${SITE.name}`,
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE.name,
     description: SITE.description,
-    url: "https://complexitylab.top",
+    url: "https://www.complexitylab.top",
     siteName: SITE.name,
     type: "website",
   },
