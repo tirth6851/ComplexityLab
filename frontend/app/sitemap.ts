@@ -8,6 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/about", changeFrequency: "monthly", priority: 0.7 },
     { path: "/complexity-cheatsheet", changeFrequency: "monthly", priority: 0.8 },
     { path: "/guides/how-to-analyze-time-complexity", changeFrequency: "monthly", priority: 0.8 },
+    { path: "/algorithms/binary-search", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/algorithms/merge-sort", changeFrequency: "monthly", priority: 0.7 },
     { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
     { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   ];

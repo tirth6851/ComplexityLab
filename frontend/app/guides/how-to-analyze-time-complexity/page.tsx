@@ -178,9 +178,25 @@ export default function HowToAnalyzeTimeComplexityGuide() {
 
       <ContentSection heading="Next steps">
         <p>
-          Keep the full table of complexity classes handy while you practice — and check back
-          here as algorithm-specific breakdowns (binary search, quicksort, merge sort, dynamic
-          programming) are published.
+          See these rules applied to real algorithms — binary search is a worked example of
+          logarithmic behavior, and merge sort is a worked example of the multiply-per-level
+          reasoning behind O(n log n):
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <Link href="/algorithms/binary-search" className="text-primary hover:underline">
+              Binary Search — O(log n) explained
+            </Link>
+          </li>
+          <li>
+            <Link href="/algorithms/merge-sort" className="text-primary hover:underline">
+              Merge Sort — O(n log n) explained
+            </Link>
+          </li>
+        </ul>
+        <p>
+          Keep the full table of complexity classes handy while you practice, and check back here
+          as more algorithm breakdowns (quicksort, dynamic programming) are published.
         </p>
         <p>
           <Link href="/complexity-cheatsheet" className="text-primary hover:underline">

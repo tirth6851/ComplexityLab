@@ -29,6 +29,8 @@ const CLASSES = [
     whenItAppears:
       "Binary search, balanced binary search trees, and any algorithm that halves the problem size each step.",
     example: "while (low <= high) { mid = (low+high)/2; ... }",
+    relatedHref: "/algorithms/binary-search",
+    relatedLabel: "Binary Search — worked example",
   },
   {
     notation: "O(n)",
@@ -43,6 +45,8 @@ const CLASSES = [
     whenItAppears:
       "Efficient comparison-based sorting (merge sort, heapsort, quicksort's average case), and divide-and-conquer algorithms that do O(n) work at each of O(log n) levels.",
     example: "array.sort(); // typical O(n log n) implementation",
+    relatedHref: "/algorithms/merge-sort",
+    relatedLabel: "Merge Sort — worked example",
   },
   {
     notation: "O(n²)",
@@ -113,6 +117,13 @@ export default function ComplexityCheatsheetPage() {
         <ContentSection key={row.notation} heading={`${row.notation} — ${row.name}`}>
           <p>{row.whenItAppears}</p>
           <CodeBlock>{row.example}</CodeBlock>
+          {"relatedHref" in row && (
+            <p>
+              <Link href={row.relatedHref} className="text-primary hover:underline">
+                {row.relatedLabel} →
+              </Link>
+            </p>
+          )}
         </ContentSection>
       ))}
 
