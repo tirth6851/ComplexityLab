@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: `About · ${SITE.name}`,
   description:
     "Learn about ComplexityLab — the team behind it, the mission, and the technologies that power it.",
+  alternates: { canonical: "/about" },
 };
 
 const CONTACT_EMAIL = "tirth2093@gmail.com";

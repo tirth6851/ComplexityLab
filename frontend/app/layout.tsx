@@ -31,11 +31,25 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: SITE.name,
+  metadataBase: new URL("https://complexitylab.top"),
+  title: {
+    default: SITE.name,
+    template: `%s | ${SITE.name}`,
+  },
   description: SITE.description,
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/brand/icon.svg",
     shortcut: "/brand/icon.svg",
+  },
+  openGraph: {
+    title: SITE.name,
+    description: SITE.description,
+    url: "https://complexitylab.top",
+    siteName: SITE.name,
+    type: "website",
   },
 };
 

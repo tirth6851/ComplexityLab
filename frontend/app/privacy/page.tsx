@@ -4,6 +4,7 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 export const metadata: Metadata = {
   title: "Privacy Policy · ComplexityLab",
   description: "How ComplexityLab collects, uses, and protects your data.",
+  alternates: { canonical: "/privacy" },
 };
 
 const CONTACT_EMAIL = "tirth2093@gmail.com";

@@ -4,6 +4,7 @@ import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 export const metadata: Metadata = {
   title: "Terms of Service · ComplexityLab",
   description: "The terms that govern your use of ComplexityLab.",
+  alternates: { canonical: "/terms" },
 };
 
 const CONTACT_EMAIL = "tirth2093@gmail.com";
