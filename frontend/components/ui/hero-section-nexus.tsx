@@ -43,6 +43,7 @@ const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "History", href: "/analyses" },
   { label: "Snippets", href: "/snippets" },
+  { label: "Cheat Sheet", href: "/complexity-cheatsheet" },
 ] as const;
 
 interface Dot {

@@ -231,6 +231,12 @@ export default function Home() {
                 >
                   Dashboard
                 </Link>
+                <Link
+                  href="/guides/how-to-analyze-time-complexity"
+                  className={buttonClassName({ variant: "outline", size: "lg" })}
+                >
+                  New to Big-O? Start here
+                </Link>
               </div>
             </div>
             <div className="border-t border-line bg-surface-panel/60 p-8 sm:p-10 lg:border-l lg:border-t-0">
@@ -262,6 +268,12 @@ export default function Home() {
           <Logo />
           <p>Master Big-O with visual code tracing.</p>
           <nav aria-label="Legal links" className="flex gap-4">
+            <Link href="/complexity-cheatsheet" className="hover:text-foreground">
+              Cheat Sheet
+            </Link>
+            <Link href="/guides/how-to-analyze-time-complexity" className="hover:text-foreground">
+              Guide
+            </Link>
             <Link href="/privacy" className="hover:text-foreground">
               Privacy
             </Link>
