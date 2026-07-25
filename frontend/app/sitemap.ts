@@ -10,6 +10,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/guides/how-to-analyze-time-complexity", changeFrequency: "monthly", priority: 0.8 },
     { path: "/algorithms/binary-search", changeFrequency: "monthly", priority: 0.7 },
     { path: "/algorithms/merge-sort", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/algorithms/quicksort", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/guides/space-complexity-explained", changeFrequency: "monthly", priority: 0.8 },
     { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
     { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   ];

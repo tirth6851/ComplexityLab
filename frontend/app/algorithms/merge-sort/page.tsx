@@ -194,6 +194,20 @@ export default function MergeSortPage() {
             </Link>{" "}
             — an O(log n) algorithm that depends on data merge sort can prepare.
           </li>
+          <li>
+            <Link href="/algorithms/quicksort" className="text-primary hover:underline">
+              Quicksort
+            </Link>{" "}
+            — the in-place O(n log n)-average alternative, with a worst-case tradeoff merge sort
+            avoids.
+          </li>
+          <li>
+            <Link href="/guides/space-complexity-explained" className="text-primary hover:underline">
+              Space Complexity Explained
+            </Link>{" "}
+            — why merge sort&rsquo;s O(n) auxiliary space is the tradeoff for its guaranteed time
+            complexity.
+          </li>
         </ul>
       </ContentSection>
     </ContentPage>

@@ -179,8 +179,9 @@ export default function HowToAnalyzeTimeComplexityGuide() {
       <ContentSection heading="Next steps">
         <p>
           See these rules applied to real algorithms — binary search is a worked example of
-          logarithmic behavior, and merge sort is a worked example of the multiply-per-level
-          reasoning behind O(n log n):
+          logarithmic behavior, merge sort is a worked example of the multiply-per-level
+          reasoning behind O(n log n), and quicksort shows how the same reasoning explains a
+          worst-case blowup to O(n²):
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
@@ -193,10 +194,19 @@ export default function HowToAnalyzeTimeComplexityGuide() {
               Merge Sort — O(n log n) explained
             </Link>
           </li>
+          <li>
+            <Link href="/algorithms/quicksort" className="text-primary hover:underline">
+              Quicksort — best, average, and O(n²) worst case explained
+            </Link>
+          </li>
         </ul>
         <p>
-          Keep the full table of complexity classes handy while you practice, and check back here
-          as more algorithm breakdowns (quicksort, dynamic programming) are published.
+          This guide covers time complexity — for the memory side of the same analysis, see{" "}
+          <Link href="/guides/space-complexity-explained" className="text-primary hover:underline">
+            Space Complexity Explained
+          </Link>
+          . Keep the full table of complexity classes handy while you practice, and check back here
+          as more algorithm breakdowns (dynamic programming) are published.
         </p>
         <p>
           <Link href="/complexity-cheatsheet" className="text-primary hover:underline">

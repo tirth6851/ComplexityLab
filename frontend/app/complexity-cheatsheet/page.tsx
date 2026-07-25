@@ -52,8 +52,10 @@ const CLASSES = [
     notation: "O(n²)",
     name: "Quadratic",
     whenItAppears:
-      "Nested loops over the same input — bubble sort, insertion sort, checking all pairs in a collection.",
+      "Nested loops over the same input — bubble sort, insertion sort, checking all pairs in a collection, and quicksort's worst case on unlucky pivot choices.",
     example: "for (i of a) { for (j of a) { compare(i, j); } }",
+    relatedHref: "/algorithms/quicksort",
+    relatedLabel: "Quicksort — how it degrades to O(n²)",
   },
   {
     notation: "O(2ⁿ)",
@@ -156,6 +158,12 @@ export default function ComplexityCheatsheetPage() {
         <p>
           <Link href="/guides/how-to-analyze-time-complexity" className="text-primary hover:underline">
             How to Analyze Time Complexity of Any Algorithm →
+          </Link>
+        </p>
+        <p>
+          This table covers time complexity — memory usage is analyzed the same way. See{" "}
+          <Link href="/guides/space-complexity-explained" className="text-primary hover:underline">
+            Space Complexity Explained →
           </Link>
         </p>
       </ContentSection>

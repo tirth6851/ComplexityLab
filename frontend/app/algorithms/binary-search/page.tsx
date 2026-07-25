@@ -183,6 +183,13 @@ export default function BinarySearchPage() {
             </Link>{" "}
             — the O(n log n) sort you&rsquo;d use to prepare unsorted data for binary search.
           </li>
+          <li>
+            <Link href="/guides/space-complexity-explained" className="text-primary hover:underline">
+              Space Complexity Explained
+            </Link>{" "}
+            — why the recursive version above costs O(log n) stack space while the iterative
+            version costs O(1).
+          </li>
         </ul>
       </ContentSection>
     </ContentPage>
