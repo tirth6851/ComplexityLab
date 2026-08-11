@@ -159,10 +159,13 @@ UI, route handler, or persistence changes.
 
 ### Abuse control & observability
 
-- `lib/rate-limit.ts` — sliding-window limiter (in-memory per warm instance;
-  the call signature is store-agnostic so Upstash/KV can slot in for strict
-  global limits). `lib/action-limit.ts` wraps it with Clerk auth for Server
-  Actions.
+- `lib/rate-limit.ts` — async sliding-window limiter, two backends behind one
+  signature: Upstash Redis REST API (sorted-set window via `/pipeline`, no
+  SDK) when `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set —
+  enforced globally across every serverless instance — else the original
+  in-memory `Map` (per warm instance). Any Redis error, timeout (1.5s), or
+  missing config fails open to the in-memory path, never blocks the request.
+  `lib/action-limit.ts` wraps it with Clerk auth for Server Actions.
 - Budgets: analyze 20/min, saves 20/min, deletes 60/min, profile updates
   10/min, delete-all-data 3/hour — all per user. `/api/analyze` returns 429
   with `Retry-After`.
@@ -276,12 +279,15 @@ tests/
 
 ## Deployment (live)
 
-- **Production:** https://complexity-lab-eight.vercel.app — Vercel project
-  `complexity-lab` (`prj_LmgNnSjUg2VP5A3c7vr1yDvDLqvm`), team
+- **Production:** https://www.complexitylab.top (custom domain, confirmed live
+  2026-08-11) — `complexity-lab-eight.vercel.app` also still resolves — Vercel
+  project `complexity-lab` (`prj_LmgNnSjUg2VP5A3c7vr1yDvDLqvm`), team
   `tirths-projects-de842079` (`team_AWtSLsBY0CWnV6UIjpRzmECQ`).
 - **Pipeline:** GitHub `main` (`tirth6851/ComplexityLab`, public) auto-deploys
   to production. **Pushing main = deploying.** Root Directory = `frontend`,
-  framework nextjs, Node 22.
+  framework nextjs, Node 22. `.github/workflows/ci.yml` (added 2026-08-11) runs
+  typecheck/lint/build/test on every push/PR but does not gate the Vercel
+  auto-deploy — a red run on `main` is a "go fix it now," not a blocked deploy.
 - **Env vars:** all of `.env.example` uploaded to production+preview+development
   in a prior session. `AI_PROVIDER` is intentionally NOT set there — the
   registry defaults to groq because `GROQ_API_KEY` is present.

@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   }
 
   // Per-minute burst guard (in-memory, per warm instance).
-  const limit = rateLimit(`execute:${userId}`, EXECUTE_RATE_LIMIT);
+  const limit = await rateLimit(`execute:${userId}`, EXECUTE_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("execute.rate_limited", { userId, retryAfterSec });

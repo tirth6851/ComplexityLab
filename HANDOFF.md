@@ -3,7 +3,26 @@
 > **Audience:** A senior engineer — human or a fresh Claude Code session — opening this
 > repository with zero prior conversation history.
 >
-> **Status as of 2026-06-21:** All core app pages and features shipped. Branch
+> **⚠️ Everything below "Status as of 2026-06-21" is a historical snapshot and has
+> drifted.** `main` shipped a full SEO content system, all 5 Learning Hub coaches
+> (DSA/OOP/Git/CLI/SQL), mobile fixes, and a custom domain since then without this
+> file being updated. See `MISSION_CONTROL.md` and `PROJECT_BACKLOG.md` for the
+> current, actively-maintained state — this document was not rewritten in full
+> during the 2026-08-11 audit (out of scope for that session); treat specifics here
+> as "probably still true in spirit, verify before relying on exact numbers."
+>
+> **Status as of 2026-08-11 (current):** `typecheck ✅ · lint ✅ · build ✅
+> (39 routes) · test ✅ (48 files / 505 tests)`. CI now runs these on every push/PR
+> (`.github/workflows/ci.yml`). Global rate limiting is now optionally Redis-backed
+> (`lib/rate-limit.ts`, opt-in via `UPSTASH_REDIS_REST_URL`/`_TOKEN`). `npm audit`
+> down to 3 low/moderate transitive advisories (was 10, 7 high). Confirmed live at
+> both production URLs (see below). **Confirmed blocker:** production Clerk is
+> still the dev instance (`clerk.accounts.dev`). DB migration status (B1/B6/B7) and
+> Judge0 subscription status (B8) could not be reconfirmed this session (no
+> Supabase/RapidAPI credentials available) — reconfirm before trusting their
+> last-known status in `MISSION_CONTROL.md`.
+>
+> **Status as of 2026-06-21 (historical):** All core app pages and features shipped. Branch
 > `backup-before-refactor` is **fully green** — **441/441 tests** (45 files),
 > typecheck ✅, lint ✅, build ✅ (20 routes). Completed this session: F3 Playground
 > UI, F5 Progress UI, Chat markdown rendering, in-process RAG, 4 pre-existing bug
@@ -12,7 +31,8 @@
 > to Supabase project `hhnmxyyrihrpyerdmgdw`), and Clerk production upgrade before
 > public beta.
 >
-> **Live:** https://complexity-lab-eight.vercel.app — GitHub `main` auto-deploys
+> **Live:** https://www.complexitylab.top (custom domain) — also still resolves at
+> https://complexity-lab-eight.vercel.app. GitHub `main` auto-deploys
 > production. **A push to `main` is a deploy.**
 >
 > **Companion docs:** `ARCHITECTURE.md` · `ROADMAP.md` · `DESIGN_HANDOFF.md` ·

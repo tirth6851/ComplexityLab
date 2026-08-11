@@ -136,7 +136,7 @@ export async function POST(request: Request) {
   }
 
   // ── 4. Per-minute burst guard (in-memory, per warm instance) ──────────────
-  const limit = rateLimit(`chat:${userId}`, CHAT_RATE_LIMIT);
+  const limit = await rateLimit(`chat:${userId}`, CHAT_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("chat.rate_limited", { userId, retryAfterSec });
