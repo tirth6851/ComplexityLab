@@ -162,8 +162,11 @@
   fine at this scale; memoize per-request (React `cache()`) when it matters.
 - Monaco themes mirror token hexes by hand (documented exception to the
   no-hardcoded-colors rule) — keep in sync when tokens change.
-- No CI pipeline yet — gates run locally (`typecheck · lint · build · test`).
-- 4 moderate `npm audit` advisories in dev tooling (vitest/jsdom chain).
+- ~~No CI pipeline~~ — ✅ fixed 2026-08-11: `.github/workflows/ci.yml` runs
+  `typecheck · lint · build · test` on every push/PR to `main`.
+- 3 low/moderate `npm audit` advisories in dev tooling (down from 10, 7 high,
+  as of 2026-08-11 — remaining are transitive: `dompurify`/`monaco-editor`,
+  `esbuild`/vitest chain).
 
 ---
 
@@ -175,3 +178,16 @@ responsiveness → P4 micro-interactions & action feedback → P5 analysis/snipp
 experience. No architectural change; design system reused throughout. The
 operational items above (migration, key rotation, production Clerk) remain
 user actions that can proceed in parallel.
+
+---
+
+## 2026-08-11 — Production-readiness audit
+
+Confirmed production live at a new custom domain (`www.complexitylab.top`,
+alongside the original `complexity-lab-eight.vercel.app`) and shipped every
+production-readiness gap that didn't require external account access: CI
+pipeline, optional Upstash-backed global rate limiting, `npm audit` cleanup
+(10 → 3 advisories), the queued F4 Chat UI polish, and `.env.example` gaps.
+Confirmed the production Clerk instance is still `accounts.dev` (dev, not
+prod) — the last real blocker this session couldn't act on. Full detail in
+`MISSION_CONTROL.md` and `PROJECT_BACKLOG.md`.

@@ -21,7 +21,7 @@ export async function checkActionLimit(
   const { userId } = await auth();
   if (!userId) return "Not signed in.";
 
-  const res = rateLimit(`${action}:${userId}`, options);
+  const res = await rateLimit(`${action}:${userId}`, options);
   if (!res.ok) {
     const seconds = Math.max(1, Math.ceil(res.retryAfterMs / 1000));
     logEvent("rate_limited", { action, userId, retryAfterMs: res.retryAfterMs });

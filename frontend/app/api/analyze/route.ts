@@ -11,7 +11,7 @@ import { ANALYZE_RATE_LIMIT, MAX_CODE_LENGTH } from "@/lib/limits";
  *
  * Pipeline:
  *   1. auth()          → 401 if signed out
- *   2. rateLimit()     → 429 if too many requests (in-memory, per warm instance)
+ *   2. rateLimit()     → 429 if too many requests (Redis-backed when configured, else in-memory)
  *   3. validate body   → 400/413 on bad input (check before provider to avoid wasted LLM calls)
  *   4. getAnalysisProvider() → picks Groq or heuristic mock based on env
  *   5. provider.analyze()   → returns CodeAnalysis; Groq falls back to mock on failure
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in to analyze code." }, { status: 401 });
   }
 
-  const limit = rateLimit(`analyze:${userId}`, ANALYZE_RATE_LIMIT);
+  const limit = await rateLimit(`analyze:${userId}`, ANALYZE_RATE_LIMIT);
   if (!limit.ok) {
     const retryAfterSec = Math.max(1, Math.ceil(limit.retryAfterMs / 1000));
     logEvent("analyze.rate_limited", { userId, retryAfterSec });

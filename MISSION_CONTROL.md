@@ -2,18 +2,60 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-06-24**
+> Last updated: **2026-08-11**
 
 ---
 
-## Current sprint: Phase 1 cost limiting shipped · Phase 2 complete · Migration blockers remain
+## Current sprint: Production-readiness audit — CI, global rate limiting, dependency audit
 
-**Active branch:** `feature/phase3-product-enhancements` — PR open (rebased onto main 2026-06-24).
-**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test 48 files / 490 tests ✅`
+**Active branch:** `claude/production-readiness-ouphab` (based on `main`).
+**Gate status:** `typecheck ✅ · lint ✅ · build ✅ (39 routes) · test 48 files / 505 tests ✅`
 
-**PR:** https://github.com/tirth6851/ComplexityLab/pulls (update description via web UI — gh CLI unauthenticated)
+**Now:** This session audited the whole repo against production readiness (the docs
+below had drifted ~7 weeks out of date — `main` had shipped a full SEO content system,
+all 5 Learning Hub coaches, mobile fixes, and a custom domain since the last doc
+update, none of it reflected here). Findings + fixes:
 
-**Now:** Branch rebased onto main (3 upstream commits merged: duplicate nav removal, progress XP for snippet/execution, analyzer error state). All gates green at 490 tests. Judge0 cost limiting + Phase 2 cross-page integration all intact. Remaining blockers are user-action items: RapidAPI subscription (403 fix) and DB migrations B7/B1.
+- **Confirmed live:** app is served correctly at both `complexity-lab-eight.vercel.app`
+  and the new custom domain `www.complexitylab.top` (both return 200).
+- **Confirmed live gap:** production Clerk is still the dev instance —
+  `www.complexitylab.top/sign-in` serves `clerk.accounts.dev`. Upgrading to a
+  production Clerk instance is the top remaining item and requires dashboard access
+  this session doesn't have (see Beta Blockers below).
+- **Fixed — no CI pipeline:** added `.github/workflows/ci.yml` (typecheck → lint →
+  build → test on every push/PR to `main`, no secrets required — the build doesn't
+  read env vars at build time).
+- **Fixed — rate limiting was in-memory only:** `lib/rate-limit.ts` now supports an
+  optional Upstash Redis REST backend (`UPSTASH_REDIS_REST_URL` /
+  `UPSTASH_REDIS_REST_TOKEN`), enforced globally across serverless instances when
+  configured, with automatic fail-open fallback to the original in-memory limiter on
+  any Redis error/timeout/misconfiguration. Zero new npm dependencies (REST `fetch`
+  calls, same pattern as the Groq/Judge0 clients). All 5 call sites
+  (`/api/analyze`, `/api/chat`, `/api/execute`, `checkActionLimit`) now `await`
+  the now-async `rateLimit()`. Unconfigured = identical behavior to before.
+- **Fixed — dependency vulnerabilities:** `npm audit fix` took 10 advisories (7 high)
+  down to 3 (2 low, 1 moderate, both transitive — `dompurify` via `monaco-editor`,
+  `esbuild` via the dev/test toolchain). Notably fixed the `next@16.2.7` advisory
+  cluster (SSRF, cache confusion, DoS) by resolving to `16.3.0` within the existing
+  `^16.2.7` semver range — no code changes needed.
+- **Fixed — `.env.example` gaps:** documented `CHAT_PROVIDER`, `CHAT_MODEL` (read by
+  `lib/ai/chat.ts` but previously undocumented) and the new `UPSTASH_REDIS_REST_URL` /
+  `UPSTASH_REDIS_REST_TOKEN` pair.
+- **Fixed — queued F4 Chat UI polish** (was queued since 2026-06-18, never started):
+  `components/chat/chat-shell.tsx` — empty state now uses `.animate-rise`, composer
+  wrapped in `.premium-panel`, textarea auto-resizes with content (was fixed
+  `rows={3}`) up to a 200px cap, streaming placeholder is now three staggered
+  pulsing dots instead of a static `...`. No behavior change; all 15 existing
+  `chat-shell.test.tsx` assertions (input id/label, send button, `role="log"`,
+  bubble class substring) still pass unmodified.
+- **Not fixed (needs your access, not mine):** Clerk production instance upgrade;
+  reconfirming whether the 4 Supabase migrations (`init`, `progress`, `executions`,
+  `chat`) are applied to `hhnmxyyrihrpyerdmgdw`; reconfirming the Judge0/RapidAPI
+  subscription is active (last known state was a 403 — unsubscribed).
+
+**Test count:** 500 → **505** (+5: new `rateLimit()` Redis-path unit tests).
+**Route count:** 39 (SEO content pages added since the last doc update — see
+`PROJECT_BACKLOG.md` for the full list of what shipped undocumented).
 
 ### Shipped (2026-06-24, feature/phase3-product-enhancements) — Phase 1 Judge0 Cost Limiting
 
@@ -265,27 +307,36 @@ Visual restyle of the existing `/chat` page. No rebuild — CSS-first enhancemen
 
 ## Beta blockers (must clear before public beta)
 
+> ⚠️ **B1/B6/B7/B9 status below is unconfirmed this session** — this sandbox has no
+> Supabase/RapidAPI credentials, so these could not be independently re-checked.
+> They're carried forward at their last-known status; **please reconfirm in the
+> Supabase SQL editor / RapidAPI dashboard** rather than trusting these rows blindly.
+
 | # | Issue | Owner | Status |
 |---|---|---|---|
-| B1 | **DB migrations unapplied** — `_init.sql`, `_progress.sql`, `_executions.sql` not applied to project `hhnmxyyrihrpyerdmgdw`; saves/dashboard/quota broken. Apply in order. | Ext. developer | 🔵 External dependency |
+| B1 | **DB migrations unapplied** — `_init.sql`, `_progress.sql`, `_executions.sql` not applied to project `hhnmxyyrihrpyerdmgdw`; saves/dashboard/quota broken. Apply in order. | Ext. developer | 🔵 Last known: external dependency — **please reconfirm** |
 | B2 | **Leaked secrets unrotated** | User | ✅ Done (2026-06-18) |
-| B3 | **`beta-prep-audit` branch not merged** — 5 code fixes + QA docs + ownership tests undeployed | Code | 🟡 Ready — in `feature/next-sprint-v1`, merge → `main` to deploy |
-| B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending |
-| B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending |
-| B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | ⬜ Pending — apply after B1 |
-| B7 | **F4 migration schema mismatch** — `chat_conversations` table exists but is missing the `context_metadata` column. Chat still streams (stateless mode) but conversations don't persist. Fix: add the column via SQL editor: `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` | Manual | 🟡 Partial — table exists, column missing |
-| B8 | **Judge0 HTTP 403 in production** — RapidAPI account is not subscribed to Judge0 CE API. Every run returns "Execution Error". Fix: subscribe at https://rapidapi.com/judge0-official/api/judge0-ce (Basic, free 500/day), update `JUDGE0_API_KEY` in Vercel. After update, also add `JUDGE0_GLOBAL_DAILY_CAP=900` to activate cost protection. | User | ⬜ Pending |
+| B3 | **`beta-prep-audit` branch not merged** — 5 code fixes + QA docs + ownership tests | Code | ✅ Presumed resolved — the a11y/`tierFromNotation`/`dbError` fixes are present on `main` today (confirmed via git ancestry: `feature/next-sprint-v1` → `main`, long since merged) |
+| B4 | **AUTH-03/04 manual QA** — Google SSO completes + error resets spinner | QA | ⬜ Pending — needs a human with a Google account against production |
+| B5 | **SEC-02/03 manual QA** — cross-account ownership (two Google accounts) | QA | ⬜ Pending — needs a human with two Google accounts against production |
+| B6 | **F3 migration unapplied** — `supabase/migrations/20260616000200_executions.sql` not applied; quota tracking silently no-ops (graceful degrade, execution still works) | Manual | 🔵 Last known: pending — **please reconfirm** |
+| B7 | **F4 migration schema mismatch** — `chat_conversations` table missing `context_metadata` column: `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` | Manual | 🔵 Last known: partial — **please reconfirm** |
+| B8 | **Judge0 HTTP 403 in production** — RapidAPI account not subscribed to Judge0 CE. Fix: subscribe at https://rapidapi.com/judge0-official/api/judge0-ce (Basic, free 500/day), update `JUDGE0_API_KEY` in Vercel; also add `JUDGE0_GLOBAL_DAILY_CAP=900`. | User | 🔵 Last known: pending — **please reconfirm by running something in `/playground` on production** |
+| B9 | **Clerk dev instance live in production** — confirmed this session: `www.complexitylab.top/sign-in` serves `clerk.accounts.dev`, not a production instance. | User | 🔴 Confirmed pending — see "Strongly recommended" below |
 
 ## Strongly recommended before public launch
 
-- Provision a **production Clerk instance** (replace `pk_test` / accounts.dev)
-- Add **CI gate** (GitHub Actions: typecheck + lint + test + build)
+- Provision a **production Clerk instance** (replace `pk_test` / `accounts.dev`) — **B9, confirmed still outstanding**
+- ~~Add **CI gate**~~ ✅ **Done (2026-08-11)** — `.github/workflows/ci.yml` runs typecheck + lint + build + test on every push/PR to `main`
+- ~~Global rate limiting (Upstash/Vercel KV)~~ ✅ **Done, opt-in (2026-08-11)** — `lib/rate-limit.ts` uses Upstash Redis when `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set in Vercel env vars, else falls back to the original in-memory limiter. **Set those two env vars in Vercel to actually activate cross-instance enforcement** — the code change alone doesn't turn it on.
+- `npm audit` — down to 3 low/moderate transitive advisories (dev tooling only); re-run periodically
 
-## Quality gates — last verified 2026-06-24 (feature/phase3-product-enhancements, post-cost-limiting)
+## Quality gates — last verified 2026-08-11 (claude/production-readiness-ouphab)
 
 | Gate | Result |
 |---|---|
 | `npm run typecheck` | ✅ 0 errors |
 | `npm run lint` | ✅ 0 errors / 0 warnings |
-| `npm run build` | ✅ green (21 routes) |
-| `npm run test` | ✅ **48 files / 486 tests** |
+| `npm run build` | ✅ green (39 routes) |
+| `npm run test` | ✅ **48 files / 505 tests** |
+| `npm audit` | ✅ 3 vulnerabilities (2 low, 1 moderate — transitive, dev tooling), down from 10 (7 high) |

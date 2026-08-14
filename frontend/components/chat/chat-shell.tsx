@@ -20,6 +20,17 @@ export function ChatShell() {
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Grow the composer with its content (up to a cap) instead of a fixed
+  // 3-row box. Runs after every render where `input` changed — covers
+  // typing, clearing on send, and the handoff prefill below.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  }, [input]);
 
   // Consume a one-shot handoff from the Analyzer or Playground.
   /* eslint-disable react-hooks/set-state-in-effect -- one-shot sessionStorage consume */
@@ -147,7 +158,7 @@ export function ChatShell() {
         aria-atomic="false"
       >
         {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+          <div className="animate-rise flex h-full flex-col items-center justify-center gap-2 text-center">
             <p className="text-sm font-medium text-ink-primary">
               Ask anything about algorithms and complexity
             </p>
@@ -178,8 +189,13 @@ export function ChatShell() {
                   ) : msg.content ? (
                     <ChatMarkdown content={msg.content} />
                   ) : streaming ? (
-                    <span className="text-ink-muted" aria-label="Loading response">
-                      ...
+                    <span
+                      className="inline-flex items-center gap-1"
+                      aria-label="Loading response"
+                    >
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink-muted [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink-muted [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink-muted [animation-delay:300ms]" />
                     </span>
                   ) : null}
                 </div>
@@ -203,20 +219,21 @@ export function ChatShell() {
           e.preventDefault();
           void submit();
         }}
-        className="flex items-end gap-2"
+        className="premium-panel flex items-end gap-2 rounded-ds-lg p-2"
       >
         <label htmlFor="chat-input" className="sr-only">
           Message
         </label>
         <textarea
+          ref={textareaRef}
           id="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask about an algorithm or complexity class... (Enter to send, Shift+Enter for newline)"
           disabled={streaming}
-          rows={3}
-          className="flex-1 resize-none rounded-ds-md border border-line-subtle bg-surface-inset px-3 py-2 text-sm text-ink-primary shadow-inset-well outline-none placeholder:text-ink-faint focus:border-primary/60 focus:shadow-glow-green disabled:opacity-45"
+          rows={1}
+          className="max-h-[200px] flex-1 resize-none rounded-ds-md border border-line-subtle bg-surface-inset px-3 py-2 text-sm text-ink-primary shadow-inset-well outline-none placeholder:text-ink-faint focus:border-primary/60 focus:shadow-glow-green disabled:opacity-45"
         />
         <Button
           type="submit"

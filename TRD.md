@@ -1,6 +1,8 @@
 # ComplexityLab — Technical Requirements Document (TRD)
 
-> **Status:** living document · Last updated 2026-06-10
+> **Status:** living document · Last updated 2026-06-10 · production URL and
+> deployment section spot-corrected 2026-08-11 (see `MISSION_CONTROL.md` for
+> current details — this file's API contracts were not re-audited this session)
 > This is the **contracts-and-requirements** view: what must hold true.
 > Implementation detail and history live in `ARCHITECTURE.md`; flows in
 > `APP_FLOW.md`. Where they conflict, the code is truth — fix the docs.
@@ -171,10 +173,15 @@ applied, the app intentionally degrades to error/empty states.
   Root Directory `frontend`, framework nextjs, Node 22.
 - **GitHub `main` auto-deploys production** → *a push is a deploy*. Never push
   without explicit instruction.
-- Production URL: https://complexity-lab-eight.vercel.app
+- Production URL: https://www.complexitylab.top (custom domain;
+  `complexity-lab-eight.vercel.app` also still resolves)
 - Env vars (all environments): Clerk pair, Supabase URL + anon + service-role,
   `GROQ_API_KEY`, `GROQ_MODEL`, `NEXT_PUBLIC_APP_URL`. `AI_PROVIDER` is
   intentionally unset in prod — the registry's smart default selects groq.
+  Optional: `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` (global rate
+  limiting; unset = in-memory per-instance, the historical default).
+- CI: `.github/workflows/ci.yml` runs typecheck/lint/build/test on every
+  push/PR to `main` (added 2026-08-11; does not gate the Vercel auto-deploy).
 - Observability: structured JSON logs (`lib/log.ts`) → Vercel runtime logs.
   Events: `analyze.complete`, `analyze.error`, `analyze.rate_limited`,
   `rate_limited`, `groq.fallback`. **Submitted code is never logged.**

@@ -2,7 +2,7 @@
 
 > **Project memory · knowledge layer.** Architectural decisions, lessons
 > learned, known issues, technical debt, reusable patterns. Append-mostly;
-> prune only when something becomes false. Last updated: 2026-06-18.
+> prune only when something becomes false. Last updated: 2026-08-11.
 
 ---
 
@@ -18,7 +18,7 @@
 | D6 | 2026-06 | Full `CodeAnalysis` persisted as `analyses.result` JSONB | Future engines comparable against stored history; powered the detail page with zero migration |
 | D7 | 2026-06 | `DbResult<T>` everywhere; db functions never throw to pages | Graceful degradation (error/empty states) instead of crashes when DB is unprovisioned |
 | D8 | 2026-06 | Route protection in `proxy.ts` with `unauthenticatedUrl: "/sign-in"` | Without it Clerk bounces to its hosted accounts.dev page (looked broken) |
-| D9 | 2026-06 | In-memory sliding-window rate limiter, store-agnostic signature | Per-warm-instance is acceptable now; Upstash/KV can slot in without call-site changes |
+| D9 | 2026-06 | In-memory sliding-window rate limiter, store-agnostic signature | Per-warm-instance is acceptable now; Upstash/KV can slot in without call-site changes — **done, see D20** |
 | D10 | 2026-06 | Consent via versioned 1-year cookie (`cl-consent=v1`) | Bump version to force re-consent after material policy changes |
 | D11 | 2026-06-10 | Detail-page delete uses a separate `deleteAnalysisAndRedirectAction` | `redirect()` throws NEXT_REDIRECT — can't bolt it onto the list action that returns `{ok}` |
 | D12 | 2026-06-10 | Four-file project memory (manual/control/brain/rules) at repo root | Different update cadences; root-level matches existing doc convention; indexed from CLAUDE.md |
@@ -29,6 +29,7 @@
 | D17 | 2026-06-18 | Three-layer kill switch for external code execution — AbortController (12s, route) + Judge0 `wall_time_limit` (8s, service) + Vercel `maxDuration` (15s) | Defensive-in-depth: each layer guards a different failure mode (runaway code, slow Judge0, Vercel billing); all three must coexist |
 | D18 | 2026-06-18 | AI provider infrastructure extracted to `lib/ai/groq-client.ts`; feature-specific providers (analysis, chat) import it | Avoids duplicating auth, timeout, AbortController, and error normalization across N provider files; interfaces stay per-feature (ISP) |
 | D19 | 2026-06-18 | **F4 token accounting strategy:** quota gate uses `ai_usage.message_count` (user turns only, 1 per exchange); token counts are analytics-only and recorded post-stream. Tokens read from Groq's final SSE chunk (`stream_options.include_usage: true`); fallback estimate is `chars/4`. Persisted via `bump_ai_usage` SQL function (atomic upsert — avoids read-modify-write races on concurrent requests). `CHAT_DAILY_QUOTA` is the gate; `tokens_in/out` are never gated — they feed a future usage-analytics panel. |
+| D20 | 2026-08-11 | Rate limiting fulfills D9: `rateLimit()` is now async, tries Upstash Redis (REST API, sorted-set sliding window via `/pipeline` — no SDK dependency) when `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set, else in-memory (`rateLimitMemory()`, unchanged, still exported). Any Redis failure (non-2xx, error in pipeline reply, timeout via `AbortSignal.timeout(1500)`, thrown exception) returns `null` from `rateLimitRedis()` and falls through to the in-memory path — a rate-limiter outage must never itself become an outage. Check-then-add across two pipeline calls (not one atomic op) admits a small race under concurrent bursts on the same key; accepted because this module only governs abuse-guard burst limits — anything that must be exact (billing caps) already goes through DB-backed counts (D16), unaffected by this change. |
 
 ## Lessons learned
 

@@ -14,9 +14,11 @@ stats dashboard, XP/levels/streaks/achievements, and settings.
 **Vision (not yet built):** algorithm catalog, animated visualizers, AI tutor,
 lessons/quizzes — see `PRD.md`.
 
-**Production:** https://complexity-lab-eight.vercel.app — GitHub `main`
-auto-deploys, so **pushing main = deploying production**. The Vercel project's
-Root Directory is `frontend`.
+**Production:** https://www.complexitylab.top (custom domain; `complexity-lab-eight.vercel.app`
+also still resolves) — GitHub `main` auto-deploys, so **pushing main = deploying
+production**. The Vercel project's Root Directory is `frontend`. CI
+(`.github/workflows/ci.yml`) runs the four gates on every push/PR but does not
+block the Vercel auto-deploy — treat a red CI run on `main` as an incident.
 
 ---
 
@@ -63,7 +65,9 @@ Every feature must pass all gates before moving on.
 - Migrations live in `supabase/migrations/` — one file per feature, additive only (no drops/renames on existing tables)
 
 ### Rate Limiting
-- Every Route Handler: `rateLimit()` (per-minute burst, in-memory)
+- Every Route Handler: `rateLimit()` (per-minute burst; Redis-backed globally
+  when `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set, else
+  in-memory per-instance)
 - Every Server Action: `checkActionLimit()` as the very first line
 - Daily quotas (for AI, execution): DB-backed `COUNT` — in-memory cannot enforce these
 
@@ -184,7 +188,7 @@ Use for visual testing against the live dev server or production URL.
 - Start dev server first: `npm run dev` (in `frontend/`)
 - Use to verify UI before declaring a feature complete
 - Test: happy path, error states, mobile layout, empty states
-- Production URL: https://complexity-lab-eight.vercel.app
+- Production URL: https://www.complexitylab.top
 
 ### Firecrawl MCP (`.vscode/mcp.json`)
 Configured for web scraping/crawling from within the editor.

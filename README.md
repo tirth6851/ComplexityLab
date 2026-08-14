@@ -2,7 +2,9 @@
 
 An interactive web app for learning **algorithms and computational complexity** — with an AI-powered code analyzer, a code playground, an AI tutor, guided learning coaches, and per-user progress tracking.
 
-**Production:** https://complexity-lab-eight.vercel.app
+**Production:** https://www.complexitylab.top (also live at https://complexity-lab-eight.vercel.app) — GitHub `main` auto-deploys, so pushing `main` deploys production.
+
+[![CI](https://github.com/tirth6851/ComplexityLab/actions/workflows/ci.yml/badge.svg)](https://github.com/tirth6851/ComplexityLab/actions/workflows/ci.yml)
 
 ---
 
@@ -15,7 +17,7 @@ An interactive web app for learning **algorithms and computational complexity** 
 | **Snippets** | Save reusable code snippets with tags. |
 | **Playground** | Run code in 7 languages (Python, TypeScript, JavaScript, Java, Go, Rust, C++) via Judge0 CE. Send results straight to the AI tutor. |
 | **AI Chat** | Streaming AI tutor powered by Groq. Context-aware: accepts handoffs from the Analyzer and Playground. 50 messages/day, 20/minute burst limit. |
-| **Learning Hub** | Guided AI coaches — DSA Coach (algorithms & data structures) and OOP Coach (object-oriented design). Roadmap: Git, CLI, SQL coaches. |
+| **Learning Hub** | Guided AI coaches — DSA, OOP, Git, CLI, and SQL, each with starter prompts and a specialized system prompt. |
 | **Progress** | XP, levels, streaks, achievements, and a daily activity chart. |
 | **Dashboard** | Personal stats — analyses run, languages used, top complexity class, streaks. |
 | **Settings** | Display name, preferred language, account deletion. |
@@ -55,6 +57,11 @@ npm run dev                  # http://localhost:3000
 | `JUDGE0_API_KEY` | RapidAPI key for Judge0 CE code execution (server-only) |
 | `NEXT_PUBLIC_APP_URL` | App base URL (e.g. `http://localhost:3000`) |
 
+Optional — see `.env.example` for the full list with defaults: `AI_PROVIDER`, `GROQ_MODEL`,
+`CHAT_PROVIDER`, `CHAT_MODEL`, `JUDGE0_ENABLED`, `JUDGE0_GLOBAL_DAILY_CAP`,
+`JUDGE0_USER_DAILY_QUOTA`, and `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`
+(enables cross-instance rate limiting; unset = in-memory, per-instance).
+
 ---
 
 ## Development workflow
@@ -69,7 +76,8 @@ npm run build      # production build (all routes must compile)
 npm run test       # Vitest — all tests must pass
 ```
 
-All four gates must be green before any merge.
+All four gates must be green before any merge. `.github/workflows/ci.yml` runs the
+same four gates on every push/PR to `main`.
 
 ---
 
@@ -78,10 +86,12 @@ All four gates must be green before any merge.
 ```
 Browser
   └── Next.js (App Router) — frontend/
-        ├── public: /, /sign-in, /sign-up, /sso-callback, /privacy, /terms
+        ├── public: /, /about, /faq, /changelog, /complexity-cheatsheet,
+        │           /algorithms/*, /guides/*, /sign-in, /sign-up,
+        │           /sso-callback, /privacy, /terms
         ├── protected (app): /dashboard, /analyzer, /analyses/*, /snippets,
         │                    /chat, /playground, /progress, /settings/*,
-        │                    /learning, /learning/dsa, /learning/oop
+        │                    /learning, /learning/{dsa,oop,git,cli,sql}
         │     └── auth enforced in proxy.ts (Clerk)
         ├── POST /api/analyze  → lib/ai → Groq → heuristic fallback
         ├── POST /api/execute  → lib/execute/judge0 → Judge0 CE
@@ -103,5 +113,8 @@ Key invariants:
 - `.env.local` is git-ignored and must never be committed
 - The Supabase **service-role key**, **Clerk secret key**, **Groq API key**, and **Judge0 API key** are server-only and must never reach the browser
 - Every route handler: authenticated → validated → DB access
-- Rate limits on every AI route (in-memory burst + DB-backed daily quota)
+- Rate limits on every AI route (burst limit — Redis-backed globally when
+  `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set, else in-memory
+  per-instance — + DB-backed daily quota)
 - RLS deny-by-default on every Supabase table
+- CI (`.github/workflows/ci.yml`) gates every push/PR to `main`

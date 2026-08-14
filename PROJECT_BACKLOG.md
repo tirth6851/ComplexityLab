@@ -5,7 +5,14 @@
 > For sprint-level focus see `MISSION_CONTROL.md`; for technical architecture
 > see `ARCHITECTURE.md` and `PHASE2_PLAN.md`; for decisions/debt see `SECOND_BRAIN.md`.
 >
-> **Last updated: 2026-06-24 (post-cross-page-integration sprint)**
+> **Last updated: 2026-08-11 (production-readiness audit)**
+>
+> ⚠️ This file had drifted ~7 weeks stale (last substantive update: 2026-06-24) while
+> `main` kept shipping — a full SEO content system (`/about`, `/faq`, `/changelog`,
+> `/complexity-cheatsheet`, algorithm pages, guides), all 5 Learning Hub coaches
+> (DSA/OOP/Git/CLI/SQL, not just the 2 documented below), mobile layout fixes, and a
+> move to a custom domain all landed without a doc update. Treat anything below dated
+> before 2026-08-11 as "shipped, but re-verify specifics before relying on them."
 
 ---
 
@@ -13,12 +20,12 @@
 
 | Field | Value |
 |---|---|
-| **Active branch** | `main` |
-| **Health** | `typecheck ✅ · lint ✅ · build ✅ (21 routes) · test ✅ (48 files / 459 tests)` |
-| **Production URL** | https://complexity-lab-eight.vercel.app (auto-deploys from `main`) |
-| **Current feature** | Cross-page integration sprint complete (2026-06-24). Next: F4 Chat UI Polish, F5 Community. |
-| **Next task** | (1) Apply `ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS context_metadata jsonb;` in Supabase SQL editor · (2) Set `JUDGE0_API_KEY` in Vercel env vars · (3) F4 Chat UI Polish · (4) F5 Community |
-| **DB blocker** | `chat_conversations` table exists but is missing `context_metadata` column. Apply SQL above. All other migrations pending for project `hhnmxyyrihrpyerdmgdw`. |
+| **Active branch** | `main` (this session's work on `claude/production-readiness-ouphab`) |
+| **Health** | `typecheck ✅ · lint ✅ · build ✅ (39 routes) · test ✅ (48 files / 505 tests)` |
+| **Production URL** | https://www.complexitylab.top (custom domain, confirmed live) — `complexity-lab-eight.vercel.app` still resolves too. Both auto-deploy from `main`. |
+| **Current feature** | Production-readiness audit (2026-08-11): CI pipeline, optional Redis-backed global rate limiting, dependency vulnerability cleanup, queued F4 Chat UI polish, env var docs. See `MISSION_CONTROL.md` for the full list. |
+| **Next task** | (1) **[User]** Upgrade Clerk to a production instance — confirmed still on `clerk.accounts.dev` in prod · (2) **[User]** Reconfirm Supabase migrations B1/B6/B7 are applied to `hhnmxyyrihrpyerdmgdw` · (3) **[User]** Reconfirm Judge0/RapidAPI subscription (B8) · (4) **[User]** Set `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` in Vercel to activate cross-instance rate limiting (code ships opt-in; unset = old in-memory behavior) · (5) F5 Community |
+| **DB blocker** | Unconfirmed this session (no Supabase credentials available). Last known: `chat_conversations` missing `context_metadata` column; other migrations possibly unapplied. **Reconfirm in the Supabase SQL editor.** |
 | **Key rotation** | ✅ Done (2026-06-18) — Clerk, Supabase, Groq all rotated |
 
 ---
@@ -166,6 +173,27 @@
 ### Tests (42 files / 393 tests — 2026-06-18, post-F4 frontend)
 - All prior tests + 14 new: `tests/components/chat-shell.test.tsx` (14: empty state, input, Shift+Enter guard, user message visible immediately, input cleared, streaming chunks concat, input re-enabled after stream, API/SSE error alerts, empty-assistant-placeholder cleanup, conversationId forwarded on second turn)
 
+### Undocumented shipped work (2026-06-24 → 2026-08-11, discovered via git log during the 2026-08-11 audit — never landed in these docs)
+- **Full SEO content system**: `sitemap.ts`, `robots.ts`, per-page canonicals, `metadataBase` — all pointed at the new custom domain `www.complexitylab.top`. New indexable pages: `/about`, `/faq`, `/changelog`, `/complexity-cheatsheet`, `/algorithms/{binary-search,merge-sort,quicksort}`, `/guides/{how-to-analyze-time-complexity,space-complexity-explained,big-o-vs-big-theta-vs-big-omega}`.
+- **Custom domain live**: `www.complexitylab.top` — confirmed 200 alongside the original `complexity-lab-eight.vercel.app`.
+- **All 5 Learning Hub coaches shipped** (not just DSA/OOP as last documented) — Git Coach, CLI Coach, and SQL Coach all built and enabled (`app/(app)/learning/{git,cli,sql}/page.tsx`, each a real `CoachShell` with starter prompts, not "coming soon").
+- **Mobile layout fixes**: sidebar drawer layering, responsive app shell.
+- **Misc**: teaching comments pass across core modules, About page, Learning Hub card hover-state polish, sign-in background refinement.
+
+> These were fully functional and gated by the same CI-equivalent local checks
+> before merging — this is a **documentation gap**, not a code gap. Flagging here
+> so the next session doesn't have to rediscover it from `git log`.
+
+### Production-Readiness Audit (2026-08-11, `claude/production-readiness-ouphab`)
+- **`.github/workflows/ci.yml`** — new: `typecheck → lint → build → test` on every push/PR to `main`; `npm ci` cached by `package-lock.json`; no secrets required.
+- **`lib/rate-limit.ts`** — added an optional Upstash Redis REST backend (`rateLimitRedis`, `upstashPipeline`) behind the same `rateLimit()` signature; sorted-set sliding window (`ZREMRANGEBYSCORE`/`ZCARD`/`ZRANGE`/`ZADD`/`PEXPIRE` via `/pipeline`); fails open to the pre-existing in-memory `rateLimitMemory()` (exported, same logic as before) on any Redis error, timeout (1.5s `AbortSignal.timeout`), or when the two env vars are unset. `rateLimit()` is now `async` — all 5 call sites (`app/api/{analyze,chat,execute}/route.ts`, `lib/action-limit.ts`) updated to `await` it.
+- **`npm audit fix`** — 10 vulnerabilities (7 high, incl. a `next@16.2.7` cluster: SSRF, cache confusion, DoS) → 3 (2 low, 1 moderate, both transitive/dev-only), resolved within existing `package.json` semver ranges (`next` → `16.3.0`), no code changes required.
+- **`.env.example`** — documented `CHAT_PROVIDER`, `CHAT_MODEL` (previously undocumented but read by `lib/ai/chat.ts`), and new `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`.
+- **`components/chat/chat-shell.tsx`** — shipped the F4 Chat UI polish queued since 2026-06-18: `.animate-rise` fade-up empty state, `.premium-panel` composer wrapper, auto-resizing textarea (was fixed `rows={3}`, now grows to a 200px cap via a `useEffect` keyed on `input`), three staggered `animate-pulse` dots replacing the static `...` streaming placeholder. Zero behavior change — all pre-existing DOM contracts (`id="chat-input"`, `aria-label="Send message"`, `role="log"`, `[class*='rounded-ds-lg px-3']`) preserved.
+- **Live-verified**: `www.complexitylab.top` and `complexity-lab-eight.vercel.app` both return 200; production `/sign-in` confirmed still serving `clerk.accounts.dev` (Clerk dev instance — see Beta Blockers).
+- **Tests: 48 files / 505 tests** (+5: `rateLimit()` Redis-path unit tests covering allow/reject/fallback-on-error/fallback-on-throw).
+- **Not done this session** (needs access this sandbox doesn't have): Clerk production instance upgrade; reconfirming Supabase migration status; reconfirming Judge0/RapidAPI subscription; actually setting the new `UPSTASH_REDIS_REST_URL`/`TOKEN` env vars in Vercel (the code supports it, but it's inert until configured).
+
 ---
 
 ## In Progress
@@ -261,9 +289,9 @@ Track these before any public beta launch.
 
 ## Strongly Recommended Before Public Launch
 
-- **Production Clerk instance** — replace `pk_test` / `accounts.dev` with a production instance (custom domain). Current dev instance won't scale and may have rate limits.
-- **CI gate** — GitHub Actions: `typecheck && lint && build && test` on every push to `main` and every PR. No CI currently; gates run locally only.
-- **Global rate limiting** — move the in-memory sliding-window to Upstash/Vercel KV for cross-instance enforcement. Current limits are per-warm-instance and can be exceeded on serverless cold starts.
+- **Production Clerk instance** — replace `pk_test` / `accounts.dev` with a production instance (custom domain). **Confirmed still outstanding (2026-08-11)**: production `www.complexitylab.top/sign-in` serves `clerk.accounts.dev`. Current dev instance won't scale and may have rate limits.
+- ~~**CI gate**~~ ✅ **Done (2026-08-11)** — `.github/workflows/ci.yml` runs `typecheck && lint && build && test` on every push/PR to `main`. No secrets needed (the build doesn't read env vars at build time).
+- ~~**Global rate limiting**~~ ✅ **Done, opt-in (2026-08-11)** — `lib/rate-limit.ts` now backs onto Upstash Redis (REST API, no SDK) when `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` are set, with automatic fail-open fallback to the original in-memory limiter on any Redis error. **Still needs those two env vars set in Vercel to actually activate cross-instance enforcement in production** — shipping the code doesn't turn it on by itself.
 - **Product analytics** — wire a funnel (e.g. PostHog) to measure: sign-up → first analysis, first save, save rate, day streak, own-code conversion. North star: weekly analyses per active user.
 
 ---
@@ -366,10 +394,10 @@ These should eventually be addressed but were accepted for MVP/beta.
 |---|---|---|
 | **Heuristic engine is regex/scan-based (no AST)** | Medium | Python comprehensions not counted as loops; some space-complexity cases undercounted (dict growth via index assignment); amortized costs (e.g. `list.append`) ignored. Fix: build an AST-based engine for Python/JS |
 | **`getOrCreateProfile()` runs per data call** | Low | 2–3 small queries per page load. Fix: `React.cache()` memoization per-request |
-| **Rate limits are per warm instance** | Medium | In-memory sliding window; cold starts start fresh. Fix: Upstash/Vercel KV (store-agnostic signature already in place) |
-| **No CI pipeline** | High | All gates run locally. Fix: GitHub Actions `typecheck · lint · build · test` on every push and PR |
-| **4 moderate `npm audit` advisories** | Low | In dev tooling (vitest/jsdom chain); not in production code |
-| **Clerk dev instance in production** | High | `pk_test` / `accounts.dev` keys; must upgrade before public launch |
+| ~~**Rate limits are per warm instance**~~ | ~~Medium~~ | ✅ Fixed 2026-08-11 — `lib/rate-limit.ts` supports Upstash Redis (global) with fallback to in-memory (per-instance) when unconfigured. Set `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` in Vercel to enable globally. |
+| ~~**No CI pipeline**~~ | ~~High~~ | ✅ Fixed 2026-08-11 — `.github/workflows/ci.yml`, runs on every push/PR to `main` |
+| **3 low/moderate `npm audit` advisories** | Low | Down from 10 (7 high) as of 2026-08-11 — remaining are transitive, dev tooling only (`dompurify` via `monaco-editor`, `esbuild` via the vitest chain) |
+| **Clerk dev instance in production** | High | `pk_test` / `accounts.dev` keys; **confirmed still live in production as of 2026-08-11** (`www.complexitylab.top/sign-in` serves `clerk.accounts.dev`); must upgrade before public launch |
 | **Monaco theme colors are hardcoded hex** | Low | Sanctioned exception to the "tokens only" rule; must be kept in sync manually when tokens change |
 | **No DB indexes on Phase 2 tables** | Low | Phase 2 migrations include indexes (`(profile_id, created_at desc)`), but won't be applied until B1 is resolved |
 | **SECOND_BRAIN.md last updated 2026-06-10** | Low | Missing Phase 2 decisions (Dialog a11y choices, progress atomicity pattern, best-effort award pattern) — should be updated after F2 merge |
