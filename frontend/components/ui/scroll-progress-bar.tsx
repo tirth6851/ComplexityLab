@@ -51,7 +51,16 @@ export function ScrollProgressBar() {
     return () => {
       window.removeEventListener("scroll", onScrollOrResize);
       window.removeEventListener("resize", onScrollOrResize);
-      if (rafId.current !== null) cancelAnimationFrame(rafId.current);
+      // Reset, not just cancel: a cancelled frame is no longer "pending", but
+      // leaving the ref non-null would make the next mount's first
+      // onScrollOrResize() call see a stale id and skip scheduling forever —
+      // exactly what happened under React Strict Mode's dev-only
+      // mount→cleanup→remount cycle before this fix (the bar would freeze at
+      // 0% on every `next dev` session, verified with a real browser).
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
     };
   }, []);
 

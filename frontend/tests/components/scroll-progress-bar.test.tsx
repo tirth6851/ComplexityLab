@@ -8,6 +8,7 @@
  */
 
 import { act, render } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ScrollProgressBar } from "@/components/ui/scroll-progress-bar";
 
@@ -238,5 +239,26 @@ describe("ScrollProgressBar — lifecycle", () => {
     unmount();
 
     expect(raf.cancelAnimationFrameSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("schedules a fresh measurement after React Strict Mode's dev-only mount → cleanup → remount effect cycle (regression: a cleanup that cancelled the pending frame without resetting the ref left the throttle guard permanently stuck, silently freezing the bar at 0% on every `next dev` session — reproduced and confirmed fixed against a real browser before writing this test)", () => {
+    const raf = mockRaf();
+
+    // Strict Mode double-invokes the effect synchronously, on the SAME
+    // component instance (same `rafId` ref) — unlike two separate
+    // render()/unmount() calls, which would each get a fresh ref and could
+    // never reproduce this bug. The sequence is: effect #1 (schedules,
+    // rafId = 1) → cleanup (cancels frame 1) → effect #2 (its
+    // onScrollOrResize() call re-checks rafId). A cleanup that forgot to
+    // reset rafId to null makes effect #2 see a stale non-null id and bail
+    // out without scheduling — so only ONE requestAnimationFrame call
+    // would happen instead of two.
+    render(
+      <StrictMode>
+        <ScrollProgressBar />
+      </StrictMode>,
+    );
+
+    expect(raf.requestAnimationFrameSpy).toHaveBeenCalledTimes(2);
   });
 });
