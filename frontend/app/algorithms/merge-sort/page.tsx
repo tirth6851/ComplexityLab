@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "How merge sort's divide-and-conquer structure guarantees O(n log n) time in every case, and how the merge step works.",
     url: "/algorithms/merge-sort",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function MergeSortPage() {
       eyebrow="Algorithm"
       title="Merge Sort"
       dek="A divide-and-conquer sorting algorithm that splits the input in half recursively, sorts each half, then merges the results — O(n log n) time in every case."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="Divide and conquer">
         <p>

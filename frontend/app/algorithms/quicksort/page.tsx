@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "How quicksort's partition step works, why it's O(n log n) on average but O(n²) in the worst case, and how pivot choice affects that risk.",
     url: "/algorithms/quicksort",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function QuicksortPage() {
       eyebrow="Algorithm"
       title="Quicksort"
       dek="A divide-and-conquer sort that picks a pivot, partitions the array around it, and recurses — O(n log n) on average, but O(n²) if the pivot choice keeps going wrong."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="The partition idea">
         <p>
