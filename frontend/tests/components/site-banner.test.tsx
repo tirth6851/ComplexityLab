@@ -79,6 +79,15 @@ describe("SiteBanner", () => {
     },
   );
 
+  it("never single-line-truncates the announcement below the sm breakpoint (regression: a bare `truncate` class silently clipped the 'Explore →' CTA off-screen on real ~390px phone viewports — jsdom doesn't lay out CSS so this can't be caught by rendering alone; confirmed and fixed against a real mobile browser, this just guards the class doesn't come back)", () => {
+    render(<SiteBanner />);
+    const message = screen.getByText(/guides, algorithm walkthroughs/i);
+    const classes = message.className.split(/\s+/);
+
+    expect(classes).not.toContain("truncate");
+    expect(classes).toContain("sm:truncate");
+  });
+
   // Runs last: dismissal flips an in-memory flag for the module's lifetime
   // (private-mode fallback), so it must not precede assertions that expect
   // the banner to still be visible.

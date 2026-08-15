@@ -86,10 +86,15 @@ export function SiteBanner() {
     <div
       role="region"
       aria-label="Site announcement"
-      className="relative flex w-full items-center justify-center gap-3 border-b border-line bg-primary/10 px-4 py-2.5 text-center text-sm text-ink-primary transition-colors"
+      className="relative flex w-full items-start gap-3 border-b border-line bg-primary/10 py-2.5 pl-4 pr-11 text-sm text-ink-primary transition-colors sm:items-center sm:justify-center sm:text-center"
     >
-      <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-      <p className="min-w-0 truncate">
+      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary sm:mt-0" aria-hidden />
+      {/* Truncating to one line only above `sm`: at phone widths the message
+          + "Explore →" CTA don't reliably fit on one line, and a `truncate`
+          ellipsis was silently clipping the CTA off-screen — confirmed on a
+          390px real-device viewport before this fix. Wrapping to 2 lines on
+          mobile keeps the actual link visible instead of hidden. */}
+      <p className="min-w-0 sm:truncate">
         <span className="font-semibold">New:</span> guides, algorithm
         walkthroughs, and a cheat sheet are live —{" "}
         <Link
