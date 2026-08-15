@@ -21,20 +21,29 @@ function requestSiteSearchOpen() {
   window.dispatchEvent(new Event(OPEN_EVENT));
 }
 
-/** Visible "Search (⌘K)" affordance. Works with any mounted <SiteSearch />. */
+/**
+ * Visible search affordance. Works with any mounted <SiteSearch />.
+ *
+ * Icon-only below `sm`: the "Search" label + "⌘K" hint are hidden on phone
+ * widths — there's no keyboard to invoke the shortcut, and the label was
+ * crowding already-tight mobile nav rows. `aria-label` keeps the accessible
+ * name stable regardless of which children are visually hidden at a given
+ * breakpoint.
+ */
 export function SiteSearchTrigger({ className }: { className?: string }) {
   return (
     <button
       type="button"
       onClick={requestSiteSearchOpen}
+      aria-label="Search"
       className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-ds-md border border-line-subtle bg-surface-panel/40 px-3 text-sm text-ink-secondary shadow-ds-sm transition-colors hover:border-line-strong hover:bg-surface-raised hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "inline-flex h-9 items-center gap-2 rounded-ds-md border border-line-subtle bg-surface-panel/40 px-2.5 text-sm text-ink-secondary shadow-ds-sm transition-colors hover:border-line-strong hover:bg-surface-raised hover:text-ink-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3",
         className,
       )}
     >
       <Search className="h-3.5 w-3.5" aria-hidden="true" />
-      Search
-      <kbd className="ml-1 rounded-ds-sm border border-line-subtle bg-surface-inset px-1.5 py-0.5 font-mono text-2xs text-ink-muted">
+      <span className="hidden sm:inline">Search</span>
+      <kbd className="ml-1 hidden rounded-ds-sm border border-line-subtle bg-surface-inset px-1.5 py-0.5 font-mono text-2xs text-ink-muted sm:inline">
         ⌘K
       </kbd>
     </button>

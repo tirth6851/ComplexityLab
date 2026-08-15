@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/logo";
+import { SiteSearchTrigger } from "@/components/marketing/site-search";
 
 /** Formats an ISO date ("2026-08-15") as "August 15, 2026" without pulling in a date library. */
 function formatLastUpdated(isoDate: string): string {
@@ -32,27 +33,39 @@ export function ContentPage({
 }) {
   return (
     <div className="min-h-screen bg-background">
+      {/* `flex-wrap` + `min-h` (not a fixed `h-16`): at ~390px the nav row no
+          longer fit alongside the logo + search trigger on one line (was
+          silently breaking "Cheat Sheet" onto two lines mid-word, confirmed
+          on a real mobile viewport). Every link stays reachable — the whole
+          nav wraps onto its own row instead of any link being hidden or the
+          text breaking. */}
       <header
         data-print-hide
-        className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6"
+        className="mx-auto flex min-h-16 max-w-3xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6"
       >
         <Link href="/" aria-label="ComplexityLab home">
           <Logo />
         </Link>
-        <nav aria-label="Site links" className="flex gap-4 text-sm text-muted-foreground">
-          <Link href="/complexity-cheatsheet" className="hover:text-foreground">
-            Cheat Sheet
-          </Link>
-          <Link href="/guides/how-to-analyze-time-complexity" className="hover:text-foreground">
-            Guide
-          </Link>
-          <Link href="/faq" className="hover:text-foreground">
-            FAQ
-          </Link>
-          <Link href="/about" className="hover:text-foreground">
-            About
-          </Link>
-        </nav>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <nav
+            aria-label="Site links"
+            className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground"
+          >
+            <Link href="/complexity-cheatsheet" className="whitespace-nowrap hover:text-foreground">
+              Cheat Sheet
+            </Link>
+            <Link href="/guides/how-to-analyze-time-complexity" className="whitespace-nowrap hover:text-foreground">
+              Guide
+            </Link>
+            <Link href="/faq" className="whitespace-nowrap hover:text-foreground">
+              FAQ
+            </Link>
+            <Link href="/about" className="whitespace-nowrap hover:text-foreground">
+              About
+            </Link>
+          </nav>
+          <SiteSearchTrigger />
+        </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
