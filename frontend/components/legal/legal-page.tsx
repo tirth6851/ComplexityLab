@@ -14,7 +14,10 @@ export function LegalPage({
 }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
+      <header
+        data-print-hide
+        className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6"
+      >
         <Link href="/" aria-label="ComplexityLab home">
           <Logo />
         </Link>
