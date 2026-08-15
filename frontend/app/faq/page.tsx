@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/content/content-page";
+import { FaqItem } from "@/components/content/faq-item";
 
 export const metadata: Metadata = {
   title: "Big-O and Complexity Analysis FAQ",
@@ -53,38 +54,66 @@ const FAQS = [
   },
 ] as const;
 
+// FAQPage structured data, generated from the same FAQS array rendered on the
+// page — no content is fabricated for SEO, it's just a machine-readable copy
+// of what's already on screen. `<` is escaped so the JSON can't prematurely
+// close the surrounding <script> tag.
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.a,
+    },
+  })),
+}).replace(/</g, "\\u003c");
+
 export default function FaqPage() {
   return (
-    <ContentPage
-      eyebrow="Reference"
-      title="Frequently Asked Questions"
-      dek="Straight answers to the questions that come up most when people start learning Big-O notation and complexity analysis."
-      lastUpdated="2026-07-25"
-    >
-      {FAQS.map((item) => (
-        <ContentSection key={item.q} heading={item.q}>
-          <p>{item.a}</p>
-        </ContentSection>
-      ))}
+    <>
+      {/* Rendered outside ContentPage's children so it doesn't occupy a DOM
+          slot inside the `space-y-10` content stack (script is invisible but
+          still a sibling, which would otherwise shift the first item's spacing). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: faqJsonLd }}
+      />
+      <ContentPage
+        eyebrow="Reference"
+        title="Frequently Asked Questions"
+        dek="Straight answers to the questions that come up most when people start learning Big-O notation and complexity analysis."
+        lastUpdated="2026-07-25"
+      >
+        <div className="rounded-ds-md border border-line px-4 sm:px-6">
+          {FAQS.map((item, index) => (
+            <FaqItem key={item.q} question={item.q} defaultOpen={index === 0}>
+              <p>{item.a}</p>
+            </FaqItem>
+          ))}
+        </div>
 
-      <ContentSection heading="Still have questions?">
-        <p>
-          Start with{" "}
-          <Link href="/guides/how-to-analyze-time-complexity" className="text-primary hover:underline">
-            How to Analyze Time Complexity of Any Algorithm
-          </Link>{" "}
-          for the general method, or the{" "}
-          <Link href="/complexity-cheatsheet" className="text-primary hover:underline">
-            Big-O Cheat Sheet
-          </Link>{" "}
-          for a quick reference across all the common complexity classes. For the distinction
-          between O, Ω, and Θ notation specifically, see{" "}
-          <Link href="/guides/big-o-vs-big-theta-vs-big-omega" className="text-primary hover:underline">
-            Big-O vs. Big-Theta vs. Big-Omega
-          </Link>
-          .
-        </p>
-      </ContentSection>
-    </ContentPage>
+        <ContentSection heading="Still have questions?">
+          <p>
+            Start with{" "}
+            <Link href="/guides/how-to-analyze-time-complexity" className="text-primary hover:underline">
+              How to Analyze Time Complexity of Any Algorithm
+            </Link>{" "}
+            for the general method, or the{" "}
+            <Link href="/complexity-cheatsheet" className="text-primary hover:underline">
+              Big-O Cheat Sheet
+            </Link>{" "}
+            for a quick reference across all the common complexity classes. For the distinction
+            between O, Ω, and Θ notation specifically, see{" "}
+            <Link href="/guides/big-o-vs-big-theta-vs-big-omega" className="text-primary hover:underline">
+              Big-O vs. Big-Theta vs. Big-Omega
+            </Link>
+            .
+          </p>
+        </ContentSection>
+      </ContentPage>
+    </>
   );
 }
