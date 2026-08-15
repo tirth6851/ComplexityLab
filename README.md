@@ -10,6 +10,31 @@ Built by **Tirth Patel** ([@tirth6851](https://github.com/tirth6851)) and **Tirt
 
 ---
 
+## Screenshots
+
+Captured from a real build of the app (the public marketing pages; the analyzer, dashboard, and other signed-in pages sit behind Clerk auth so they aren't shown here).
+
+<p align="center">
+  <img src="docs/media/screenshot-landing.png" width="800" alt="Landing page hero, with the code-tracing visual and the analyzer/dashboard/history/snippets shortcuts" />
+</p>
+
+<p align="center">
+  <img src="docs/media/screenshot-cheatsheet.png" width="49%" alt="Big-O Cheat Sheet page, with the complexity classes table" />
+  <img src="docs/media/screenshot-faq.png" width="49%" alt="FAQ page, expandable accordion open on the first question" />
+</p>
+
+<p align="center">
+  <img src="docs/media/screenshot-mobile.png" width="280" alt="Mobile viewport of the Cheat Sheet page, showing the wrapped nav and search button" />
+</p>
+
+**Site search in action** (Cmd/Ctrl+K, live-filtered results across every content page):
+
+<p align="center">
+  <img src="docs/media/demo.gif" width="600" alt="Demo: opening the Cmd+K search palette on the Cheat Sheet page, typing 'binary search', and scrolling to see the scroll-progress bar and back-to-top button" />
+</p>
+
+---
+
 ## Features
 
 | Feature | Description |
