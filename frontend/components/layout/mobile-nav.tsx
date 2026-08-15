@@ -75,6 +75,7 @@ export function MobileNav() {
           role="dialog"
           aria-modal="true"
           aria-label="Navigation"
+          data-print-hide
         >
           <button
             type="button"
@@ -110,7 +111,7 @@ export function MobileNav() {
     : null;
 
   return (
-    <div className="lg:hidden">
+    <div className="lg:hidden" data-print-hide>
       <button
         ref={triggerRef}
         type="button"

@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "The difference between O (upper bound), Ω (lower bound), and Θ (tight bound) notation, with worked examples of each.",
     url: "/guides/big-o-vs-big-theta-vs-big-omega",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function BigOVsThetaVsOmegaGuide() {
       eyebrow="Guide"
       title="Big-O vs. Big-Theta vs. Big-Omega"
       dek="Three different bounds on how an algorithm's running time grows — O is an upper bound, Ω is a lower bound, and Θ is both at once. Here's what that actually means and why it matters."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="Why three notations exist">
         <p>

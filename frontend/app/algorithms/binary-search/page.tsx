@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "How binary search achieves O(log n) time complexity, why the input must be sorted, and a step-by-step worked example.",
     url: "/algorithms/binary-search",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function BinarySearchPage() {
       eyebrow="Algorithm"
       title="Binary Search"
       dek="A search algorithm that finds a target value in a sorted collection by repeatedly halving the search space — O(log n) time instead of O(n)."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="What is binary search?">
         <p>

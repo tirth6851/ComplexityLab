@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "What space complexity actually measures, the difference between auxiliary space and input space, and why recursion costs stack space.",
     url: "/guides/space-complexity-explained",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function SpaceComplexityGuide() {
       eyebrow="Guide"
       title="Space Complexity Explained"
       dek="Time complexity asks how many operations an algorithm does. Space complexity asks how much memory it needs while doing them — and the two are analyzed with the same Big-O tools."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="What space complexity measures">
         <p>

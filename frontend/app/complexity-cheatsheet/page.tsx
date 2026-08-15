@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "A scannable reference for the common Big-O complexity classes, with code examples and where each one shows up in real algorithms.",
     url: "/complexity-cheatsheet",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -79,6 +82,7 @@ export default function ComplexityCheatsheetPage() {
       eyebrow="Reference"
       title="Big-O Cheat Sheet"
       dek="The common time and space complexity classes, ranked from fastest to slowest, with plain-English explanations and where each one actually shows up in code."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="Complexity classes at a glance">
         <div className="overflow-x-auto rounded-ds-md border border-line">

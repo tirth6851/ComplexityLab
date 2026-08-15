@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "A step-by-step method for deriving Big-O from source code: loops, nested loops, recursion, and dominant-term simplification.",
     url: "/guides/how-to-analyze-time-complexity",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -21,6 +24,7 @@ export default function HowToAnalyzeTimeComplexityGuide() {
       eyebrow="Guide"
       title="How to Analyze Time Complexity of Any Algorithm"
       dek="A repeatable method for reading a function and deriving its Big-O — no memorization required, just five patterns applied consistently."
+      lastUpdated="2026-07-25"
     >
       <ContentSection heading="1. Start by counting the basic operations">
         <p>
