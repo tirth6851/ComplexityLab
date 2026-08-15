@@ -5,7 +5,10 @@ import { PageTitle } from "./page-title";
 
 export function Topbar() {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line-subtle bg-card/75 px-3 shadow-ds-sm backdrop-blur-xl sm:px-6">
+    <header
+      data-print-hide
+      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line-subtle bg-card/75 px-3 shadow-ds-sm backdrop-blur-xl sm:px-6"
+    >
       <div className="flex min-w-0 items-center gap-3 text-sm">
         <MobileNav />
         <Logo className="sm:hidden" showWordmark={false} />

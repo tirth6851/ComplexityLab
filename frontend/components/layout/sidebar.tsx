@@ -64,6 +64,7 @@ export function Sidebar() {
         collapsed ? "w-[68px]" : "w-[296px]",
       )}
       data-collapsed={collapsed}
+      data-print-hide
     >
       <div
         className={cn(

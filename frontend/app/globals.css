@@ -377,3 +377,107 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * PRINT STYLESHEET
+ * ----------------
+ * The app is dark-first (`.dark` on <html> pre-hydration), but printers can't
+ * render dark surfaces well and waste ink trying. Force the light-theme
+ * tokens for print regardless of which theme class is active, strip app
+ * chrome (nav, sidebar, mobile drawer, buttons), and keep long-form content
+ * (guides, algorithms, cheat sheet, FAQ, changelog, legal pages) from
+ * breaking mid-heading or mid-code-block.
+ *
+ * Convention: any chrome element — present today or added later (banners,
+ * back-to-top, scroll progress, floating contact) — opts out of print by
+ * carrying a plain `data-print-hide` attribute. This is the single rule
+ * other components should adopt; no new selectors needed per-component.
+ */
+@media print {
+  :root,
+  .dark {
+    /* Reuse the light-theme HSL triplets so every `hsl(var(--token))`
+       consumer (Tailwind's bg-background, text-foreground, …) repaints
+       for print without a second copy of the palette. */
+    --background: 220 30% 98%;
+    --foreground: 222 35% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 35% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 35% 12%;
+    --border: 220 18% 88%;
+    --input: 220 18% 88%;
+
+    --surface-inset: #eef1f6;
+    --bg-base: #f6f8fc;
+    --surface-card: #ffffff;
+    --surface-panel: #f1f4f9;
+    --surface-raised: #e9eef5;
+
+    --text-primary: #0e1726;
+    --text-secondary: #44546b;
+    --text-muted: #6b7a8f;
+    --text-faint: #97a3b4;
+
+    --border-subtle: #e6eaf0;
+    --border-default: #d4dbe5;
+    --border-strong: #bcc6d4;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0e1726 !important;
+  }
+
+  /* Chrome opt-out convention — see comment above. */
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Buttons, toggles, and other interactive-only affordances never belong
+     in a printout; content links stay (and are made legible below). */
+  button,
+  [role="button"] {
+    display: none !important;
+  }
+
+  a {
+    color: #0e1726 !important;
+    text-decoration: underline;
+  }
+
+  /* Nice-to-have: surface the destination for external links, since a
+     printed page can't be clicked. Internal/relative links are skipped —
+     they'd just repeat the current site's own path. */
+  a[href^="http://"]::after,
+  a[href^="https://"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #44546b;
+  }
+
+  pre,
+  code,
+  table,
+  figure,
+  blockquote {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid-page;
+    break-inside: avoid;
+  }
+
+  /* Decorative blur/glow backdrops and gradients read as ink blobs on
+     paper; they're always `aria-hidden` since they carry no content. */
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+}
