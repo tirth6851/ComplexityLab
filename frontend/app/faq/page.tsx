@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description:
       "Answers to common questions about Big-O notation, time and space complexity, and how to analyze algorithms.",
     url: "/faq",
+    // "article" is the only OpenGraph type the Metadata type allows modifiedTime on.
+    type: "article",
+    modifiedTime: "2026-07-25",
   },
 };
 
@@ -56,6 +59,7 @@ export default function FaqPage() {
       eyebrow="Reference"
       title="Frequently Asked Questions"
       dek="Straight answers to the questions that come up most when people start learning Big-O notation and complexity analysis."
+      lastUpdated="2026-07-25"
     >
       {FAQS.map((item) => (
         <ContentSection key={item.q} heading={item.q}>

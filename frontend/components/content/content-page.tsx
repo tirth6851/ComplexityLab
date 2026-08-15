@@ -2,16 +2,32 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/logo";
 
+/** Formats an ISO date ("2026-08-15") as "August 15, 2026" without pulling in a date library. */
+function formatLastUpdated(isoDate: string): string {
+  // Parsed as UTC noon (not midnight) so the local-timezone conversion Intl performs
+  // can never roll the date back a day for timezones west of UTC.
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
 /** Shared chrome for static educational content pages (cheat sheets, guides). */
 export function ContentPage({
   eyebrow,
   title,
   dek,
+  lastUpdated,
   children,
 }: {
   eyebrow: string;
   title: string;
   dek: string;
+  /** ISO date string ("2026-08-15") sourced from real edit history — never fabricated. */
+  lastUpdated?: string;
   children: ReactNode;
 }) {
   return (
@@ -49,6 +65,12 @@ export function ContentPage({
         <p className="mt-3 max-w-2xl text-base leading-7 text-ink-secondary">
           {dek}
         </p>
+        {lastUpdated && (
+          <p className="mt-3 text-sm text-ink-muted">
+            Last updated{" "}
+            <time dateTime={lastUpdated}>{formatLastUpdated(lastUpdated)}</time>
+          </p>
+        )}
         <div className="mt-10 space-y-10">{children}</div>
       </main>
     </div>
