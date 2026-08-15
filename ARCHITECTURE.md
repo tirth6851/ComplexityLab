@@ -280,7 +280,13 @@ tests/
 ## Deployment (live)
 
 - **Production:** https://www.complexitylab.top (custom domain, confirmed live
-  2026-08-11) — `complexity-lab-eight.vercel.app` also still resolves — Vercel
+  2026-08-11) — the sole canonical URL as of the same day: `next.config.ts`
+  permanently redirects (308) the bare apex `complexitylab.top` and every legacy
+  Vercel alias (`complexity-lab-eight.vercel.app`,
+  `complexity-lab-tirths-projects-de842079.vercel.app`,
+  `complexity-lab-git-main-tirths-projects-de842079.vercel.app`) here — done at
+  the app layer since the Vercel dashboard's own primary-domain setting isn't
+  reachable from this tooling. PR preview deployment hosts are untouched. Vercel
   project `complexity-lab` (`prj_LmgNnSjUg2VP5A3c7vr1yDvDLqvm`), team
   `tirths-projects-de842079` (`team_AWtSLsBY0CWnV6UIjpRzmECQ`).
 - **Pipeline:** GitHub `main` (`tirth6851/ComplexityLab`, public) auto-deploys

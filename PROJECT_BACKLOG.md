@@ -22,7 +22,7 @@
 |---|---|
 | **Active branch** | `main` (this session's work on `claude/production-readiness-ouphab`) |
 | **Health** | `typecheck ✅ · lint ✅ · build ✅ (39 routes) · test ✅ (48 files / 505 tests)` |
-| **Production URL** | https://www.complexitylab.top (custom domain, confirmed live) — `complexity-lab-eight.vercel.app` still resolves too. Both auto-deploy from `main`. |
+| **Production URL** | https://www.complexitylab.top (custom domain, confirmed live) — the sole canonical URL as of 2026-08-15: `next.config.ts` permanently redirects the bare apex and every legacy Vercel alias (e.g. `complexity-lab-eight.vercel.app`) here. Auto-deploys from `main`. |
 | **Current feature** | Production-readiness audit (2026-08-11): CI pipeline, optional Redis-backed global rate limiting, dependency vulnerability cleanup, queued F4 Chat UI polish, env var docs. See `MISSION_CONTROL.md` for the full list. |
 | **Next task** | (1) **[User]** Upgrade Clerk to a production instance — confirmed still on `clerk.accounts.dev` in prod · (2) **[User]** Reconfirm Supabase migrations B1/B6/B7 are applied to `hhnmxyyrihrpyerdmgdw` · (3) **[User]** Reconfirm Judge0/RapidAPI subscription (B8) · (4) **[User]** Set `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` in Vercel to activate cross-instance rate limiting (code ships opt-in; unset = old in-memory behavior) · (5) F5 Community |
 | **DB blocker** | Unconfirmed this session (no Supabase credentials available). Last known: `chat_conversations` missing `context_metadata` column; other migrations possibly unapplied. **Reconfirm in the Supabase SQL editor.** |
