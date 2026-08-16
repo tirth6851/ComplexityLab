@@ -2,7 +2,7 @@
 
 An interactive web app for learning **algorithms and computational complexity**, with an AI-powered code analyzer, a code playground, an AI tutor, guided learning coaches, and per-user progress tracking.
 
-Built by **Tirth Patel** ([@tirth6851](https://github.com/tirth6851)) and **Tirth Patel** ([@TirthPatel-10](https://github.com/TirthPatel-10)). Two friends who happen to share a name. See [Contributors](#contributors) below for an honest breakdown of who did what.
+Built by **Tirth Patel** ([@tirth6851](https://github.com/tirth6851)) and **Tirth Patel** ([@TirthPatel-10](https://github.com/TirthPatel-10)). Two friends who happen to share a name.
 
 **Production:** https://www.complexitylab.top (also live at https://complexity-lab-eight.vercel.app). GitHub `main` auto-deploys, so pushing `main` deploys production.
 
@@ -150,13 +150,4 @@ Key invariants:
 
 ## Contributors
 
-Pulled straight from `main`'s commit history via the GitHub API (account IDs, not just display names, since both contributors have used "Tirth Patel" as their git name at one point or another):
-
-| Contributor | GitHub | Commits on `main` | Share of human commits |
-|---|---|---|---|
-| Tirth Patel | [@tirth6851](https://github.com/tirth6851) | 63 | ~64% |
-| Tirth Patel | [@TirthPatel-10](https://github.com/TirthPatel-10) | 36 | ~36% |
-
-This project was also built with heavy AI assistance from Claude Code throughout development. 24 additional commits on `main` are AI-authored, mostly larger feature integrations, testing, and infrastructure work, always reviewed and merged by a human. Counting those in, the full split across `main` is roughly 51% / 29% / 20% (tirth6851 / TirthPatel-10 / Claude).
-
-Commit counts are a rough proxy, not a precise measure of effort. They don't capture pairing, design discussion, code review, or debugging done off-screen.
+Built by [@tirth6851](https://github.com/tirth6851) and [@TirthPatel-10](https://github.com/TirthPatel-10), with heavy AI assistance from Claude Code throughout development, always reviewed and merged by a human.
