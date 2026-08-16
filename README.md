@@ -4,7 +4,7 @@ An interactive web app for learning **algorithms and computational complexity**,
 
 Built by **Tirth Patel** ([@tirth6851](https://github.com/tirth6851)) and **Tirth Patel** ([@TirthPatel-10](https://github.com/TirthPatel-10)). Two friends who happen to share a name.
 
-**Production:** https://www.complexitylab.top (also live at https://complexity-lab-eight.vercel.app). GitHub `main` auto-deploys, so pushing `main` deploys production.
+**Production:** https://www.complexitylab.top. GitHub `main` auto-deploys, so pushing `main` deploys production. The bare apex (`complexitylab.top`) and every legacy Vercel alias (`complexity-lab-eight.vercel.app` and others — see `next.config.ts`) permanently redirect here; PR preview deployments are unaffected.
 
 [![CI](https://github.com/tirth6851/ComplexityLab/actions/workflows/ci.yml/badge.svg)](https://github.com/tirth6851/ComplexityLab/actions/workflows/ci.yml)
 
