@@ -308,6 +308,21 @@ ActivityChart. Best-effort award on save (never fails the save action).
 base init migration (B1). Until then, progress widgets show empty states and award
 calls silently no-op — no errors surface to users.
 
+### Design review pass (2026-11-14 · branch `design/impeccable-pass`, not merged)
+
+Impeccable critique/audit of `/` and the analyzer using inferred product context (no PRODUCT.md/DESIGN.md committed). Only P0/P1 findings were fixed, one commit each:
+
+- **P0** next/font variables moved from `<body>` to `<html>`: `tokens.css` derives `--font-sans`/`--font-display` on `:root`, so the whole app was rendering in the browser default serif (IBM Plex Sans / Space Grotesk never applied).
+- Hero heading and code pane readable in light theme (hardcoded `text-white` / `#050816` replaced by tokens).
+- Informational small text raised to AA contrast (`text-ink-secondary`) on the landing page and analyzer.
+- Footer links wrap at 375-390px (About was clipped).
+- Hero rotating word and dot field honor `prefers-reduced-motion` (+ `tests/components/hero-section-nexus.test.tsx`).
+- Analyzer: garbled emoji removed from the "Custom (blank)" sample option; visible keyboard focus ring on Upload.
+
+Left for the owner: see the review report (light-theme brand-green text contrast, global `--text-muted`/`--text-faint` tokens, mobile menu has no Sign in link, consent modal covers the landing page on first visit, hero sample trace shows a loop labelled O(log n)). The analyzer itself could not be rendered (Clerk redirect), so its changes are code-reviewed only.
+
+**Health check:** typecheck ✅ · lint ✅ · build ✅ · 60 files / 637 tests (the 36 files / 299 tests quoted elsewhere is stale; the baseline on `main` was 59 / 635).
+
 ---
 
 ## Active Work & Open Items
