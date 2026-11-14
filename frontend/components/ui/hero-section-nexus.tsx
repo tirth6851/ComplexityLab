@@ -239,7 +239,7 @@ function MiniCodeTrace() {
         </span>
       </div>
       <div className="grid lg:grid-cols-[1fr_0.82fr]">
-        <div className="bg-[#050816] p-5 font-mono text-sm">
+        <div className="bg-surface-inset p-5 font-mono text-sm">
           {rows.map(([number, text], index) => (
             <motion.div
               key={number}
@@ -422,7 +422,7 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <motion.h1
-          className="max-w-5xl text-balance font-display text-4xl font-bold leading-[1.02] tracking-normal text-white sm:text-6xl lg:text-[76px]"
+          className="max-w-5xl text-balance font-display text-4xl font-bold leading-[1.02] tracking-normal text-foreground sm:text-6xl lg:text-[76px]"
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12, duration: 0.65, ease: "easeOut" }}
