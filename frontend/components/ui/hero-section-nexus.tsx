@@ -79,10 +79,6 @@ function RotatingText({
     return () => window.clearInterval(timer);
   }, [intervalMs, reduceMotion, words.length]);
 
-  if (reduceMotion) {
-    return <span className={className}>{words[0]}</span>;
-  }
-
   return (
     <span className={cn("relative inline-flex min-w-[9.5ch] align-bottom", className)}>
       <span className="sr-only">{word}</span>
