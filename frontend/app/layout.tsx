@@ -79,19 +79,24 @@ const themeScript = `
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // next/font variables must live on <html>: tokens.css derives --font-sans and
+  // --font-display on :root, where a var() cannot see variables declared on
+  // <body> (the fonts silently fell back to the browser serif).
   return (
     <ClerkProvider
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
       afterSignOutUrl="/"
     >
-      <html lang="en" className="dark" suppressHydrationWarning>
+      <html
+        lang="en"
+        className={`dark ${spaceGrotesk.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable}`}
+        suppressHydrationWarning
+      >
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
-        <body
-          className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-        >
+        <body className="font-sans antialiased">
           {/* Visual chrome that reads page scroll state — mounted first so it
               paints above everything else without fighting z-index. */}
           <ScrollProgressBar />
