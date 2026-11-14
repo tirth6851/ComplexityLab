@@ -375,7 +375,7 @@ export function AnalyzerWorkbench({
                       : "Load a sample or paste code to analyze"}
                   </span>
                 )}
-                <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised sm:w-auto">
+                <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background sm:w-auto">
                   <Upload className="h-3.5 w-3.5" aria-hidden />
                   Upload
                   <input
