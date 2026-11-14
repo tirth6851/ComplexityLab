@@ -267,7 +267,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-ink-secondary sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <Logo />
           <p>Master Big-O with visual code tracing.</p>
-          <nav aria-label="Legal links" className="flex gap-4">
+          <nav aria-label="Legal links" className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/complexity-cheatsheet" className="hover:text-foreground">
               Cheat Sheet
             </Link>
