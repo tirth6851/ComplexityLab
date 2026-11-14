@@ -331,7 +331,7 @@ export function AnalyzerWorkbench({
                   <option value="" disabled>
                     Load a sample...
                   </option>
-                  <option value="__custom__">âœï¸ Custom (blank)</option>
+                  <option value="__custom__">Custom (blank)</option>
                   {samples.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
