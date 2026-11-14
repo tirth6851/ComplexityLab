@@ -5,6 +5,7 @@ import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   type Transition,
 } from "framer-motion";
@@ -63,17 +64,24 @@ function RotatingText({
   className?: string;
   intervalMs?: number;
 }) {
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const word = words[index] ?? words[0];
   const characters = useMemo(() => Array.from(word), [word]);
   const transition: Transition = { type: "spring", damping: 20, stiffness: 280 };
 
   useEffect(() => {
+    // Auto-rotating text must be stoppable (WCAG 2.2.2); reduced motion pins the first word.
+    if (reduceMotion) return;
     const timer = window.setInterval(() => {
       setIndex((value) => (value + 1) % words.length);
     }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [intervalMs, words.length]);
+  }, [intervalMs, reduceMotion, words.length]);
+
+  if (reduceMotion) {
+    return <span className={className}>{words[0]}</span>;
+  }
 
   return (
     <span className={cn("relative inline-flex min-w-[9.5ch] align-bottom", className)}>
@@ -116,6 +124,7 @@ function RotatingText({
 }
 
 function InteractiveDots() {
+  const reduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dotsRef = useRef<Dot[]>([]);
   const mouseRef = useRef<{ x: number | null; y: number | null }>({
@@ -194,21 +203,27 @@ function InteractiveDots() {
         context.fill();
       }
 
-      raf = window.requestAnimationFrame(draw);
+      if (!reduceMotion) raf = window.requestAnimationFrame(draw);
     };
 
-    window.addEventListener("resize", createDots);
+    // Reduced motion: paint the field once instead of running the animation loop.
+    const onResize = () => {
+      createDots();
+      if (reduceMotion) draw();
+    };
+
+    window.addEventListener("resize", onResize);
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerleave", onLeave);
-    raf = window.requestAnimationFrame(draw);
+    draw();
 
     return () => {
-      window.removeEventListener("resize", createDots);
+      window.removeEventListener("resize", onResize);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerleave", onLeave);
       window.cancelAnimationFrame(raf);
     };
-  }, [createDots]);
+  }, [createDots, reduceMotion]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden />;
 }
