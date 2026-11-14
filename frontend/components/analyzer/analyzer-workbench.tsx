@@ -285,7 +285,7 @@ export function AnalyzerWorkbench({
                 className="rounded-ds-lg border border-line-subtle bg-card/70 p-3 shadow-inset-well"
               >
                 <Icon className="h-4 w-4 text-primary" aria-hidden />
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-secondary">
                   {label as string}
                 </p>
               </div>
@@ -331,7 +331,7 @@ export function AnalyzerWorkbench({
                   <option value="" disabled>
                     Load a sample...
                   </option>
-                  <option value="__custom__">âœï¸ Custom (blank)</option>
+                  <option value="__custom__">Custom (blank)</option>
                   {samples.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
@@ -360,7 +360,7 @@ export function AnalyzerWorkbench({
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 border-t border-line-subtle bg-surface-panel/45 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-label text-ink-faint">
+              <div className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-label text-ink-secondary">
                 <span>{code.length.toLocaleString()} chars</span>
                 <span aria-hidden>/</span>
                 <span>Ctrl/Cmd Enter to analyze</span>
@@ -369,13 +369,13 @@ export function AnalyzerWorkbench({
               </div>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                 {empty && (
-                  <span className="text-xs text-ink-faint" aria-live="polite">
+                  <span className="text-xs text-ink-secondary" aria-live="polite">
                     {sampleId === "__custom__"
                       ? "Type or paste your code above"
                       : "Load a sample or paste code to analyze"}
                   </span>
                 )}
-                <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised sm:w-auto">
+                <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-md border border-line-subtle bg-card/60 px-3 text-xs font-medium text-ink-primary shadow-ds-sm transition-all hover:border-primary/35 hover:bg-surface-raised has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background sm:w-auto">
                   <Upload className="h-3.5 w-3.5" aria-hidden />
                   Upload
                   <input

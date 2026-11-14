@@ -121,7 +121,7 @@ export default function Home() {
                     <span className="flex size-11 items-center justify-center rounded-ds-md border border-line-accent bg-surface-panel text-primary shadow-inset-well transition group-hover:shadow-glow-green-soft">
                       <Icon className="h-5 w-5" aria-hidden />
                     </span>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-secondary">
                       {card.accent}
                     </span>
                   </div>
@@ -264,10 +264,10 @@ export default function Home() {
       </main>
 
       <footer className="relative z-10 border-t border-line bg-background/80">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-ink-muted sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-sm text-ink-secondary sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <Logo />
           <p>Master Big-O with visual code tracing.</p>
-          <nav aria-label="Legal links" className="flex gap-4">
+          <nav aria-label="Legal links" className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/complexity-cheatsheet" className="hover:text-foreground">
               Cheat Sheet
             </Link>

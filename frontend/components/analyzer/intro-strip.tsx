@@ -84,7 +84,7 @@ export function IntroStrip() {
           type="button"
           onClick={dismissIntro}
           aria-label="Dismiss getting started guide"
-          className="-mr-1 -mt-1 inline-flex h-7 w-7 items-center justify-center rounded-ds-sm text-ink-faint transition-colors hover:bg-surface-raised hover:text-ink-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="-mr-1 -mt-1 inline-flex h-7 w-7 items-center justify-center rounded-ds-sm text-ink-muted transition-colors hover:bg-surface-raised hover:text-ink-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="h-3.5 w-3.5" aria-hidden />
         </button>
@@ -99,7 +99,7 @@ export function IntroStrip() {
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-ink-primary">
-                  <span className="mr-1.5 font-mono text-2xs text-ink-faint">
+                  <span className="mr-1.5 font-mono text-2xs text-ink-secondary">
                     {i + 1}
                   </span>
                   {step.title}

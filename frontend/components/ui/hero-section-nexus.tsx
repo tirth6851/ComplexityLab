@@ -5,6 +5,7 @@ import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   type Transition,
 } from "framer-motion";
@@ -63,17 +64,20 @@ function RotatingText({
   className?: string;
   intervalMs?: number;
 }) {
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const word = words[index] ?? words[0];
   const characters = useMemo(() => Array.from(word), [word]);
   const transition: Transition = { type: "spring", damping: 20, stiffness: 280 };
 
   useEffect(() => {
+    // Auto-rotating text must be stoppable (WCAG 2.2.2); reduced motion pins the first word.
+    if (reduceMotion) return;
     const timer = window.setInterval(() => {
       setIndex((value) => (value + 1) % words.length);
     }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [intervalMs, words.length]);
+  }, [intervalMs, reduceMotion, words.length]);
 
   return (
     <span className={cn("relative inline-flex min-w-[9.5ch] align-bottom", className)}>
@@ -116,6 +120,7 @@ function RotatingText({
 }
 
 function InteractiveDots() {
+  const reduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dotsRef = useRef<Dot[]>([]);
   const mouseRef = useRef<{ x: number | null; y: number | null }>({
@@ -194,21 +199,27 @@ function InteractiveDots() {
         context.fill();
       }
 
-      raf = window.requestAnimationFrame(draw);
+      if (!reduceMotion) raf = window.requestAnimationFrame(draw);
     };
 
-    window.addEventListener("resize", createDots);
+    // Reduced motion: paint the field once instead of running the animation loop.
+    const onResize = () => {
+      createDots();
+      if (reduceMotion) draw();
+    };
+
+    window.addEventListener("resize", onResize);
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerleave", onLeave);
-    raf = window.requestAnimationFrame(draw);
+    draw();
 
     return () => {
-      window.removeEventListener("resize", createDots);
+      window.removeEventListener("resize", onResize);
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerleave", onLeave);
       window.cancelAnimationFrame(raf);
     };
-  }, [createDots]);
+  }, [createDots, reduceMotion]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden />;
 }
@@ -234,12 +245,12 @@ function MiniCodeTrace() {
           <span className="size-2.5 rounded-full bg-warn" />
           <span className="size-2.5 rounded-full bg-primary" />
         </div>
-        <span className="font-mono text-2xs uppercase tracking-label text-ink-muted">
+        <span className="font-mono text-2xs uppercase tracking-label text-ink-secondary">
           visual trace
         </span>
       </div>
       <div className="grid lg:grid-cols-[1fr_0.82fr]">
-        <div className="bg-[#050816] p-5 font-mono text-sm">
+        <div className="bg-surface-inset p-5 font-mono text-sm">
           {rows.map(([number, text], index) => (
             <motion.div
               key={number}
@@ -259,13 +270,13 @@ function MiniCodeTrace() {
         <div className="space-y-4 border-t border-line bg-surface-panel/50 p-5 lg:border-l lg:border-t-0">
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-ds-lg border border-line bg-card p-4">
-              <p className="text-xs text-ink-muted">Time</p>
+              <p className="text-xs text-ink-secondary">Time</p>
               <p className="mt-2 font-mono text-2xl font-semibold text-primary">
                 O(log n)
               </p>
             </div>
             <div className="rounded-ds-lg border border-line bg-card p-4">
-              <p className="text-xs text-ink-muted">Space</p>
+              <p className="text-xs text-ink-secondary">Space</p>
               <p className="mt-2 font-mono text-2xl font-semibold text-info">
                 O(1)
               </p>
@@ -422,7 +433,7 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <motion.h1
-          className="max-w-5xl text-balance font-display text-4xl font-bold leading-[1.02] tracking-normal text-white sm:text-6xl lg:text-[76px]"
+          className="max-w-5xl text-balance font-display text-4xl font-bold leading-[1.02] tracking-normal text-foreground sm:text-6xl lg:text-[76px]"
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12, duration: 0.65, ease: "easeOut" }}
@@ -467,7 +478,7 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <motion.div
-          className="mt-9 flex flex-wrap items-center justify-center gap-3 text-xs text-ink-muted"
+          className="mt-9 flex flex-wrap items-center justify-center gap-3 text-xs text-ink-secondary"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.48, duration: 0.5 }}
