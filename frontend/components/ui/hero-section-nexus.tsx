@@ -234,7 +234,7 @@ function MiniCodeTrace() {
           <span className="size-2.5 rounded-full bg-warn" />
           <span className="size-2.5 rounded-full bg-primary" />
         </div>
-        <span className="font-mono text-2xs uppercase tracking-label text-ink-muted">
+        <span className="font-mono text-2xs uppercase tracking-label text-ink-secondary">
           visual trace
         </span>
       </div>
@@ -259,13 +259,13 @@ function MiniCodeTrace() {
         <div className="space-y-4 border-t border-line bg-surface-panel/50 p-5 lg:border-l lg:border-t-0">
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-ds-lg border border-line bg-card p-4">
-              <p className="text-xs text-ink-muted">Time</p>
+              <p className="text-xs text-ink-secondary">Time</p>
               <p className="mt-2 font-mono text-2xl font-semibold text-primary">
                 O(log n)
               </p>
             </div>
             <div className="rounded-ds-lg border border-line bg-card p-4">
-              <p className="text-xs text-ink-muted">Space</p>
+              <p className="text-xs text-ink-secondary">Space</p>
               <p className="mt-2 font-mono text-2xl font-semibold text-info">
                 O(1)
               </p>
@@ -467,7 +467,7 @@ export function HeroSectionNexus() {
         </motion.div>
 
         <motion.div
-          className="mt-9 flex flex-wrap items-center justify-center gap-3 text-xs text-ink-muted"
+          className="mt-9 flex flex-wrap items-center justify-center gap-3 text-xs text-ink-secondary"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.48, duration: 0.5 }}

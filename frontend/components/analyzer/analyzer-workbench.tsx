@@ -285,7 +285,7 @@ export function AnalyzerWorkbench({
                 className="rounded-ds-lg border border-line-subtle bg-card/70 p-3 shadow-inset-well"
               >
                 <Icon className="h-4 w-4 text-primary" aria-hidden />
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-secondary">
                   {label as string}
                 </p>
               </div>
@@ -360,7 +360,7 @@ export function AnalyzerWorkbench({
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 border-t border-line-subtle bg-surface-panel/45 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-label text-ink-faint">
+              <div className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-label text-ink-secondary">
                 <span>{code.length.toLocaleString()} chars</span>
                 <span aria-hidden>/</span>
                 <span>Ctrl/Cmd Enter to analyze</span>
@@ -369,7 +369,7 @@ export function AnalyzerWorkbench({
               </div>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                 {empty && (
-                  <span className="text-xs text-ink-faint" aria-live="polite">
+                  <span className="text-xs text-ink-secondary" aria-live="polite">
                     {sampleId === "__custom__"
                       ? "Type or paste your code above"
                       : "Load a sample or paste code to analyze"}

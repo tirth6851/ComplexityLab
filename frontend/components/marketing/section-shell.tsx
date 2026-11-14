@@ -29,7 +29,7 @@ export function SectionShell({
             </h2>
           )}
           {description && (
-            <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">
+            <p className="mt-3 text-sm leading-6 text-ink-secondary sm:text-base">
               {description}
             </p>
           )}
