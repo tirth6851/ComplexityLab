@@ -31,9 +31,10 @@
 > to Supabase project `hhnmxyyrihrpyerdmgdw`), and Clerk production upgrade before
 > public beta.
 >
-> **Live:** https://www.complexitylab.top (custom domain) — also still resolves at
-> https://complexity-lab-eight.vercel.app. GitHub `main` auto-deploys
-> production. **A push to `main` is a deploy.**
+> **Live:** https://www.complexitylab.top (custom domain) — the sole canonical
+> URL as of 2026-08-15: `next.config.ts` permanently redirects the bare apex
+> and every legacy Vercel alias (e.g. `complexity-lab-eight.vercel.app`) here.
+> GitHub `main` auto-deploys production. **A push to `main` is a deploy.**
 >
 > **Companion docs:** `ARCHITECTURE.md` · `ROADMAP.md` · `DESIGN_HANDOFF.md` ·
 > `CLAUDE.md` · `PHASE2_PLAN.md` (Phase 2 specs).

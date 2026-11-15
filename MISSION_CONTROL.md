@@ -2,7 +2,32 @@
 
 > **Project memory · volatile layer.** Current sprint, tasks, blockers.
 > **Read this first each session.** Update it every working session.
-> Last updated: **2026-08-11**
+> Last updated: **2026-08-15**
+
+---
+
+## 2026-08-15 — Domain consolidation: www.complexitylab.top is now the sole canonical URL
+
+Requested: make the custom domain "the main one" instead of the Vercel default
+alias. Vercel's own dashboard primary-domain/redirect setting isn't reachable
+from this tooling (no domain-management write tool in the Vercel MCP surface),
+so this was done at the app layer instead: `frontend/next.config.ts` now has a
+`redirects()` list that permanently (308) redirects the bare apex
+(`complexitylab.top`) and every known legacy Vercel alias
+(`complexity-lab-eight.vercel.app`,
+`complexity-lab-tirths-projects-de842079.vercel.app`,
+`complexity-lab-git-main-tirths-projects-de842079.vercel.app`) to
+`https://www.complexitylab.top`, path and query string preserved. PR preview
+deployment hosts are deliberately excluded — they still need to resolve
+independently for review. Verified against a live dev server with spoofed
+`Host` headers for all four cases (legacy host → 308, apex → 308, canonical →
+200, a preview-style host → 200), plus a new unit test
+(`tests/unit/next-config-redirects.test.ts`, 3 tests) guarding the same. Also
+updated every doc that described `complexity-lab-eight.vercel.app` as an
+independently-live URL (README, CLAUDE.md, ARCHITECTURE.md, TRD.md, HANDOFF.md,
+PROJECT_BACKLOG.md) — it now redirects rather than independently serving.
+
+Gates: typecheck/lint/build/test all green, 60 files / 638 tests (was 59/635 before this session's 3 new tests).
 
 ---
 

@@ -14,9 +14,11 @@ stats dashboard, XP/levels/streaks/achievements, and settings.
 **Vision (not yet built):** algorithm catalog, animated visualizers, AI tutor,
 lessons/quizzes — see `PRD.md`.
 
-**Production:** https://www.complexitylab.top (custom domain; `complexity-lab-eight.vercel.app`
-also still resolves) — GitHub `main` auto-deploys, so **pushing main = deploying
-production**. The Vercel project's Root Directory is `frontend`. CI
+**Production:** https://www.complexitylab.top (custom domain — this is now the one
+true canonical URL: the bare apex and every legacy Vercel alias, e.g.
+`complexity-lab-eight.vercel.app`, permanently redirect here via `next.config.ts`;
+PR preview deployments are unaffected) — GitHub `main` auto-deploys, so **pushing
+main = deploying production**. The Vercel project's Root Directory is `frontend`. CI
 (`.github/workflows/ci.yml`) runs the four gates on every push/PR but does not
 block the Vercel auto-deploy — treat a red CI run on `main` as an incident.
 

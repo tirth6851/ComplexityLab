@@ -173,8 +173,10 @@ applied, the app intentionally degrades to error/empty states.
   Root Directory `frontend`, framework nextjs, Node 22.
 - **GitHub `main` auto-deploys production** → *a push is a deploy*. Never push
   without explicit instruction.
-- Production URL: https://www.complexitylab.top (custom domain;
-  `complexity-lab-eight.vercel.app` also still resolves)
+- Production URL: https://www.complexitylab.top (custom domain; the sole
+  canonical URL — `next.config.ts` permanently redirects the bare apex and
+  every legacy Vercel alias, e.g. `complexity-lab-eight.vercel.app`, here.
+  PR preview deployments are unaffected)
 - Env vars (all environments): Clerk pair, Supabase URL + anon + service-role,
   `GROQ_API_KEY`, `GROQ_MODEL`, `NEXT_PUBLIC_APP_URL`. `AI_PROVIDER` is
   intentionally unset in prod — the registry's smart default selects groq.
